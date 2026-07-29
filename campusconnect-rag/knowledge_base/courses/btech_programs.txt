@@ -1,0 +1,10 @@
+Sri Satya Institute B.Tech Programs Available:
+
+1. Computer Science Engineering (CSE): Focuses on algorithms, data structures, full-stack software development, networks, databases, and programming languages.
+2. Artificial Intelligence and Data Science (AI&DS): Focuses on big data analytics, deep learning models, natural language processing (NLP), computer vision, and machine learning pipelines.
+3. Electronics and Communication Engineering (ECE): Covers electronic circuit designs, microprocessors, VLSI design validation, signal processing, and 5G communication protocols.
+4. Mechanical Engineering (ME): Focuses on thermodynamics, mechanics, robotics systems, CAD/CAM modeling, and smart manufacturing.
+5. Civil Engineering (CE): Covers structural analysis, transportation, smart city infrastructure planning, geotechnics, and environmental water resource management.
+
+Duration: 4 Years (8 Semesters)
+Degree: Bachelor of Technology (B.Tech)

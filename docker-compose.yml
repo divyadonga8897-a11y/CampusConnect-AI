@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: campusconnect-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ssiet_prod_password
+      POSTGRES_DB: campusconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d campusconnect"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - campusconnect-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: campusconnect-backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://postgres:ssiet_prod_password@db:5432/campusconnect
+      - ENVIRONMENT=production
+      - JWT_SECRET=ssiet_jwt_prod_secret_key_999_xyz
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - campusconnect-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campusconnect-frontend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - campusconnect-net
+
+volumes:
+  postgres_data:
+
+networks:
+  campusconnect-net:
+    driver: bridge
