@@ -2,65 +2,57 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Microscope, Cpu, Layers, HardDrive, Terminal, Users, Filter, Sparkles } from "lucide-react";
+import { FlaskConical, Cpu, Users } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
 import { campusService, type LaboratoryItem } from "@/services/campusService";
 
-const departmentLabels: Record<string, string> = {
-  all: "All Departments",
-  cse: "Computer Science (CSE)",
-  aids: "Artificial Intelligence (AI&DS)",
-  ece: "Electronics (ECE)"
+const deptFilters: Record<string, string> = {
+  all: "All", cse: "CSE", aids: "AI & DS", ece: "ECE",
 };
 
 export default function LabsClient() {
-  const [aiOpen, setAiOpen] = useState(false);
-  const [labs, setLabs] = useState<LaboratoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [aiOpen, setAiOpen]           = useState(false);
+  const [labs, setLabs]               = useState<LaboratoryItem[]>([]);
+  const [loading, setLoading]         = useState(true);
   const [selectedDept, setSelectedDept] = useState("all");
 
   useEffect(() => {
     campusService.getLabs()
-      .then((res) => {
-        setLabs(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading laboratories:", err);
-        setLoading(false);
-      });
+      .then((res) => { setLabs(res.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
-  const filteredLabs = labs.filter((lab) => {
-    return selectedDept === "all" || lab.department_id === selectedDept;
-  });
+  const filteredLabs = labs.filter((lab) =>
+    selectedDept === "all" || lab.department_id === selectedDept
+  );
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Laboratory Showcase"
-            title="Scientific Innovation &"
-            highlight="Practical Centers"
-            description="Explore our industry-aligned research hubs and technology blocks featuring GPU grids, communications analyzer boards and software suites."
-            className="mb-10"
-          />
+      <main className="bg-slate-50 min-h-screen">
 
-          {/* Department filter bar */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
-            {Object.entries(departmentLabels).map(([key, label]) => (
+        <PageHero
+          eyebrow="Laboratories"
+          title="State-of-the-Art"
+          highlight="Labs & Research Spaces"
+          description="Over 15 specialized labs with modern equipment, GPU clusters, and dedicated research zones for every engineering department."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Laboratories" }]}
+        />
+
+        <div className="container py-12">
+          {/* Department Filters */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {Object.entries(deptFilters).map(([id, label]) => (
               <button
-                key={key}
-                onClick={() => setSelectedDept(key)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border ${
-                  selectedDept === key
-                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-emerald-500/20 shadow-md shadow-emerald-500/10"
-                    : "glass border-navy-750 text-navy-300 hover:text-white hover:border-navy-600"
+                key={id}
+                onClick={() => setSelectedDept(id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                  selectedDept === id
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
                 }`}
               >
                 {label}
@@ -68,109 +60,56 @@ export default function LabsClient() {
             ))}
           </div>
 
-          {/* Laboratories Grid */}
           {loading ? (
-            <div className="grid md:grid-cols-2 gap-6">
-              {Array.from({ length: 2 }).map((_, idx) => (
-                <div key={idx} className="glass rounded-2xl h-96 animate-pulse border border-navy-700/30" />
-              ))}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="skeleton h-48 rounded-xl" />)}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredLabs.map((lab, i) => (
                 <motion.div
                   key={lab.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="glass rounded-2xl p-6 sm:p-8 border border-navy-700/30 flex flex-col justify-between card-hover relative overflow-hidden group"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.06 }}
+                  className="card p-5 group"
                 >
-                  <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full bg-emerald-550/5 blur-xl pointer-events-none" />
-
-                  <div>
-                    {/* Header */}
-                    <div className="flex items-start gap-4 mb-5 pb-4 border-b border-navy-800/40">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20">
-                        {lab.department_id === "ece" ? <Cpu className="w-6 h-6" /> : <Microscope className="w-6 h-6" />}
-                      </div>
-                      <div>
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 text-[9px] font-black uppercase tracking-wider">
-                          Department: {lab.department_id.toUpperCase()}
-                        </span>
-                        <h3 className="text-white font-extrabold text-base sm:text-lg mt-1 group-hover:text-emerald-450 transition-colors">
-                          {lab.lab_name}
-                        </h3>
-                      </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
+                      <FlaskConical className="w-5 h-5 text-blue-600" />
                     </div>
-
-                    <p className="text-navy-300 text-xs sm:text-sm leading-relaxed mb-6">
-                      {lab.description}
-                    </p>
-
-                    <div className="grid sm:grid-cols-2 gap-6 mb-6">
-                      {/* Equipment Details */}
-                      <div>
-                        <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                          <HardDrive className="w-4 h-4 text-emerald-450" />
-                          Key Equipment
-                        </h4>
-                        <ul className="space-y-1.5">
-                          {lab.equipment_details.map((eq, idx) => (
-                            <li key={idx} className="text-navy-200 text-xs flex items-start gap-2">
-                              <span className="w-1 h-1 rounded-full bg-emerald-400 shrink-0 mt-1.5" />
-                              <span>{eq}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Software Details */}
-                      <div>
-                        <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                          <Terminal className="w-4 h-4 text-gold-450" />
-                          Software Toolsets
-                        </h4>
-                        <ul className="space-y-1.5">
-                          {lab.software_details.map((sw, idx) => (
-                            <li key={idx} className="text-navy-200 text-xs flex items-start gap-2">
-                              <span className="w-1 h-1 rounded-full bg-gold-400 shrink-0 mt-1.5" />
-                              <span>{sw}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {lab.lab_name}
+                      </h3>
+                      {lab.department_id && (
+                        <span className="badge badge-blue text-[10px] mt-0.5">
+                          {deptFilters[lab.department_id] ?? lab.department_id}
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Footer Stats */}
-                  <div className="flex items-center justify-between pt-4 border-t border-navy-800/40">
-                    <span className="text-navy-450 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      Capacity: {lab.capacity} seats
-                    </span>
-                    <span className="text-emerald-450 text-[10px] uppercase font-black tracking-widest flex items-center gap-1">
-                      <Layers className="w-3.5 h-3.5" />
-                      Active Node
-                    </span>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-3">{lab.description}</p>
+
+                  <div className="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400">
+                    {lab.capacity > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Users className="w-3 h-3" /> {lab.capacity} seats
+                      </span>
+                    )}
+                    {lab.equipment_details?.length > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Cpu className="w-3 h-3" /> {lab.equipment_details.length}+ equipment
+                      </span>
+                    )}
                   </div>
                 </motion.div>
               ))}
             </div>
           )}
-
-          {/* AI generated visual callout */}
-          <div className="mt-12 glass rounded-2xl p-6 border border-emerald-500/20 bg-gradient-to-r from-navy-950 to-emerald-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-emerald-450 shrink-0 mt-0.5 animate-pulse" />
-              <div>
-                <h4 className="text-white font-bold text-sm">Visual Verification & Virtual Tours</h4>
-                <p className="text-navy-300 text-xs leading-relaxed max-w-xl">
-                  We are preparing high-resolution 360-degree photography views and live telemetry streams to display computing clusters workloads directly in future updates.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

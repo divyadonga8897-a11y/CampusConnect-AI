@@ -3,131 +3,132 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Code2, Brain, Cpu, Settings, Building, ArrowRight, Users, GraduationCap } from "lucide-react";
+import Image from "next/image";
+import { Code2, Brain, Cpu, Settings, Building, ArrowRight, Users, GraduationCap, FlaskConical } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
 import { academicService, type DepartmentSummary } from "@/services/academicService";
 
 const iconMap: Record<string, React.ElementType> = {
-  cse: Code2,
-  aids: Brain,
-  ece: Cpu,
-  mech: Settings,
-  civil: Building
+  cse: Code2, aids: Brain, ece: Cpu, mech: Settings, civil: Building,
 };
 
-const colorMap: Record<string, { bg: string; text: string; border: string; grad: string }> = {
-  cse: { bg: "bg-emerald-500/15", text: "text-emerald-400", border: "border-emerald-500/30", grad: "from-emerald-500/20 to-emerald-600/10" },
-  aids: { bg: "bg-gold-500/15", text: "text-gold-400", border: "border-gold-500/30", grad: "from-gold-500/20 to-gold-600/10" },
-  ece: { bg: "bg-navy-400/20", text: "text-navy-300", border: "border-navy-500/30", grad: "from-navy-400/20 to-navy-600/10" },
-  mech: { bg: "bg-orange-500/15", text: "text-orange-400", border: "border-orange-500/30", grad: "from-orange-500/20 to-orange-600/10" },
-  civil: { bg: "bg-amber-500/15", text: "text-amber-400", border: "border-amber-500/30", grad: "from-amber-500/20 to-amber-600/10" },
+const colorMap: Record<string, { badge: string; icon: string; iconBg: string }> = {
+  cse:  { badge: "badge-green",  icon: "text-emerald-600", iconBg: "bg-emerald-50" },
+  aids: { badge: "badge-amber",  icon: "text-amber-600",   iconBg: "bg-amber-50"   },
+  ece:  { badge: "badge-blue",   icon: "text-blue-600",    iconBg: "bg-blue-50"    },
+  mech: { badge: "badge-slate",  icon: "text-orange-600",  iconBg: "bg-orange-50"  },
+  civil:{ badge: "badge-slate",  icon: "text-amber-700",   iconBg: "bg-amber-50"   },
 };
 
-const defaultColors = { bg: "bg-emerald-500/15", text: "text-emerald-400", border: "border-emerald-500/30", grad: "from-emerald-500/20 to-emerald-600/10" };
+const deptImages: Record<string, string> = {
+  cse:  "/images/campus/ai-lab.webp",
+  aids: "/images/campus/ai-lab.webp",
+  ece:  "/images/campus/ai-lab.webp",
+  mech: "/images/campus/academic-block.webp",
+  civil:"/images/campus/academic-block.webp",
+};
 
 export default function DepartmentsClient() {
-  const [aiOpen, setAiOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [aiOpen, setAiOpen]         = useState(false);
+  const [loading, setLoading]       = useState(true);
   const [departments, setDepartments] = useState<DepartmentSummary[]>([]);
 
   useEffect(() => {
     academicService.getDepartments()
-      .then((res) => {
-        setDepartments(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading departments list:", err);
-        setLoading(false);
-      });
+      .then((res) => { setDepartments(res.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Engineering Departments"
-            title="Our Academic"
-            highlight="Departments"
-            description="Explore five specialized engineering departments, each offering cutting-edge programs, expert faculty, and state-of-the-art laboratories."
-            className="mb-14"
-          />
+      <main className="bg-slate-50 min-h-screen">
 
+        <PageHero
+          eyebrow="Engineering Departments"
+          title="Our Academic"
+          highlight="Departments"
+          description="Five specialized engineering departments with expert faculty, cutting-edge labs, and strong industry connections."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Departments" }]}
+        />
+
+        <div className="container py-12">
           {loading ? (
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {Array.from({ length: 3 }).map((_, idx) => (
-                <div key={idx} className="glass rounded-2xl p-6 border border-navy-700/30 animate-pulse h-60 space-y-4" />
-              ))}
+              {[1, 2, 3].map(i => <div key={i} className="skeleton h-72 rounded-xl" />)}
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {departments.map((dept, i) => {
-                const Icon = iconMap[dept.id] ?? Code2;
-                const colors = colorMap[dept.id] ?? defaultColors;
+                const Icon   = iconMap[dept.id] ?? Code2;
+                const colors = colorMap[dept.id] ?? colorMap.cse;
+                const img    = deptImages[dept.id] ?? "/images/campus/ai-lab.webp";
 
                 return (
                   <motion.div
                     key={dept.id}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className={`glass rounded-2xl p-6 border ${colors.border} card-hover group flex flex-col justify-between`}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.08 }}
+                    className="card overflow-hidden group flex flex-col"
                   >
-                    <div>
-                      {/* Header */}
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${colors.grad} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300 border border-white/5`}>
-                          <Icon className={`w-7 h-7 ${colors.text}`} />
-                        </div>
-                        <div>
-                          <div className={`text-xs font-black uppercase tracking-widest ${colors.text} mb-0.5`}>
-                            {dept.short_name}
-                          </div>
-                          <h3 className="text-white font-extrabold text-sm sm:text-base leading-snug">{dept.name}</h3>
-                        </div>
-                      </div>
-
-                      <p className="text-navy-300 text-xs leading-relaxed mb-4 line-clamp-3">
-                        {dept.description}
-                      </p>
-
-                      {/* Meta Statistics */}
-                      <div className="grid grid-cols-2 gap-3 mb-6">
-                        {[
-                          { icon: Users, label: "Faculty", value: `${dept.faculty_count}+` },
-                          { icon: GraduationCap, label: "Students Enrolled", value: `${dept.student_count}+` },
-                        ].map((meta) => (
-                          <div key={meta.label} className={`flex items-center gap-2 px-3 py-2 rounded-xl ${colors.bg}`}>
-                            <meta.icon className={`w-4 h-4 ${colors.text} shrink-0`} />
-                            <div>
-                              <div className="text-white font-bold text-xs">{meta.value}</div>
-                              <div className="text-navy-450 text-[10px] font-semibold uppercase">{meta.label}</div>
-                            </div>
-                          </div>
-                        ))}
+                    {/* Image */}
+                    <div className="relative h-44 overflow-hidden bg-slate-100">
+                      <Image
+                        src={img}
+                        alt={dept.name}
+                        fill
+                        sizes="33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      <div className="absolute bottom-3 left-3">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[11px] font-black text-slate-700">
+                          {dept.short_name}
+                        </span>
                       </div>
                     </div>
 
-                    <div>
-                      {/* Intake Badge */}
-                      <div className="flex items-center justify-between mb-4 border-t border-navy-800/30 pt-3">
-                        <span className={`text-[10px] font-black uppercase tracking-wider ${colors.text}`}>
-                          Est. Year {dept.established_year}
-                        </span>
+                    {/* Content */}
+                    <div className="p-5 flex flex-col flex-1">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className={`w-9 h-9 rounded-lg ${colors.iconBg} flex items-center justify-center shrink-0`}>
+                          <Icon className={`w-4 h-4 ${colors.icon}`} />
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                          {dept.name}
+                        </h3>
+                      </div>
+
+                      <p className="text-xs text-slate-500 leading-relaxed mb-4 flex-1 line-clamp-3">
+                        {dept.description}
+                      </p>
+
+                      {/* Meta */}
+                      <div className="grid grid-cols-3 gap-2 text-center mb-4 py-3 border-y border-slate-100">
+                        <div>
+                          <div className="text-sm font-black text-slate-900">{dept.faculty_count}+</div>
+                          <div className="text-[10px] text-slate-400 font-medium">Faculty</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-black text-slate-900">{dept.student_count}+</div>
+                          <div className="text-[10px] text-slate-400 font-medium">Students</div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-black text-slate-900">{dept.established_year}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">Since</div>
+                        </div>
                       </div>
 
                       <Link
                         href={`/departments/${dept.id}`}
-                        className={`flex items-center gap-2 text-xs font-black uppercase tracking-wider ${colors.text} group/link`}
+                        className="btn btn-secondary btn-sm w-full justify-center"
                       >
-                        View Department
-                        <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                        Explore Department <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </motion.div>
@@ -135,7 +136,7 @@ export default function DepartmentsClient() {
               })}
             </div>
           )}
-        </section>
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

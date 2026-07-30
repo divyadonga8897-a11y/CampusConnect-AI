@@ -2,134 +2,143 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Clock, Navigation, HelpCircle, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Sparkles, Navigation } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
+import { COLLEGE_INFO } from "@/constants/collegeData";
 import { enquiryService, type ContactDetail } from "@/services/enquiryService";
 
 export default function ContactClient() {
-  const [aiOpen, setAiOpen] = useState(false);
+  const [aiOpen, setAiOpen]     = useState(false);
   const [contacts, setContacts] = useState<ContactDetail[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
     enquiryService.getContactInfo()
-      .then((res) => {
-        setContacts(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading contact list:", err);
-        setLoading(false);
-      });
+      .then((res) => { setContacts(res.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Contact & Location"
-            title="Connect With Our"
-            highlight="Guidance Desk"
-            description="Find contact details for the admissions office, engineering departments, administrative wings, and locate us on the map."
-            className="mb-14"
-          />
+      <main className="bg-slate-50 min-h-screen">
 
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
+        <PageHero
+          eyebrow="Contact Us"
+          title="Connect With"
+          highlight="SSIET"
+          description="Find contact details for our admissions office, departments, and campus location."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
+          actions={
+            <button onClick={() => setAiOpen(true)} className="btn btn-primary">
+              <Sparkles className="w-4 h-4 text-emerald-300" /> Ask AI Assistant
+            </button>
+          }
+        />
+
+        <div className="container py-12">
+          <div className="grid lg:grid-cols-2 gap-8 items-start">
+
             {/* Contact Cards */}
-            <div className="lg:col-span-6 space-y-6">
+            <div className="space-y-5">
               {loading ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 2 }).map((_, idx) => (
-                    <div key={idx} className="glass rounded-2xl h-48 animate-pulse" />
-                  ))}
-                </div>
+                [1, 2].map(i => <div key={i} className="skeleton h-40 rounded-xl" />)
               ) : (
                 contacts.map((contact, i) => (
                   <motion.div
                     key={contact.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className="glass rounded-2xl p-6 sm:p-8 border border-navy-700/30 card-hover group"
+                    transition={{ duration: 0.45, delay: i * 0.1 }}
+                    className="card p-6"
                   >
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 text-[9px] font-black uppercase tracking-wider mb-3.5 inline-block">
-                      Support desk
-                    </span>
-                    <h3 className="text-white font-extrabold text-base sm:text-lg mb-4">
-                      {contact.department}
-                    </h3>
-
-                    <div className="space-y-3.5">
-                      <div className="flex items-center gap-3 text-navy-200 text-xs sm:text-sm">
-                        <Phone className="w-4.5 h-4.5 text-emerald-450 shrink-0" />
-                        <span className="font-semibold">{contact.phone}</span>
+                    <span className="badge badge-blue mb-3">Support Desk</span>
+                    <h3 className="text-base font-bold text-slate-900 mb-4">{contact.department}</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <Phone className="w-4 h-4 text-blue-500 shrink-0" />
+                        <a href={`tel:${contact.phone}`} className="font-semibold hover:text-blue-600 transition-colors">
+                          {contact.phone}
+                        </a>
                       </div>
-                      <div className="flex items-center gap-3 text-navy-200 text-xs sm:text-sm">
-                        <Mail className="w-4.5 h-4.5 text-emerald-450 shrink-0" />
-                        <span className="font-semibold">{contact.email}</span>
+                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+                        <a href={`mailto:${contact.email}`} className="font-semibold hover:text-blue-600 transition-colors">
+                          {contact.email}
+                        </a>
                       </div>
-                      <div className="flex items-start gap-3 text-navy-200 text-xs sm:text-sm">
-                        <MapPin className="w-4.5 h-4.5 text-emerald-450 shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-3 text-sm text-slate-600">
+                        <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                         <span>{contact.address}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-navy-200 text-xs sm:text-sm pt-2 border-t border-navy-800/40">
-                        <Clock className="w-4.5 h-4.5 text-gold-450 shrink-0" />
-                        <span className="text-navy-350">{contact.office_hours}</span>
+                      <div className="flex items-center gap-3 text-sm text-slate-500 pt-3 border-t border-slate-100">
+                        <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                        <span>{contact.office_hours}</span>
                       </div>
                     </div>
                   </motion.div>
                 ))
               )}
-            </div>
 
-            {/* Maps / Vector Blueprint Visual */}
-            <div className="lg:col-span-6 glass rounded-3xl border border-navy-700/30 overflow-hidden p-4 relative h-[450px]">
-              <div className="absolute top-8 left-8 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-light text-[10px] text-white font-bold uppercase tracking-wider">
-                <Navigation className="w-3.5 h-3.5 text-emerald-450 animate-bounce" />
-                GPS Campus Locator
-              </div>
-
-              <div className="relative w-full h-full bg-navy-950/65 rounded-2xl overflow-hidden shadow-inner flex flex-col items-center justify-center border border-navy-800/30">
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-45" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern id="contactGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2563eb" strokeWidth="0.5" strokeOpacity="0.25" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#contactGrid)" />
-                </svg>
-
-                <div className="text-center p-6 z-10 relative">
-                  <MapPin className="w-10 h-10 text-emerald-400 mx-auto mb-2 animate-bounce" />
-                  <h4 className="text-white font-black text-sm uppercase tracking-wider">SSIET Campus Coordinates</h4>
-                  <p className="text-navy-300 text-xs mt-1 max-w-sm mx-auto leading-relaxed">
-                    Sri Satya Nagar, Narsapur Road, West Godavari, Andhra Pradesh - 534001, India.
-                  </p>
-                  <div className="text-[10px] text-navy-450 mt-4 uppercase font-bold tracking-widest border border-navy-800/40 px-3 py-1 rounded bg-navy-900/60 inline-block">
-                    Lat: 16.6358° N | Lon: 81.7248° E
+              {/* Helpline Card */}
+              <div className="card p-5 bg-blue-600 border-blue-700 text-white">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-blue-200 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-sm mb-1">Admissions Helpline</h4>
+                    <p className="text-blue-100 text-xs leading-relaxed">
+                      For immediate help with documents, scholarships, and admission queries — contact our counselors directly.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-12 glass rounded-2xl p-6 border border-emerald-500/20 bg-gradient-to-r from-navy-950 to-emerald-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-emerald-450 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-white font-bold text-sm">Admissions Helpline</h4>
-                <p className="text-navy-300 text-xs leading-relaxed max-w-xl">
-                  For immediate processing of documents guidelines or scholarship applications status checks, please contact our general counselor registry directly.
-                </p>
+            {/* Map / Location Card */}
+            <div className="card overflow-hidden">
+              <div className="bg-slate-100 p-4 flex items-center gap-2 border-b border-slate-200">
+                <Navigation className="w-4 h-4 text-blue-500 animate-bounce" />
+                <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Campus Location</span>
+              </div>
+              <div className="p-6 flex flex-col items-center justify-center text-center gap-4" style={{ minHeight: 300 }}>
+                <MapPin className="w-12 h-12 text-blue-500" />
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">SSIET Campus</h4>
+                  <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
+                    {COLLEGE_INFO.address}
+                  </p>
+                  <div className="badge badge-slate mt-3 text-[10px]">
+                    16.6358° N | 81.7248° E
+                  </div>
+                </div>
+                <a
+                  href="https://maps.google.com/?q=Sri+Satya+Institute+Engineering+West+Godavari+Andhra+Pradesh"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-sm"
+                >
+                  Open in Google Maps
+                </a>
+              </div>
+
+              {/* Quick Info Row */}
+              <div className="border-t border-slate-200 grid grid-cols-2 divide-x divide-slate-200">
+                <div className="p-4 text-center">
+                  <div className="text-xs font-black text-slate-900">Mon – Sat</div>
+                  <div className="text-xs text-slate-400">Office Hours</div>
+                </div>
+                <div className="p-4 text-center">
+                  <div className="text-xs font-black text-slate-900">9AM – 5PM</div>
+                  <div className="text-xs text-slate-400">Working Hours</div>
+                </div>
               </div>
             </div>
+
           </div>
-        </section>
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

@@ -1,218 +1,175 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Bot, Star, GraduationCap, TrendingUp, Award, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRight, Bot, ShieldCheck, Award, Users, TrendingUp } from "lucide-react";
 
 interface HeroSectionProps {
   onAIClick: () => void;
 }
 
+const trustBadges = [
+  { label: "NAAC Accredited", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  { label: "AICTE Approved",  color: "bg-blue-50 text-blue-700 border-blue-200" },
+  { label: "NBA Certified",   color: "bg-amber-50 text-amber-700 border-amber-200" },
+];
+
+const stats = [
+  { value: "25+",  label: "Years",      icon: Award },
+  { value: "5K+",  label: "Students",   icon: Users },
+  { value: "92%",  label: "Placement",  icon: TrendingUp },
+  { value: "100+", label: "Recruiters", icon: ShieldCheck },
+];
+
+const floatingCards = [
+  { label: "NAAC Grade",   value: "A+", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
+  { label: "Highest CTC",  value: "₹8.5 LPA", color: "text-blue-600 bg-blue-50 border-blue-200" },
+];
+
 export default function HeroSection({ onAIClick }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-hero bg-grid pt-28 lg:pt-20">
-      {/* Glow shapes */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-3xl animate-float-slow pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-emerald-500/5 blur-3xl animate-float pointer-events-none" style={{ animationDelay: "3s" }} />
+    <section className="bg-white overflow-hidden">
+      <div className="container">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center min-h-[calc(100vh-6rem)] py-16 lg:py-0">
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Column: Text & CTAs */}
-          <div className="lg:col-span-6 text-left space-y-6">
-            
-            {/* Small pill badge */}
+          {/* ── Left: Content ── */}
+          <div className="order-2 lg:order-1">
+            {/* Trust Badges */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-emerald text-emerald-300 text-xs font-bold border border-emerald-500/20 shadow-lg shadow-emerald-950/20"
+              transition={{ duration: 0.5 }}
+              className="flex flex-wrap gap-2 mb-6"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              AI Powered College Discovery Platform
+              {trustBadges.map((b) => (
+                <span key={b.label} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${b.color}`}>
+                  <ShieldCheck className="w-3 h-3" />
+                  {b.label}
+                </span>
+              ))}
             </motion.div>
 
-            {/* Title */}
+            {/* Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 25 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight"
+              transition={{ duration: 0.6, delay: 0.08 }}
+              className="heading-display text-slate-900 mb-5"
             >
-              Discover Your{" "}
-              <span className="gradient-text-blue block sm:inline">Future</span>
-              <br />
-              at Sri Satya{" "}
-              <span className="gradient-text-emerald">Engineering</span>
-              <br />
-              and{" "}
-              <span className="gradient-text-gold">Success</span>
+              Shape Your Future at{" "}
+              <span className="gradient-text-blue">Sri Satya</span>{" "}
+              Engineering
             </motion.h1>
 
             {/* Description */}
             <motion.p
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-navy-200 text-base sm:text-lg leading-relaxed max-w-lg"
+              transition={{ duration: 0.55, delay: 0.16 }}
+              className="text-lg text-slate-500 leading-relaxed mb-8 max-w-lg"
             >
-              Explore courses, campus life, fees, admissions, placements and opportunities with AI-powered guidance.
+              An NAAC accredited premier engineering institution in Andhra Pradesh. 
+              5,000+ students. Industry-aligned curriculum. 92% placement record.
             </motion.p>
 
-            {/* Buttons */}
+            {/* CTA Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-wrap gap-4"
+              transition={{ duration: 0.5, delay: 0.24 }}
+              className="flex flex-wrap gap-3 mb-10"
             >
-              <Link
-                href="/courses"
-                id="explore-programs-btn"
-                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-650 to-blue-800 text-white font-bold text-sm shadow-lg hover:shadow-blue-500/25 hover:scale-105 transition-all duration-300 border border-blue-500/20"
-              >
-                Explore College
+              <Link href="/admissions" className="btn btn-primary btn-lg" id="hero-apply-btn">
+                Apply for Admission
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              
               <button
-                id="hero-ai-btn"
                 onClick={onAIClick}
-                className="flex items-center gap-2 px-6 py-3.5 rounded-xl glass border border-white/10 text-white font-bold text-sm hover:border-emerald-550/30 hover:bg-white/5 transition-all duration-300 hover:scale-105"
+                className="btn btn-secondary btn-lg"
+                id="hero-ai-btn"
               >
-                <Bot className="w-4 h-4 text-emerald-400" />
+                <Bot className="w-4 h-4 text-emerald-500" />
                 Ask Campus AI
               </button>
             </motion.div>
 
-            {/* Trust Indicators */}
+            {/* Stats Row */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.55 }}
-              className="pt-6 border-t border-white/5 grid grid-cols-3 gap-4"
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="grid grid-cols-4 gap-4 pt-6 border-t border-slate-100"
             >
-              <div>
-                <div className="text-white font-black text-lg">NAAC A</div>
-                <div className="text-navy-300 text-2xs uppercase tracking-wider font-bold">Accredited</div>
-              </div>
-              <div>
-                <div className="text-white font-black text-lg">25+ Yrs</div>
-                <div className="text-navy-300 text-2xs uppercase tracking-wider font-bold">Excellence</div>
-              </div>
-              <div>
-                <div className="text-white font-black text-lg">92%</div>
-                <div className="text-navy-300 text-2xs uppercase tracking-wider font-bold">Placement Success</div>
-              </div>
+              {stats.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <div key={s.label} className="text-center">
+                    <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{s.value}</div>
+                    <div className="text-[11px] text-slate-400 font-medium mt-0.5">{s.label}</div>
+                  </div>
+                );
+              })}
             </motion.div>
-
           </div>
 
-          {/* Right Column: Premium Visual & Floating Cards */}
-          <div className="lg:col-span-6 relative flex items-center justify-center min-h-[420px] lg:min-h-[500px]">
-            
-            {/* Background Glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-emerald-500/5 rounded-3xl blur-2xl pointer-events-none" />
-
-            {/* Large Campus Image Frame */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.25 }}
-              className="relative w-full max-w-[460px] h-[340px] sm:h-[400px] rounded-3xl overflow-hidden glass border border-white/10 shadow-2xl glow-accent"
-            >
+          {/* ── Right: Campus Image ── */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="order-1 lg:order-2 relative"
+          >
+            <div className="relative w-full aspect-[4/3] lg:aspect-[5/4] rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src="/images/campus/main-building.webp"
-                alt="SSIET campus"
+                src="/images/campus/hero-bg.jpg"
+                alt="SSIET Campus — Sri Satya Institute of Engineering and Technology"
                 fill
                 priority
-                className="object-cover object-center transform hover:scale-105 transition-transform duration-700 opacity-80"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover object-center"
               />
-              {/* Overlay gradient mask */}
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-black/20" />
-            </motion.div>
+              {/* Subtle gradient at the bottom edge */}
+              <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
+            </div>
 
-            {/* Card 1: NAAC A Grade (Top Left) */}
+            {/* Floating Info Cards */}
             <motion.div
-              initial={{ opacity: 0, x: -30, y: -20 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="absolute top-2 left-2 sm:-left-4 glass rounded-2xl p-3 border border-white/10 shadow-lg min-w-[130px] animate-float-slow"
+              className="absolute -bottom-4 -left-4 lg:-left-8 bg-white border border-slate-200 rounded-xl shadow-lg p-3.5 flex items-center gap-3"
             >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                </div>
-                <div>
-                  <div className="text-white font-black text-xs leading-none">A Grade</div>
-                  <div className="text-[9px] text-navy-300 font-bold uppercase tracking-wider mt-0.5">NAAC Rating</div>
-                </div>
+              <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400 font-semibold">NAAC Grade</div>
+                <div className="text-base font-black text-slate-900">A Accredited</div>
               </div>
             </motion.div>
 
-            {/* Card 2: 5000+ Students (Bottom Left) */}
             <motion.div
-              initial={{ opacity: 0, x: -35, y: 30 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="absolute -bottom-4 left-6 sm:-left-6 glass rounded-2xl p-3 border border-white/10 shadow-lg min-w-[130px] animate-float-fast"
+              className="absolute -top-4 -right-4 lg:-right-8 bg-white border border-slate-200 rounded-xl shadow-lg p-3.5 flex items-center gap-3"
             >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <GraduationCap className="w-4 h-4 text-blue-400" />
-                </div>
-                <div>
-                  <div className="text-white font-black text-xs leading-none">5000+</div>
-                  <div className="text-[9px] text-navy-300 font-bold uppercase tracking-wider mt-0.5">Students</div>
-                </div>
+              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400 font-semibold">Placement Rate</div>
+                <div className="text-base font-black text-slate-900">92% (2024)</div>
               </div>
             </motion.div>
 
-            {/* Card 3: 92% Placement (Top Right) */}
-            <motion.div
-              initial={{ opacity: 0, x: 35, y: -30 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="absolute -top-4 right-6 sm:-right-4 glass rounded-2xl p-3 border border-white/10 shadow-lg min-w-[130px] animate-float"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div>
-                  <div className="text-white font-black text-xs leading-none">92%</div>
-                  <div className="text-[9px] text-navy-300 font-bold uppercase tracking-wider mt-0.5">Placement</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Card 4: 25+ Years Excellence (Bottom Right) */}
-            <motion.div
-              initial={{ opacity: 0, x: 30, y: 20 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="absolute bottom-2 right-2 sm:-right-6 glass rounded-2xl p-3 border border-white/10 shadow-lg min-w-[130px] animate-float-slow"
-              style={{ animationDelay: "1.5s" }}
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Award className="w-4 h-4 text-purple-400" />
-                </div>
-                <div>
-                  <div className="text-white font-black text-xs leading-none">25+ Yrs</div>
-                  <div className="text-[9px] text-navy-300 font-bold uppercase tracking-wider mt-0.5">Excellence</div>
-                </div>
-              </div>
-            </motion.div>
-
-          </div>
+            {/* Background Dots */}
+            <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-2xl bg-dot-pattern opacity-50" />
+          </motion.div>
 
         </div>
       </div>
-
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-navy-950 to-transparent pointer-events-none" />
     </section>
   );
 }

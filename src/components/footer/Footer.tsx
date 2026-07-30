@@ -1,155 +1,159 @@
-import Link from "next/link";
-import {
-  GraduationCap,
-  MapPin,
-  Phone,
-  Mail,
-  Linkedin,
-  Twitter,
-  Facebook,
-  Instagram,
-  Youtube,
-  Heart,
-} from "lucide-react";
-import { COLLEGE_INFO, NAV_LINKS } from "@/constants/collegeData";
+"use client";
 
-const quickLinks = NAV_LINKS.slice(0, 6);
+import Link from "next/link";
+import { GraduationCap, Phone, Mail, MapPin, ExternalLink } from "lucide-react";
+import { COLLEGE_INFO } from "@/constants/collegeData";
+
+const quickLinks = [
+  { label: "About SSIET",    href: "/about"       },
+  { label: "Leadership",     href: "/leadership"  },
+  { label: "Achievements",   href: "/achievements"},
+  { label: "Gallery",        href: "/gallery"     },
+  { label: "Events",         href: "/events"      },
+  { label: "Contact",        href: "/contact"     },
+];
 
 const programs = [
-  { label: "Computer Science Engineering", href: "/courses/computer-science-engineering" },
-  { label: "AI & Data Science", href: "/courses/artificial-intelligence-data-science" },
-  { label: "Electronics & Communication", href: "/courses/electronics-communication-engineering" },
-  { label: "Mechanical Engineering", href: "/courses/mechanical-engineering" },
-  { label: "Civil Engineering", href: "/courses/civil-engineering" },
+  { label: "B.Tech CSE",      href: "/departments/cse"  },
+  { label: "B.Tech AI & DS",  href: "/departments/aids" },
+  { label: "B.Tech ECE",      href: "/departments/ece"  },
+  { label: "B.Tech Mechanical",href: "/departments/mech"},
+  { label: "B.Tech Civil",    href: "/departments/civil"},
 ];
 
-const socialIcons = [
-  { Icon: Linkedin, href: COLLEGE_INFO.socialMedia.linkedin, label: "LinkedIn" },
-  { Icon: Twitter, href: COLLEGE_INFO.socialMedia.twitter, label: "Twitter" },
-  { Icon: Facebook, href: COLLEGE_INFO.socialMedia.facebook, label: "Facebook" },
-  { Icon: Instagram, href: COLLEGE_INFO.socialMedia.instagram, label: "Instagram" },
-  { Icon: Youtube, href: COLLEGE_INFO.socialMedia.youtube, label: "YouTube" },
+const studentLinks = [
+  { label: "Admissions",      href: "/admissions"      },
+  { label: "Fee Structure",   href: "/fees"            },
+  { label: "Scholarships",    href: "/scholarships"    },
+  { label: "Placements",      href: "/placements"      },
+  { label: "Career Training", href: "/career-training" },
+  { label: "Enquiry Form",    href: "/enquiry"         },
 ];
+
+const accreditations = ["NAAC", "AICTE", "NBA", "JNTU-K", "APSCHE"];
 
 export default function Footer() {
-  return (
-    <footer className="relative bg-navy-950 border-t border-navy-800/50 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-mesh opacity-30 pointer-events-none" />
+  const year = new Date().getFullYear();
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          {/* Brand Column */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-3 mb-4 group">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-navy-700 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                <GraduationCap className="w-7 h-7 text-white" />
+  return (
+    <footer className="bg-slate-900 text-slate-300">
+
+      {/* ── Main Footer ── */}
+      <div className="container py-14">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+
+          {/* Col 1: Brand */}
+          <div>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="text-base font-bold text-white">SSIET</div>
-                <div className="text-xs text-navy-300">CampusConnect AI</div>
+                <div className="text-sm font-black text-white">SSIET</div>
+                <div className="text-[10px] text-slate-400 leading-none">Sri Satya Institute</div>
               </div>
-            </Link>
-            <p className="text-navy-300 text-sm leading-relaxed mb-5">
-              {COLLEGE_INFO.description.slice(0, 130)}...
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed mb-5">
+              A premier NAAC accredited engineering institution in Andhra Pradesh, empowering future engineers through innovation and excellence.
             </p>
-            {/* Social Links */}
-            <div className="flex items-center gap-3">
-              {socialIcons.map(({ Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="w-9 h-9 rounded-lg glass-light flex items-center justify-center text-navy-300 hover:text-emerald-400 hover:border-emerald-500/40 transition-all duration-200"
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              {accreditations.map((a) => (
+                <span key={a} className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-700 text-slate-400">{a}</span>
               ))}
+            </div>
+            <div className="space-y-2 text-sm text-slate-400">
+              <a href={`tel:${COLLEGE_INFO.phone}`} className="flex items-center gap-2 hover:text-white transition-colors">
+                <Phone className="w-3.5 h-3.5" /> {COLLEGE_INFO.phone}
+              </a>
+              <a href={`mailto:${COLLEGE_INFO.email}`} className="flex items-center gap-2 hover:text-white transition-colors">
+                <Mail className="w-3.5 h-3.5" /> {COLLEGE_INFO.email}
+              </a>
+              <div className="flex items-start gap-2 text-xs leading-relaxed">
+                <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {COLLEGE_INFO.address}
+              </div>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Col 2: Quick Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
-              Quick Links
-            </h3>
-            <ul className="space-y-2.5">
-              {quickLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-navy-300 hover:text-emerald-400 text-sm transition-colors duration-200 flex items-center gap-2 group"
-                  >
-                    <span className="w-1 h-1 rounded-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {link.label}
+            <h3 className="text-xs font-black text-white uppercase tracking-widest mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              {quickLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 group">
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition-colors" />
+                    {l.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Programs */}
+          {/* Col 3: Programs */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
-              Programs
-            </h3>
-            <ul className="space-y-2.5">
-              {programs.map((p) => (
-                <li key={p.href}>
-                  <Link
-                    href={p.href}
-                    className="text-navy-300 hover:text-emerald-400 text-sm transition-colors duration-200 flex items-center gap-2 group"
-                  >
-                    <span className="w-1 h-1 rounded-full bg-gold-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {p.label}
+            <h3 className="text-xs font-black text-white uppercase tracking-widest mb-4">B.Tech Programs</h3>
+            <ul className="space-y-2">
+              {programs.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 group">
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition-colors" />
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="text-xs font-black text-white uppercase tracking-widest mt-6 mb-4">Admissions</h3>
+            <ul className="space-y-2">
+              {studentLinks.slice(0, 4).map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 group">
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition-colors" />
+                    {l.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Col 4: CTA Block */}
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
-              Contact Us
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                <span className="text-navy-300 text-sm">{COLLEGE_INFO.address}</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <a
-                  href={`tel:${COLLEGE_INFO.phone}`}
-                  className="text-navy-300 hover:text-white text-sm transition-colors"
-                >
-                  {COLLEGE_INFO.phone}
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <a
-                  href={`mailto:${COLLEGE_INFO.email}`}
-                  className="text-navy-300 hover:text-white text-sm transition-colors"
-                >
-                  {COLLEGE_INFO.email}
-                </a>
-              </li>
-            </ul>
+            <h3 className="text-xs font-black text-white uppercase tracking-widest mb-4">Admissions 2026-27</h3>
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-5">
+              <p className="text-sm text-slate-300 leading-relaxed mb-4">
+                Applications open for B.Tech programs. Merit and government scholarships available.
+              </p>
+              <Link href="/admissions" className="btn btn-primary btn-sm w-full justify-center">
+                Apply Now
+              </Link>
+            </div>
+            <Link href="/enquiry" className="btn btn-secondary btn-sm w-full justify-center bg-transparent border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white">
+              Submit Enquiry
+            </Link>
+            <a
+              href={`https://${COLLEGE_INFO.website}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 mt-4 text-xs text-slate-500 hover:text-white transition-colors"
+            >
+              {COLLEGE_INFO.website} <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
-        </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-navy-800/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-navy-400 text-xs text-center sm:text-left">
-            © {new Date().getFullYear()} Sri Satya Institute of Engineering and Technology. All rights reserved.
-          </p>
-          <p className="text-navy-400 text-xs flex items-center gap-1">
-            Built with <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by CampusConnect AI
-          </p>
         </div>
       </div>
+
+      {/* ── Bottom Bar ── */}
+      <div className="border-t border-slate-800">
+        <div className="container py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+          <span>© {year} Sri Satya Institute of Engineering and Technology. All rights reserved.</span>
+          <span className="flex items-center gap-3">
+            <Link href="/about" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Terms of Use</Link>
+          </span>
+        </div>
+      </div>
+
     </footer>
   );
 }

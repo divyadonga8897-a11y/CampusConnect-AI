@@ -2,82 +2,79 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, Search, HelpCircle, Sparkles, Filter } from "lucide-react";
+import { Plus, Minus, Search, Bot } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
 import { enquiryService, type FAQItem } from "@/services/enquiryService";
 
 const categories = ["All", "Admission", "Fees", "Courses", "Hostel", "Campus", "General"];
 
 export default function FAQClient() {
-  const [aiOpen, setAiOpen] = useState(false);
-  const [faqs, setFaqs] = useState<FAQItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [aiOpen, setAiOpen]       = useState(false);
+  const [faqs, setFaqs]           = useState<FAQItem[]>([]);
+  const [loading, setLoading]     = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCat, setSelectedCat] = useState("All");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId]   = useState<string | null>(null);
 
   useEffect(() => {
     enquiryService.getFAQs()
-      .then((res) => {
-        setFaqs(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading FAQs:", err);
-        setLoading(false);
-      });
+      .then((res) => { setFaqs(res.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   const filteredFaqs = faqs.filter((faq) => {
-    const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat = selectedCat === "All" || faq.category.toLowerCase() === selectedCat.toLowerCase();
-    return matchesSearch && matchesCat;
+    const matchSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchCat    = selectedCat === "All" || faq.category.toLowerCase() === selectedCat.toLowerCase();
+    return matchSearch && matchCat;
   });
-
-  const toggleExpand = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
-  };
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-          <SectionTitle
-            badge="Common Enquiries"
-            title="Frequently Asked"
-            highlight="Questions"
-            description="Explore general questions regarding intermediate percentage cut-offs, quota seats allocations, boarding guidelines, and campus codes."
-            className="mb-10"
-          />
+      <main className="bg-slate-50 min-h-screen">
 
-          {/* Controls: Search Bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-navy-450" />
+        <PageHero
+          eyebrow="FAQs"
+          title="Frequently Asked"
+          highlight="Questions"
+          description="Quick answers to common questions about admissions, fees, courses, hostel, and campus life."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "FAQ" }]}
+          actions={
+            <button onClick={() => setAiOpen(true)} className="btn btn-primary">
+              <Bot className="w-4 h-4" /> Can't find it? Ask AI
+            </button>
+          }
+        />
+
+        <div className="container py-10 max-w-3xl">
+
+          {/* Search */}
+          <div className="relative mb-5">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
-              id="faq-search-input"
-              type="text"
+              id="faq-search"
+              type="search"
+              placeholder="Search questions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search questions or keywords..."
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl glass-light border border-navy-700 text-white placeholder-navy-450 focus:outline-none focus:border-emerald-500/50 bg-navy-900/60 text-xs sm:text-sm"
+              className="input pl-11"
             />
           </div>
 
           {/* Category Filters */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+          <div className="flex flex-wrap gap-2 mb-8">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCat(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 border ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
                   selectedCat === cat
-                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-emerald-500/20 shadow-md shadow-emerald-500/10"
-                    : "glass border-navy-750 text-navy-300 hover:text-white hover:border-navy-600"
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
                 }`}
               >
                 {cat}
@@ -85,37 +82,49 @@ export default function FAQClient() {
             ))}
           </div>
 
-          {/* FAQs Accordion */}
+          {/* FAQ Accordion */}
           {loading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, idx) => (
-                <div key={idx} className="glass rounded-xl h-16 animate-pulse" />
-              ))}
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map(i => <div key={i} className="skeleton h-14 rounded-xl" />)}
+            </div>
+          ) : filteredFaqs.length === 0 ? (
+            <div className="card p-8 text-center">
+              <Bot className="w-8 h-8 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-500 text-sm mb-4">No results found. Try our AI for instant answers.</p>
+              <button onClick={() => setAiOpen(true)} className="btn btn-primary btn-sm mx-auto">
+                Ask AI
+              </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {filteredFaqs.map((faq, i) => {
                 const isOpen = expandedId === faq.id;
                 return (
                   <motion.div
                     key={faq.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="glass rounded-2xl border border-navy-700/35 overflow-hidden transition-all duration-300"
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.03 }}
+                    className={`bg-white border rounded-xl overflow-hidden transition-colors ${
+                      isOpen ? "border-blue-200 shadow-sm" : "border-slate-200"
+                    }`}
                   >
                     <button
-                      onClick={() => toggleExpand(faq.id)}
-                      className="w-full px-6 py-5 flex items-center justify-between gap-4 text-left focus:outline-none"
+                      onClick={() => setExpandedId(isOpen ? null : faq.id)}
+                      className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer"
+                      aria-expanded={isOpen}
                     >
-                      <h3 className="text-white font-bold text-xs sm:text-sm leading-snug">
-                        {faq.question}
-                      </h3>
-                      <div className="w-8 h-8 rounded-lg bg-navy-900/50 border border-navy-800/40 flex items-center justify-center shrink-0 text-navy-200">
-                        {isOpen ? <Minus className="w-4 h-4 text-emerald-450" /> : <Plus className="w-4 h-4" />}
+                      <span className="text-sm font-semibold text-slate-900">{faq.question}</span>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                        isOpen ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        {isOpen
+                          ? <Minus className="w-3.5 h-3.5" />
+                          : <Plus className="w-3.5 h-3.5" />
+                        }
                       </div>
                     </button>
-
                     <AnimatePresence initial={false}>
                       {isOpen && (
                         <motion.div
@@ -123,13 +132,12 @@ export default function FAQClient() {
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.25 }}
-                          className="overflow-hidden"
                         >
-                          <div className="px-6 pb-6 pt-2 text-navy-300 text-xs sm:text-sm leading-relaxed border-t border-navy-800/30">
+                          <div className="px-4 pb-4 text-sm text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
                             {faq.answer}
-                            <div className="mt-3.5 flex items-center gap-1.5 text-navy-450 text-[10px] uppercase font-bold tracking-wider">
-                              <span>Category: {faq.category}</span>
-                            </div>
+                            {faq.category && (
+                              <span className="badge badge-blue text-[10px] ml-3">{faq.category}</span>
+                            )}
                           </div>
                         </motion.div>
                       )}
@@ -137,34 +145,24 @@ export default function FAQClient() {
                   </motion.div>
                 );
               })}
-
-              {filteredFaqs.length === 0 && (
-                <div className="glass rounded-2xl p-8 border border-navy-700/30 text-center">
-                  <span className="text-navy-400 text-sm">No FAQs found matching your query.</span>
-                </div>
-              )}
             </div>
           )}
 
-          {/* AI Advisor Callout */}
-          <div className="mt-12 glass rounded-2xl p-6 border border-emerald-500/20 bg-gradient-to-r from-navy-950 to-emerald-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-emerald-450 shrink-0 mt-0.5 animate-pulse" />
-              <div>
-                <h4 className="text-white font-bold text-sm">Need Customized Advice?</h4>
-                <p className="text-navy-300 text-xs leading-relaxed max-w-xl">
-                  Can't find answers for your specific rank or fee bracket? Our AI Campus counselor is online 24/7 to resolve admission rules.
-                </p>
-              </div>
+          {/* AI Prompt */}
+          <div className="card p-5 bg-blue-50 border-blue-100 mt-8 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+              <Bot className="w-5 h-5 text-blue-600" />
             </div>
-            <button
-              onClick={() => setAiOpen(true)}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold text-xs uppercase tracking-wider hover:from-emerald-400 hover:to-emerald-550 transition-all duration-200 shrink-0"
-            >
-              Ask Campus AI
+            <div className="flex-1">
+              <div className="text-sm font-bold text-slate-900">Still have questions?</div>
+              <div className="text-xs text-slate-500">Our AI can answer anything about SSIET instantly.</div>
+            </div>
+            <button onClick={() => setAiOpen(true)} className="btn btn-primary btn-sm shrink-0">
+              Ask AI
             </button>
           </div>
-        </section>
+
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

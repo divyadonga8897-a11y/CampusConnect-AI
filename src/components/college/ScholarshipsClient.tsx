@@ -3,219 +3,162 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Trophy,
-  Shield,
-  Medal,
-  Heart,
-  Calendar,
-  CheckCircle2,
-  ListOrdered,
-  HelpCircle,
+  Trophy, CheckCircle2, ListOrdered, ChevronDown, ChevronUp, ArrowRight
 } from "lucide-react";
+import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
 import { academicService, type ScholarshipItem } from "@/services/academicService";
 
-const iconMap: Record<string, React.ElementType> = {
-  Trophy,
-  Shield,
-  Medal,
-  Heart,
-};
-
 export default function ScholarshipsClient() {
-  const [aiOpen, setAiOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [aiOpen, setAiOpen]             = useState(false);
+  const [loading, setLoading]           = useState(true);
   const [scholarships, setScholarships] = useState<ScholarshipItem[]>([]);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTab, setActiveTab]       = useState<string | null>(null);
 
   useEffect(() => {
     academicService.getScholarships()
-      .then((res) => {
-        setScholarships(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading scholarships:", err);
-        setLoading(false);
-      });
+      .then((res) => { setScholarships(res.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Financial Aid"
-            title="Scholarships &"
-            highlight="Support Programs"
-            description="We believe financial limitations should not hinder talent. Explore various college, government, and athletic scholarships available for students."
-            className="mb-14"
-          />
+      <main className="bg-slate-50 min-h-screen">
 
-          {/* Scholarship List */}
+        <PageHero
+          eyebrow="Scholarships & Financial Aid"
+          title="Fund Your"
+          highlight="Education"
+          description="Merit, government, sports, and disability scholarships available to help every deserving student at SSIET."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Scholarships" }]}
+          actions={
+            <>
+              <Link href="/admissions" className="btn btn-primary">
+                Apply Now <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button onClick={() => setAiOpen(true)} className="btn btn-secondary">
+                Ask AI About Scholarships
+              </button>
+            </>
+          }
+        />
+
+        <div className="container py-12">
           {loading ? (
-            <div className="grid md:grid-cols-2 gap-6 mb-16">
-              {Array.from({ length: 2 }).map((_, idx) => (
-                <div key={idx} className="glass rounded-2xl p-8 border border-navy-700/30 animate-pulse h-64" />
-              ))}
+            <div className="space-y-4 max-w-3xl mx-auto">
+              {[1, 2, 3].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 gap-6 mb-16">
-              {scholarships.map((sch, i) => {
-                const Icon = i % 2 === 0 ? Trophy : Medal;
-                const isExpanded = activeTab === sch.id;
-
+            <div className="space-y-4 max-w-3xl mx-auto">
+              {scholarships.map((s, i) => {
+                const isOpen = activeTab === s.id;
                 return (
                   <motion.div
-                    key={sch.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className="glass rounded-2xl p-6 sm:p-8 border border-navy-700/30 flex flex-col justify-between card-hover"
+                    key={s.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.06 }}
+                    className={`bg-white border rounded-xl overflow-hidden transition-colors ${
+                      isOpen ? "border-blue-200 shadow-sm" : "border-slate-200"
+                    }`}
                   >
-                    <div>
-                      {/* Header */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/20 to-navy-600/20 flex items-center justify-center border border-emerald-500/20">
-                            <Icon className="w-5 h-5 text-emerald-450" />
-                          </div>
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-450">
-                              Financial Concession
-                            </span>
-                            <h3 className="text-white font-extrabold text-base sm:text-lg mt-0.5">{sch.title}</h3>
-                          </div>
-                        </div>
+                    {/* Header (toggle) */}
+                    <button
+                      onClick={() => setActiveTab(isOpen ? null : s.id)}
+                      className="w-full flex items-center gap-4 p-5 text-left cursor-pointer"
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${isOpen ? "bg-blue-600" : "bg-blue-50"}`}>
+                        <Trophy className={`w-5 h-5 ${isOpen ? "text-white" : "text-blue-600"}`} />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-slate-900 mb-0.5">{s.title}</div>
+                        <div className="text-xs text-slate-400 line-clamp-1">{s.description}</div>
+                      </div>
+                      {isOpen
+                        ? <ChevronUp className="w-4 h-4 text-blue-600 shrink-0" />
+                        : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                      }
+                    </button>
 
-                      {/* Description */}
-                      <p className="text-navy-300 text-xs sm:text-sm mb-4 leading-relaxed">
-                        {sch.description}
-                      </p>
-
-                      {/* Benefits */}
-                      <div className="mb-4">
-                        <h4 className="text-white text-xs font-bold uppercase tracking-wider mb-2">
-                          Key Benefits
-                        </h4>
-                        <div className="space-y-1.5">
-                          {sch.benefits.map((b, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-navy-200 text-xs sm:text-sm">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 mt-1.5" />
-                              <span>{b}</span>
+                    {/* Expandable content */}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-5 pb-5 border-t border-slate-100 pt-4 grid sm:grid-cols-2 gap-5">
+                            {/* Eligibility */}
+                            <div>
+                              <h4 className="text-label text-slate-400 mb-2 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Eligibility
+                              </h4>
+                              <ul className="space-y-1.5">
+                                {s.eligibility.map((e, idx) => (
+                                  <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />{e}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                          ))}
-                        </div>
-                      </div>
 
-                      {/* Eligibility summary */}
-                      <div className="mb-6">
-                        <h4 className="text-white text-xs font-bold uppercase tracking-wider mb-2">
-                          Eligibility Requirements
-                        </h4>
-                        <div className="space-y-1.5">
-                          {sch.eligibility.slice(0, 2).map((el, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-navy-300 text-xs sm:text-sm">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-gold-400 shrink-0 mt-0.5" />
-                              <span>{el}</span>
+                            {/* Benefits */}
+                            <div>
+                              <h4 className="text-label text-slate-400 mb-2 flex items-center gap-1.5">
+                                <Trophy className="w-3.5 h-3.5 text-amber-500" /> Benefits
+                              </h4>
+                              <ul className="space-y-1.5">
+                                {s.benefits.map((b, idx) => (
+                                  <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />{b}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                          ))}
-                          {sch.eligibility.length > 2 && (
-                            <span className="text-navy-450 text-[10px] font-bold uppercase tracking-widest block mt-1">
-                              + {sch.eligibility.length - 2} more conditions
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
 
-                    <div>
-                      {/* Deadline */}
-                      <div className="flex items-center gap-1.5 text-navy-450 text-xs mb-4">
-                        <Calendar className="w-4 h-4 text-navy-450" />
-                        <span>Disbursed during counseling seat verification</span>
-                      </div>
-
-                      <button
-                        onClick={() => setActiveTab(isExpanded ? null : sch.id)}
-                        className="w-full py-2.5 rounded-xl glass border border-navy-600/40 text-white text-xs sm:text-sm font-semibold hover:border-emerald-500/40 hover:text-emerald-400 transition-all duration-200"
-                      >
-                        {isExpanded ? "Hide Application Steps" : "View Full Application Details"}
-                      </button>
-
-                      {/* Expanded details */}
-                      <AnimatePresence>
-                        {isExpanded && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="overflow-hidden mt-6 pt-6 border-t border-navy-800/60 space-y-5"
-                          >
-                            {/* Full eligibility */}
-                            {sch.eligibility.length > 2 && (
-                              <div>
-                                <h5 className="text-white text-xs font-extrabold uppercase tracking-wider mb-2">Detailed Eligibility List</h5>
-                                <ul className="space-y-1.5">
-                                  {sch.eligibility.map((el, idx) => (
-                                    <li key={idx} className="flex items-start gap-2 text-navy-200 text-xs">
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                                      <span>{el}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {/* App Process */}
-                            {sch.application_process && sch.application_process.length > 0 && (
-                              <div>
-                                <h5 className="text-white text-xs font-extrabold uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                  <ListOrdered className="w-4 h-4 text-emerald-450" />
-                                  Application Instructions
-                                </h5>
-                                <ol className="space-y-2">
-                                  {sch.application_process.map((step, idx) => (
-                                    <li key={idx} className="flex gap-2.5 text-navy-300 text-xs">
-                                      <span className="font-bold text-emerald-450 text-xs">{idx + 1}.</span>
-                                      <span>{step}</span>
+                            {/* Application Process */}
+                            {s.application_process && s.application_process.length > 0 && (
+                              <div className="sm:col-span-2">
+                                <h4 className="text-label text-slate-400 mb-2 flex items-center gap-1.5">
+                                  <ListOrdered className="w-3.5 h-3.5 text-blue-500" /> Application Process
+                                </h4>
+                                <ol className="space-y-1.5">
+                                  {s.application_process.map((step, idx) => (
+                                    <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
+                                      <span className="w-4 h-4 rounded-full bg-blue-50 text-blue-600 text-[9px] font-black flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                                      {step}
                                     </li>
                                   ))}
                                 </ol>
                               </div>
                             )}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 );
               })}
             </div>
           )}
 
-          {/* Help box */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="glass rounded-2xl p-6 border border-navy-700/30 flex items-start gap-4"
-          >
-            <HelpCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-white font-semibold text-sm mb-1">Need Assistance?</h4>
-              <p className="text-navy-300 text-xs sm:text-sm leading-relaxed">
-                If you have questions about scholarship disbursements, need certificates verified, or want to apply under multiple schemes, please contact the college Admin Wing or check in with our team during admission counseling.
-              </p>
-            </div>
-          </motion.div>
-        </section>
+          {/* Bottom CTA */}
+          <div className="card p-6 bg-blue-50 border-blue-100 mt-10 max-w-3xl mx-auto text-center">
+            <h3 className="text-base font-bold text-slate-900 mb-2">Need Help With Scholarships?</h3>
+            <p className="text-sm text-slate-500 mb-4">Our AI can instantly answer questions about eligibility, deadlines, and the application process.</p>
+            <button onClick={() => setAiOpen(true)} className="btn btn-primary btn-sm mx-auto">
+              Ask Campus AI
+            </button>
+          </div>
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

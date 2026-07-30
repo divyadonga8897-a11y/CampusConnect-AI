@@ -1,204 +1,160 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Terminal, Users, Trophy, Code2, Music, Check, Layers, HelpCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { Terminal, Users, Trophy, Code2, Music, Layers, Bot } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { campusService, type ClubItem } from "@/services/campusService";
 
 const categories = ["All", "Technical", "Cultural", "Sports", "Innovation"];
 
+const catColors: Record<string, string> = {
+  Technical:  "badge-blue",
+  Cultural:   "badge-amber",
+  Sports:     "badge-green",
+  Innovation: "badge-slate",
+};
+
 const journeySteps = [
-  {
-    year: "Year 1",
-    title: "Campus Introduction & Foundation",
-    desc: "Students undergo a comprehensive induction program, register for hobby clubs, learn computational thinking, and build core engineering physics/math foundations.",
-    color: "from-blue-500 to-indigo-650",
-  },
-  {
-    year: "Year 2",
-    title: "Skill Development & Projects",
-    desc: "Entering core engineering streams, students run laboratory mini-projects, join tech clubs, participate in local workshops, and obtain developer certifications.",
-    color: "from-emerald-500 to-teal-655",
-  },
-  {
-    year: "Year 3",
-    title: "Industry Preparation & Internships",
-    desc: "Focus shifts to career readiness. Students participate in industrial internships, code at national-level hackathons, study system architectures, and attend placement training bootcamps.",
-    color: "from-gold-400 to-amber-600",
-  },
-  {
-    year: "Year 4",
-    title: "Major Project & Career Launch",
-    desc: "In their final year, students engineer capstone projects, write research papers, sit for campus placement interviews with 100+ partner companies, and graduate as industry-ready engineers.",
-    color: "from-fuchsia-500 to-rose-655",
-  },
+  { year: "Year 1", title: "Campus Introduction & Foundation",     color: "bg-blue-500",
+    desc: "Comprehensive induction, club registrations, computational thinking, and core engineering fundamentals." },
+  { year: "Year 2", title: "Skill Development & Projects",         color: "bg-emerald-500",
+    desc: "Mini lab projects, tech clubs, local workshops, and developer certifications in core engineering streams." },
+  { year: "Year 3", title: "Industry Preparation & Internships",   color: "bg-amber-500",
+    desc: "Industrial internships, hackathons, system architecture study, and placement training bootcamps." },
+  { year: "Year 4", title: "Major Project & Career Launch",        color: "bg-purple-500",
+    desc: "Capstone projects, research papers, 100+ company placement interviews, graduation as industry-ready engineers." },
 ];
 
 export default function StudentLifeClient() {
-  const [aiOpen, setAiOpen] = useState(false);
-  const [clubs, setClubs] = useState<ClubItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCat, setSelectedCat] = useState("All");
+  const [aiOpen, setAiOpen]             = useState(false);
+  const [clubs, setClubs]               = useState<ClubItem[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [selectedCat, setSelectedCat]   = useState("All");
 
   useEffect(() => {
     campusService.getClubs()
-      .then((res) => {
-        setClubs(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading clubs list:", err);
-        setLoading(false);
-      });
+      .then((res) => { setClubs(res.data || []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
-  const filteredClubs = clubs.filter((c) => {
-    return selectedCat === "All" || c.category.toLowerCase() === selectedCat.toLowerCase();
-  });
+  const filteredClubs = clubs.filter((c) =>
+    selectedCat === "All" || c.category?.toLowerCase() === selectedCat.toLowerCase()
+  );
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        {/* Header */}
-        <section className="pt-28 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Student Life & Clubs"
-            title="Life & Clubs at"
-            highlight="Sri Satya Institute"
-            description="Academics at SSIET is balanced by a rich ecosystem of technical clubs, sports meets, cultural celebrations, and social programs."
-            className="mb-14"
-          />
+      <main className="bg-slate-50 min-h-screen">
 
-          {/* Club Filters */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCat(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border ${
-                  selectedCat === cat
-                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-emerald-500/20 shadow-md shadow-emerald-500/10"
-                    : "glass border-navy-750 text-navy-300 hover:text-white hover:border-navy-600"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        <PageHero
+          eyebrow="Student Life"
+          title="Life at"
+          highlight="SSIET"
+          description="Clubs, sports, cultural events, and a 4-year journey designed to make you an industry-ready engineer."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Student Life" }]}
+          actions={
+            <button onClick={() => setAiOpen(true)} className="btn btn-secondary">
+              <Bot className="w-4 h-4 text-emerald-500" /> Ask Campus AI
+            </button>
+          }
+        />
 
-          {/* Clubs Grid */}
-          {loading ? (
-            <div className="grid sm:grid-cols-2 gap-6 mb-20">
-              {Array.from({ length: 2 }).map((_, idx) => (
-                <div key={idx} className="glass rounded-2xl h-64 animate-pulse border border-navy-700/30" />
+        {/* Student Journey Timeline */}
+        <section className="section bg-white">
+          <div className="container">
+            <SectionHeader eyebrow="Student Journey" title="4 Years of" highlight="Growth" className="mb-10" />
+            <div className="relative border-l-2 border-slate-200 ml-4 space-y-8 max-w-2xl mx-auto">
+              {journeySteps.map((step, i) => (
+                <motion.div
+                  key={step.year}
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: i * 0.1 }}
+                  className="relative pl-10"
+                >
+                  <span className={`absolute -left-[17px] top-0.5 flex h-8 w-8 items-center justify-center rounded-full ${step.color} text-xs text-white font-black shadow-sm`}>
+                    {i + 1}
+                  </span>
+                  <div className="card p-5">
+                    <span className="text-label text-slate-400 mb-1">{step.year}</span>
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">{step.title}</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">{step.desc}</p>
+                  </div>
+                </motion.div>
               ))}
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 gap-6 mb-20">
-              {filteredClubs.map((club, i) => {
-                const Icon = club.category.toLowerCase() === "cultural" ? Music : (club.category.toLowerCase() === "sports" ? Trophy : Code2);
-                return (
-                  <motion.div
-                    key={club.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className="glass rounded-2xl p-6 sm:p-8 border border-navy-700/30 flex flex-col justify-between card-hover group"
-                  >
-                    <div>
-                      {/* Header */}
-                      <div className="flex items-start gap-4 mb-4 pb-3 border-b border-navy-800/40">
-                        <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 text-[9px] font-black uppercase tracking-wider">
-                            {club.category}
-                          </span>
-                          <h3 className="text-white font-extrabold text-sm sm:text-base mt-1.5">{club.club_name}</h3>
-                        </div>
-                      </div>
-
-                      <p className="text-navy-300 text-xs sm:text-sm leading-relaxed mb-6">
-                        {club.description}
-                      </p>
-
-                      {/* Activities */}
-                      <div className="space-y-2 mb-6">
-                        <h4 className="text-white font-bold text-xs uppercase tracking-wider">Core Activities</h4>
-                        {club.activities.map((act, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-navy-200 text-xs">
-                            <Check className="w-4 h-4 text-emerald-450 shrink-0 mt-0.5" />
-                            <span>{act}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-navy-800/40 text-[10px] text-navy-450 font-bold uppercase tracking-wider">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5" />
-                        Student Led
-                      </span>
-                      <span>SSIET Clubs Wing</span>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Student Journey timeline */}
-          <SectionTitle
-            badge="Student Growth"
-            title="The 4-Year"
-            highlight="Student Journey"
-            description="Follow the educational roadmap and milestones of a student at Sri Satya Institute."
-            className="mb-14"
-          />
-
-          <div className="relative max-w-4xl mx-auto pl-8 md:pl-0">
-            {/* Timeline center line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-emerald-500 to-rose-500 -translate-x-1/2" />
-
-            <div className="space-y-12">
-              {journeySteps.map((step, i) => {
-                const isLeft = i % 2 === 0;
-                return (
-                  <motion.div
-                    key={step.year}
-                    initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className={`relative flex items-center ${isLeft ? "md:flex-row" : "md:flex-row-reverse"} flex-row`}
-                  >
-                    {/* Content Box */}
-                    <div className={`w-full md:w-[calc(50%-2.5rem)] ${isLeft ? "md:pr-8" : "md:pl-8"}`}>
-                      <div className="glass rounded-2xl p-6 border border-navy-700/35 card-hover">
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className={`px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-gradient-to-r ${step.color}`}>
-                            {step.year}
-                          </span>
-                          <h3 className="text-white font-bold text-sm sm:text-base leading-snug">{step.title}</h3>
-                        </div>
-                        <p className="text-navy-300 text-xs sm:text-sm leading-relaxed">{step.desc}</p>
-                      </div>
-                    </div>
-
-                    {/* Timeline Dot */}
-                    <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-navy-950 border-2 border-emerald-450 shadow-lg shadow-emerald-450/40" />
-                  </motion.div>
-                );
-              })}
             </div>
           </div>
         </section>
+
+        {/* Clubs */}
+        <section className="section bg-slate-50">
+          <div className="container">
+            <SectionHeader eyebrow="Clubs & Associations" title="Student" highlight="Clubs" className="mb-8" />
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCat(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                    selectedCat === cat
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="skeleton h-36 rounded-xl" />)}
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredClubs.map((club, i) => {
+                  const badge = catColors[club.category] ?? "badge-slate";
+                  return (
+                    <motion.div
+                      key={club.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: i * 0.06 }}
+                      className="card p-5 group"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
+                          <Users className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{club.club_name}</h3>
+                          <span className={`badge ${badge} text-[10px] mt-0.5`}>{club.category}</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">{club.description}</p>
+                      {club.activities && club.activities.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
+                          {club.activities.slice(0, 3).map((a) => (
+                            <span key={a} className="badge badge-slate text-[10px]">{a}</span>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

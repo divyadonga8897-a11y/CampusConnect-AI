@@ -1,104 +1,91 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Eye, Target, CheckCircle2 } from "lucide-react";
-import SectionTitle from "@/components/ui/SectionTitle";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { COLLEGE_INFO } from "@/constants/collegeData";
+
+const highlights = [
+  "NAAC Accredited with high-grade score for academic excellence",
+  "NBA Certified programs across engineering departments",
+  "100+ industry recruiting partners providing internship opportunities",
+  "State-of-the-art labs, innovation center, and AI research hub",
+];
 
 export default function AboutSection() {
   return (
-    <section className="relative section-padding">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle
-          badge="About College"
-          title="Shaping Engineers Who"
-          highlight="Lead the Future"
-          description="Sri Satya Institute of Engineering and Technology has been at the forefront of technical education for over two decades."
-          className="mb-14"
-        />
+    <section className="section bg-white">
+      <div className="container">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-          {/* Left: Text */}
+          {/* Left: Image */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="relative order-2 lg:order-1"
           >
-            <p className="text-navy-200 text-base leading-relaxed mb-6">
+            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
+              <Image
+                src="/images/campus/academic-block.webp"
+                alt="SSIET Academic Block"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+            {/* Accent card */}
+            <div className="absolute -bottom-5 -right-5 bg-white border border-slate-200 rounded-xl shadow-lg p-4 max-w-[180px]">
+              <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">Established</div>
+              <div className="text-2xl font-black text-slate-900">{COLLEGE_INFO.established}</div>
+              <div className="text-xs text-slate-500 mt-0.5">25+ years of excellence</div>
+            </div>
+            <div className="absolute inset-0 -z-10 translate-x-3 translate-y-3 rounded-2xl bg-blue-100" />
+          </motion.div>
+
+          {/* Right: Text */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="order-1 lg:order-2"
+          >
+            <SectionHeader
+              eyebrow="About SSIET"
+              title="A Legacy of Engineering"
+              highlight="Excellence"
+              align="left"
+              className="mb-6"
+            />
+
+            <p className="text-slate-500 text-base leading-relaxed mb-5">
               {COLLEGE_INFO.description}
             </p>
-            <p className="text-navy-300 text-sm leading-relaxed mb-8">
-              Established in {COLLEGE_INFO.established}, we have consistently delivered excellence in engineering education. Our curriculum, regularly updated with industry inputs, ensures graduates are equipped with both theoretical knowledge and practical skills.
-            </p>
-            <div className="flex flex-wrap gap-3 mb-8">
-              {[
-                "NAAC Accredited",
-                "NBA Certified",
-                "AICTE Approved",
-                "Industry Partnerships",
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 rounded-full glass-emerald text-emerald-300 text-xs font-medium"
-                >
-                  {tag}
-                </span>
+
+            <ul className="space-y-3 mb-8">
+              {highlights.map((h) => (
+                <li key={h} className="flex items-start gap-3 text-sm text-slate-600">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  {h}
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-wrap gap-2 mb-8">
+              {["NAAC Accredited", "AICTE Approved", "NBA Certified", "JNTU Affiliated"].map((tag) => (
+                <span key={tag} className="badge badge-slate">{tag}</span>
               ))}
             </div>
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass border border-navy-600/40 text-white font-semibold text-sm hover:border-emerald-500/40 hover:text-emerald-400 transition-all duration-200 group"
-            >
-              Explore College History
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
+            <Link href="/about" className="btn btn-outline inline-flex">
+              Learn Our Story <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
 
-          {/* Right: Vision & Mission Cards */}
-          <div className="space-y-4">
-            {/* Vision Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="glass rounded-2xl p-6 border border-navy-700/30 card-hover"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500/20 to-gold-600/10 flex items-center justify-center">
-                  <Eye className="w-5 h-5 text-gold-400" />
-                </div>
-                <h3 className="text-white font-semibold text-lg">Our Vision</h3>
-              </div>
-              <p className="text-navy-200 text-sm leading-relaxed">{COLLEGE_INFO.vision}</p>
-            </motion.div>
-
-            {/* Mission Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="glass rounded-2xl p-6 border border-navy-700/30 card-hover"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-emerald-400" />
-                </div>
-                <h3 className="text-white font-semibold text-lg">Our Mission</h3>
-              </div>
-              <ul className="space-y-2">
-                {COLLEGE_INFO.mission.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-navy-200 text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </div>
         </div>
       </div>
     </section>

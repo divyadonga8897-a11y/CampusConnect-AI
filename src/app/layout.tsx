@@ -1,33 +1,35 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "CampusConnect AI | Sri Satya Institute of Engineering and Technology",
+  title: {
+    default: "SSIET — Sri Satya Institute of Engineering & Technology",
+    template: "%s | SSIET CampusConnect",
+  },
   description:
-    "Explore Sri Satya Institute of Engineering and Technology courses, fees, campus facilities, placements and admission information. AI-powered college discovery platform.",
+    "Sri Satya Institute of Engineering and Technology — an NAAC accredited premier engineering institution in Andhra Pradesh offering B.Tech programs in CSE, AI&DS, ECE, Mechanical and Civil Engineering.",
   keywords: [
     "SSIET",
-    "Sri Satya Institute",
+    "Sri Satya Institute of Engineering and Technology",
     "Engineering College Andhra Pradesh",
-    "B.Tech CSE",
-    "AI Data Science",
-    "Engineering Admission",
+    "B.Tech Admissions 2025",
+    "CSE College West Godavari",
+    "AI Data Science Engineering",
     "CampusConnect AI",
+    "NAAC Accredited College AP",
   ],
   openGraph: {
-    title: "CampusConnect AI | SSIET",
+    title: "SSIET — Premier Engineering College, Andhra Pradesh",
     description:
-      "Explore Sri Satya Institute of Engineering and Technology — courses, fees, campus, and placements.",
+      "Explore B.Tech programs, campus life, placements, and admissions at Sri Satya Institute of Engineering and Technology.",
     type: "website",
+    locale: "en_IN",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "SSIET — Sri Satya Institute of Engineering & Technology",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -36,8 +38,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-navy-950 text-foreground">
+    <html lang="en" className="h-full scroll-smooth antialiased">
+      <head>
+        {/* Inter via Google Fonts CDN — loaded at runtime, not build time */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-700">
         {children}
       </body>
     </html>

@@ -2,51 +2,39 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Eye, 
-  Target, 
-  CheckCircle2, 
-  Trophy, 
-  Medal, 
-  Microscope, 
-  Building2, 
-  MapPin, 
-  Calendar,
-  Award,
-  Globe,
-  Mail,
-  Phone,
-  BookmarkCheck
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Eye, Target, CheckCircle2, Trophy, Medal, Microscope,
+  Building2, MapPin, Calendar, Award, Globe, Mail, Phone,
+  BookmarkCheck, ArrowRight, GraduationCap, Sparkles
 } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
-import { 
-  collegeService, 
-  type CollegeProfile, 
-  type VisionMission, 
-  type CollegeAchievement, 
-  type CollegeAccreditation 
+import PageHero from "@/components/ui/PageHero";
+import SectionHeader from "@/components/ui/SectionHeader";
+import {
+  collegeService,
+  type CollegeProfile, type VisionMission,
+  type CollegeAchievement, type CollegeAccreditation
 } from "@/services/collegeService";
 
 const achievementIconMap: Record<string, React.ElementType> = {
-  Trophy, 
-  Medal, 
-  Microscope, 
-  Building2,
-  Award
+  Academic:    Trophy,
+  Research:    Microscope,
+  Awards:      Award,
+  Recognition: Medal,
 };
 
 export default function AboutPageClient() {
-  const [aiOpen, setAiOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  
-  const [profile, setProfile] = useState<CollegeProfile | null>(null);
-  const [vision, setVision] = useState<VisionMission | null>(null);
-  const [achievements, setAchievements] = useState<CollegeAchievement[]>([]);
+  const [aiOpen, setAiOpen]               = useState(false);
+  const [loading, setLoading]             = useState(true);
+  const [profile, setProfile]             = useState<CollegeProfile | null>(null);
+  const [vision, setVision]               = useState<VisionMission | null>(null);
+  const [achievements, setAchievements]   = useState<CollegeAchievement[]>([]);
   const [accreditations, setAccreditations] = useState<CollegeAccreditation[]>([]);
-  const [collegeInfo, setCollegeInfo] = useState<any>(null);
+  const [collegeInfo, setCollegeInfo]     = useState<any>(null);
 
   useEffect(() => {
     Promise.all([
@@ -54,396 +42,289 @@ export default function AboutPageClient() {
       collegeService.getVision(),
       collegeService.getAchievements(),
       collegeService.getAccreditation(),
-      collegeService.getCollege()
-    ])
-      .then(([profRes, visRes, achRes, accRes, colRes]) => {
-        setProfile(profRes.data);
-        setVision(visRes.data);
-        setAchievements(achRes.data);
-        setAccreditations(accRes.data);
-        setCollegeInfo(colRes.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load about page data:", err);
-        setLoading(false);
-      });
+      collegeService.getCollege(),
+    ]).then(([profRes, visRes, achRes, accRes, colRes]) => {
+      setProfile(profRes.data);
+      setVision(visRes.data);
+      setAchievements(achRes.data);
+      setAccreditations(accRes.data);
+      setCollegeInfo(colRes.data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        {/* Hero Banner */}
-        <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-emerald text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              About Sri Satya Institute
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-              A Legacy of{" "}
-              <span className="gradient-text-gold">Engineering Excellence</span>
-            </h1>
-            <p className="text-navy-200 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Two decades of innovation, quality education, and shaping the engineers who build the future.
-            </p>
-          </motion.div>
+      <main className="bg-slate-50 min-h-screen">
 
-          {/* College Info Cards */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-            {loading ? (
-              Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="glass rounded-xl p-6 border border-navy-700/30 animate-pulse space-y-3">
-                  <div className="w-6 h-6 rounded bg-navy-800 mx-auto" />
-                  <div className="h-4 bg-navy-800 w-3/4 mx-auto rounded" />
-                  <div className="h-3 bg-navy-850 w-1/2 mx-auto rounded" />
-                </div>
-              ))
-            ) : (
-              [
-                { icon: Calendar, label: "Established", value: profile?.established_year.toString() || "2000" },
-                { icon: MapPin, label: "Location", value: profile?.location.split(",")[0] || "West Godavari" },
-                { icon: Building2, label: "Departments", value: "5 Specializations" },
-                { icon: Trophy, label: "Accreditation", value: "NAAC A-Grade & NBA" },
-              ].map((item, i) => (
+        <PageHero
+          eyebrow="About SSIET"
+          title="A Legacy of Engineering"
+          highlight="Excellence"
+          description="Two decades of innovation, quality education, and shaping engineers who build the future."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
+          actions={
+            <>
+              <Link href="/admissions" className="btn btn-primary">
+                Apply Now <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button onClick={() => setAiOpen(true)} className="btn btn-secondary">
+                <Sparkles className="w-4 h-4 text-emerald-500" /> Ask AI
+              </button>
+            </>
+          }
+        />
+
+        {/* College Info Cards */}
+        <section className="container py-10">
+          {loading ? (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1,2,3,4].map(i => <div key={i} className="skeleton h-28 rounded-xl" />)}
+            </div>
+          ) : collegeInfo && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: "Established",        value: collegeInfo.established,      icon: Calendar,        color: "text-blue-600",    bg: "bg-blue-50"   },
+                { label: "Location",           value: collegeInfo.location,          icon: MapPin,         color: "text-emerald-600", bg: "bg-emerald-50"},
+                { label: "Affiliation",        value: collegeInfo.affiliation,       icon: GraduationCap,  color: "text-amber-600",   bg: "bg-amber-50"  },
+                { label: "Website",            value: collegeInfo.website,           icon: Globe,          color: "text-purple-600",  bg: "bg-purple-50" },
+              ].map(({ label, value, icon: Icon, color, bg }) => (
                 <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="glass rounded-xl p-4 text-center border border-navy-700/30"
+                  key={label}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="card p-5"
                 >
-                  <item.icon className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                  <div className="text-white font-semibold text-sm">{item.value}</div>
-                  <div className="text-navy-400 text-xs">{item.label}</div>
+                  <div className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center mb-3`}>
+                    <Icon className={`w-4 h-4 ${color}`} />
+                  </div>
+                  <div className="text-xs text-slate-400 font-medium mb-0.5">{label}</div>
+                  <div className="text-sm font-bold text-slate-900 line-clamp-2">{value}</div>
                 </motion.div>
-              ))
-            )}
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* College Profile */}
+        <section className="section bg-white">
+          <div className="container">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              {/* Image */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="relative"
+              >
+                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
+                  <Image
+                    src="/images/campus/academic-block.webp"
+                    alt="SSIET Academic Block"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+                <div className="absolute -bottom-5 -right-5 bg-white border border-slate-200 rounded-xl shadow-lg p-4">
+                  <div className="text-[10px] text-slate-400 font-semibold mb-0.5">Est.</div>
+                  <div className="text-2xl font-black text-slate-900">1999</div>
+                </div>
+                <div className="absolute inset-0 -z-10 translate-x-3 translate-y-3 rounded-2xl bg-blue-100" />
+              </motion.div>
+
+              {/* Text */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <SectionHeader
+                  eyebrow="Our Story"
+                  title="Who We"
+                  highlight="Are"
+                  align="left"
+                  className="mb-5"
+                />
+                {loading ? (
+                  <div className="space-y-3">
+                    {[1,2,3].map(i => <div key={i} className="skeleton h-4 rounded" />)}
+                  </div>
+                ) : (
+                  <p className="text-slate-500 text-base leading-relaxed mb-6">
+                    {profile?.full_description ?? "Sri Satya Institute of Engineering and Technology (SSIET) is a premier NAAC accredited engineering institution in Andhra Pradesh, offering quality education through innovative programs and experienced faculty."}
+                  </p>
+                )}
+
+                {/* Core Values from vision */}
+                {vision?.core_values && vision.core_values.length > 0 && (
+                  <div className="mb-6">
+                    <div className="text-label text-slate-400 mb-3">Core Values</div>
+                    <div className="flex flex-wrap gap-2">
+                      {vision.core_values.map((v: string) => (
+                        <span key={v} className="badge badge-blue text-xs">{v}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Accreditations */}
+                {!loading && accreditations.length > 0 && (
+                  <div className="border-t border-slate-100 pt-5">
+                    <div className="text-label text-slate-400 mb-3">Accreditations</div>
+                    <div className="flex flex-wrap gap-2">
+                      {accreditations.map((acc) => (
+                        <div key={acc.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 bg-white">
+                          <BookmarkCheck className="w-3 h-3 text-emerald-500" />
+                          <span className="text-xs font-semibold text-slate-700">{acc.certificate_name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* College Overview */}
-        <section className="pb-20 bg-gradient-to-b from-transparent to-navy-900/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                  Who We <span className="gradient-text-emerald">Are</span>
-                </h2>
-                {loading ? (
-                  <div className="space-y-3 animate-pulse">
-                    <div className="h-4 bg-navy-800 rounded w-full" />
-                    <div className="h-4 bg-navy-800 rounded w-full" />
-                    <div className="h-4 bg-navy-800 rounded w-5/6" />
-                    <div className="h-4 bg-navy-850 rounded w-full mt-6" />
-                    <div className="h-4 bg-navy-850 rounded w-4/5" />
+        {/* Vision & Mission */}
+        <section className="section bg-slate-50">
+          <div className="container">
+            <SectionHeader
+              eyebrow="Philosophy"
+              title="Vision &"
+              highlight="Mission"
+              className="mb-10"
+            />
+            {loading ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="skeleton h-48 rounded-xl" />
+                <div className="skeleton h-48 rounded-xl" />
+              </div>
+            ) : vision && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Vision */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="card p-6"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+                    <Eye className="w-5 h-5 text-blue-600" />
                   </div>
-                ) : (
-                  <>
-                    <p className="text-navy-200 text-base leading-relaxed mb-4">
-                      {profile?.full_description}
-                    </p>
-                    <p className="text-navy-300 text-sm leading-relaxed flex flex-col gap-2">
-                      <span className="flex items-center gap-2">
-                        <BookmarkCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                        {profile?.affiliation}
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        {profile?.approval_details}
-                      </span>
-                    </p>
-                  </>
-                )}
-              </motion.div>
+                  <h3 className="text-base font-bold text-slate-900 mb-3">Our Vision</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{vision.vision}</p>
+                </motion.div>
 
-              {/* Decorative Progress Card */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="glass rounded-2xl p-8 border border-navy-700/30"
-              >
-                <div className="space-y-4">
-                  {[
-                    { label: "Total Students", value: "5000+", bar: 85 },
-                    { label: "Faculty Members", value: "150+", bar: 75 },
-                    { label: "Placement Rate", value: "92%", bar: 92 },
-                    { label: "Industry Partners", value: "100+", bar: 80 },
-                  ].map((item) => (
-                    <div key={item.label}>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-navy-200 text-sm">{item.label}</span>
-                        <span className="text-emerald-400 text-sm font-bold">{item.value}</span>
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-navy-800">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${item.bar}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, delay: 0.3 }}
-                          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Vision & Mission */}
-            <div className="grid lg:grid-cols-2 gap-6 mb-20">
-              {loading ? (
-                <>
-                  <div className="glass rounded-2xl p-8 border border-navy-700/30 animate-pulse h-48" />
-                  <div className="glass rounded-2xl p-8 border border-navy-700/30 animate-pulse h-48" />
-                </>
-              ) : (
-                <>
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="glass rounded-2xl p-8 border border-gold-500/20"
-                  >
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center">
-                        <Eye className="w-6 h-6 text-gold-400" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-white">Our Vision</h2>
-                    </div>
-                    <p className="text-navy-200 text-base leading-relaxed italic border-l-2 border-gold-500/40 pl-4">
-                      &ldquo;{vision?.vision}&rdquo;
-                    </p>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="glass rounded-2xl p-8 border border-emerald-500/20"
-                  >
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                        <Target className="w-6 h-6 text-emerald-400" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-white">Our Mission</h2>
-                    </div>
-                    <ul className="space-y-3">
-                      {vision?.mission.map((item, i) => (
-                        <li key={i} className="flex items-start gap-3 text-navy-200 text-sm">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                          {item}
+                {/* Mission */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="card p-6"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
+                    <Target className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 mb-3">Our Mission</h3>
+                  {Array.isArray(vision.mission) && vision.mission.length > 0 ? (
+                    <ul className="space-y-2">
+                      {(vision.mission as string[]).map((m, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-xs text-slate-600">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" /> {m}
                         </li>
                       ))}
                     </ul>
-                  </motion.div>
-                </>
-              )}
-            </div>
-
-            {/* Core Values Section */}
-            <SectionTitle
-              badge="Core Values"
-              title="Principles That Guide"
-              highlight="SSIET Excellence"
-              description="Our fundamental beliefs that shape our organizational culture and educational pedagogy."
-              className="mb-12"
-            />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-20">
-              {loading ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <div key={idx} className="glass rounded-2xl p-6 border border-navy-700/30 animate-pulse h-28" />
-                ))
-              ) : (
-                vision?.core_values.map((val, i) => (
-                  <motion.div
-                    key={val}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="glass rounded-2xl p-6 border border-navy-800/40 text-center hover:border-emerald-500/20 card-hover flex flex-col justify-center"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-2 text-emerald-400 text-xs font-bold">
-                      {i + 1}
-                    </div>
-                    <h3 className="text-white font-bold text-sm">{val}</h3>
-                  </motion.div>
-                ))
-              )}
-            </div>
-
-            {/* Achievements Section */}
-            <SectionTitle
-              badge="Achievements"
-              title="Our"
-              highlight="Milestones"
-              description="Recognitions and milestones that define our commitment to excellence."
-              className="mb-12"
-            />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, idx) => (
-                  <div key={idx} className="glass rounded-2xl p-6 border border-navy-700/30 animate-pulse h-48" />
-                ))
-              ) : (
-                achievements.map((ach, i) => {
-                  const Icon = achievementIconMap[ach.title.includes("NAAC") ? "Award" : (i % 2 === 0 ? "Trophy" : "Medal")] ?? Trophy;
-                  return (
-                    <motion.div
-                      key={ach.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-50px" }}
-                      transition={{ duration: 0.5, delay: i * 0.1 }}
-                      className="glass rounded-2xl p-6 border border-navy-700/30 card-hover text-center group"
-                    >
-                      <div className="w-12 h-12 mx-auto rounded-xl bg-gold-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <Icon className="w-6 h-6 text-gold-400" />
-                      </div>
-                      <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-2 block">
-                        {ach.category}
-                      </span>
-                      <h3 className="text-white font-semibold text-sm mb-2">{ach.title}</h3>
-                      <p className="text-navy-300 text-xs leading-relaxed">{ach.description}</p>
-                    </motion.div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Accreditation Section ("Recognized and Approved By") */}
-            <SectionTitle
-              badge="Recognitions"
-              title="Recognized and"
-              highlight="Approved By"
-              description="SSIET is validated by key governing boards ensuring premium standard engineering degrees."
-              className="mb-12"
-            />
-            <div className="grid sm:grid-cols-3 gap-6 mb-20">
-              {loading ? (
-                Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="glass rounded-2xl p-6 border border-navy-700/30 animate-pulse h-36" />
-                ))
-              ) : (
-                accreditations.map((acc, i) => (
-                  <motion.div
-                    key={acc.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className="glass rounded-2xl p-6 border border-navy-750 flex flex-col justify-between hover:border-emerald-500/20 card-hover"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-emerald-400 font-extrabold text-sm tracking-wider">{acc.organization_name}</span>
-                        <span className="text-[10px] text-navy-450 font-bold bg-navy-950 px-2 py-0.5 rounded">{acc.year}</span>
-                      </div>
-                      <h3 className="text-white font-bold text-sm mb-2">{acc.certificate_name}</h3>
-                      <p className="text-navy-300 text-xs leading-relaxed">{acc.description}</p>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-
-            {/* Timeline History */}
-            <SectionTitle
-              badge="Our Journey"
-              title="College"
-              highlight="History Timeline"
-              description="A journey of growth, innovation, and academic excellence."
-              className="mb-12"
-            />
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-500 via-navy-600 to-navy-800 -translate-x-1/2" />
-
-              <div className="space-y-8">
-                {loading ? (
-                  Array.from({ length: 3 }).map((_, idx) => (
-                    <div key={idx} className="relative flex justify-start pl-10 md:pl-0 animate-pulse">
-                      <div className="w-full md:w-[calc(50%-2rem)] h-24 glass border border-navy-700/30 rounded-xl" />
-                    </div>
-                  ))
-                ) : (
-                  collegeInfo?.timeline?.map((event: any, i: number) => {
-                    const isLeft = i % 2 === 0;
-                    return (
-                      <motion.div
-                        key={event.year}
-                        initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.5, delay: i * 0.1 }}
-                        className={`relative flex items-center ${isLeft ? "md:flex-row" : "md:flex-row-reverse"} flex-row pl-10 md:pl-0`}
-                      >
-                        {/* Content */}
-                        <div className={`w-full md:w-[calc(50%-2rem)] ${isLeft ? "md:pr-8" : "md:pl-8"}`}>
-                          <div className="glass rounded-xl p-5 border border-navy-700/30 card-hover">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-emerald-400 font-black text-xl">{event.year}</span>
-                            </div>
-                            <h3 className="text-white font-semibold text-sm mb-1">{event.title}</h3>
-                            <p className="text-navy-300 text-xs leading-relaxed">{event.description}</p>
-                          </div>
-                        </div>
-
-                        {/* Timeline dot */}
-                        <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-emerald-400 border-2 border-navy-900 shadow-lg shadow-emerald-400/30" />
-                      </motion.div>
-                    );
-                  })
-                )}
+                  ) : (
+                    <p className="text-sm text-slate-500 leading-relaxed">{vision.mission}</p>
+                  )}
+                </motion.div>
               </div>
-            </div>
-
-            {/* Footer contact info callout */}
-            {!loading && profile && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="mt-20 p-6 rounded-2xl glass border border-navy-750 flex flex-col md:flex-row items-center justify-between gap-6"
-              >
-                <div>
-                  <h3 className="text-white font-bold text-base mb-1">Get in Touch with SSIET</h3>
-                  <p className="text-navy-300 text-xs">Reach our administrative office for any queries or campus visit schedules.</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-6 text-xs text-navy-200">
-                  <span className="flex items-center gap-1.5">
-                    <Globe className="w-4 h-4 text-emerald-400" />
-                    <a href={`http://${profile.website}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{profile.website}</a>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Mail className="w-4 h-4 text-emerald-400" />
-                    <a href={`mailto:${profile.email}`} className="hover:underline">{profile.email}</a>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="w-4 h-4 text-emerald-400" />
-                    <span>{profile.phone}</span>
-                  </span>
-                </div>
-              </motion.div>
             )}
           </div>
         </section>
+
+        {/* Key Achievements */}
+        <section className="section bg-white">
+          <div className="container">
+            <SectionHeader
+              eyebrow="Achievements"
+              title="Our Key"
+              highlight="Milestones"
+              className="mb-10"
+            />
+            {loading ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {[1,2,3].map(i => <div key={i} className="skeleton h-36 rounded-xl" />)}
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {achievements.slice(0, 6).map((ach, i) => {
+                  const Icon = achievementIconMap[ach.category] ?? Trophy;
+                  return (
+                    <motion.div
+                      key={ach.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: i * 0.07 }}
+                      className="card p-5 group"
+                    >
+                      <div className="flex items-start gap-3 mb-2">
+                        <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+                          <Icon className="w-4 h-4 text-amber-600" />
+                        </div>
+                        <div>
+                          <span className="badge badge-amber text-[10px] mb-1">{ach.category}</span>
+                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                            {ach.title}
+                          </h3>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{ach.description}</p>
+                      <div className="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> {ach.year}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+            <div className="text-center mt-8">
+              <Link href="/achievements" className="btn btn-outline">
+                View All Achievements <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Strip */}
+        <section className="section bg-slate-900">
+          <div className="container text-center">
+            <h2 className="heading-section text-white mb-3">
+              Have Questions? <span className="gradient-text-blue-light">We're Here</span>
+            </h2>
+            <p className="text-slate-400 text-base mb-8 max-w-xl mx-auto">
+              Reach out to the admissions office or chat with our AI for instant answers.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/contact" className="btn btn-primary">
+                <Phone className="w-4 h-4" /> Contact Us
+              </Link>
+              <button onClick={() => setAiOpen(true)} className="btn bg-white/10 text-white border border-white/10 hover:bg-white/20">
+                <Sparkles className="w-4 h-4 text-emerald-400" /> Ask Campus AI
+              </button>
+            </div>
+          </div>
+        </section>
+
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

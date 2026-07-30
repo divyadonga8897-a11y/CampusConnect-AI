@@ -2,83 +2,124 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Monitor, Brain, BookOpen, Home, Dumbbell, UtensilsCrossed } from "lucide-react";
-import SectionTitle from "@/components/ui/SectionTitle";
-import { FACILITIES } from "@/constants/collegeData";
+import Link from "next/link";
+import { ArrowRight, Monitor, Brain, BookOpen, Home, Dumbbell, UtensilsCrossed, Mic2 } from "lucide-react";
+import SectionHeader from "@/components/ui/SectionHeader";
 
-const iconMap: Record<string, React.ElementType> = {
-  Monitor, Brain, BookOpen, Home, Dumbbell, UtensilsCrossed,
-};
+const facilities = [
+  {
+    name: "Computer Labs",
+    description: "350+ high-performance workstations across 5 labs with latest software suites.",
+    icon: Monitor,
+    image: "/images/campus/ai-lab.webp",
+    href: "/labs",
+    tag: "Technology",
+  },
+  {
+    name: "Central Library",
+    description: "50,000+ books, e-journals, digital resources and dedicated reading halls.",
+    icon: BookOpen,
+    image: "/images/campus/library.webp",
+    href: "/library",
+    tag: "Knowledge",
+  },
+  {
+    name: "Hostel",
+    description: "Separate hostel blocks for boys and girls with modern amenities and dining.",
+    icon: Home,
+    image: "/images/hostel/hostel-room.webp",
+    href: "/hostel",
+    tag: "Accommodation",
+  },
+  {
+    name: "Sports Ground",
+    description: "Cricket, football, basketball, and athletics facilities on sprawling grounds.",
+    icon: Dumbbell,
+    image: "/images/sports.png",
+    href: "/student-life",
+    tag: "Sports",
+  },
+  {
+    name: "Auditorium",
+    description: "800-seat fully-equipped auditorium for events, seminars, and convocations.",
+    icon: Mic2,
+    image: "/images/campus-life/auditorium.jpg",
+    href: "/campus",
+    tag: "Events",
+  },
+  {
+    name: "Cafeteria",
+    description: "Hygienic, affordable food court serving 1,000+ students daily.",
+    icon: UtensilsCrossed,
+    image: "/images/cafeteria.png",
+    href: "/campus",
+    tag: "Dining",
+  },
+];
 
 export default function CampusPreview() {
   return (
-    <section className="relative section-padding overflow-hidden">
-      <div className="absolute inset-0 bg-mesh opacity-20 pointer-events-none" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <SectionTitle
-          badge="Campus Life"
-          title="World-Class"
-          highlight="Campus Facilities"
-          description="Experience a vibrant campus designed to inspire learning, creativity, and holistic development."
-          className="mb-16"
+    <section className="section bg-white">
+      <div className="container">
+        <SectionHeader
+          eyebrow="Campus Life"
+          title="World-Class Campus"
+          highlight="Facilities"
+          description="Every facility is designed to support learning, well-being, and holistic development."
+          className="mb-12"
         />
 
-        {/* Facilities Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FACILITIES.map((facility, i) => {
-            const Icon = iconMap[facility.icon] ?? Monitor;
-            // Get the image path or fallback to central library
-            const imgPath = facility.image || "/images/library.png";
-
+          {facilities.map((f, i) => {
+            const Icon = f.icon;
             return (
               <motion.div
-                key={facility.name}
-                initial={{ opacity: 0, y: 30 }}
+                key={f.name}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="glass rounded-3xl overflow-hidden border border-white/5 card-hover group flex flex-col justify-between h-[360px]"
+                transition={{ duration: 0.5, delay: i * 0.07 }}
+                className="card overflow-hidden group"
               >
-                {/* Image Section */}
-                <div className="h-52 w-full relative overflow-hidden bg-navy-950">
-                  {/* Actual generated image */}
+                {/* Image */}
+                <div className="relative h-48 overflow-hidden bg-slate-100">
                   <Image
-                    src={imgPath}
-                    alt={facility.name}
+                    src={f.image}
+                    alt={f.name}
                     fill
-                    sizes="(max-w-7xl) 33vw"
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-80"
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  {/* Card overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-950/20 to-black/10" />
-                  
-                  {/* Floating Icon Pill */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-xl glass-light border border-white/10 shadow-lg">
-                    <Icon className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-[10px] uppercase tracking-widest font-black text-white">
-                      {facility.name}
-                    </span>
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  <span className="absolute top-3 left-3 badge badge-slate bg-white/90 backdrop-blur-sm text-[10px]">
+                    {f.tag}
+                  </span>
                 </div>
 
-                {/* Info Section */}
-                <div className="p-5 flex-1 flex flex-col justify-center bg-navy-900/60 backdrop-blur-sm border-t border-white/5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-white font-bold text-sm sm:text-base group-hover:text-blue-300 transition-colors">
-                      {facility.name}
+                {/* Content */}
+                <div className="p-5">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {f.name}
                     </h3>
                   </div>
-                  <p className="text-navy-300 text-xs sm:text-sm leading-relaxed">
-                    {facility.description}
-                  </p>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-4">{f.description}</p>
+                  <Link href={f.href} className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors">
+                    Learn more <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
-
               </motion.div>
             );
           })}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link href="/campus" className="btn btn-outline">
+            Take a Virtual Tour <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
