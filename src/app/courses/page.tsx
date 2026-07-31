@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import CoursesClient from "@/components/courses/CoursesClient";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function CoursesPage() {
-  return <CoursesClient />;
+  return (
+    <Suspense fallback={<div className="container py-20 text-center text-xs text-slate-400">Loading courses catalog...</div>}>
+      <CoursesClient />
+    </Suspense>
+  );
 }

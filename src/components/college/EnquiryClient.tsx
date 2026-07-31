@@ -6,13 +6,16 @@ import {
   Mail, Phone, User, BookOpen, Send,
   CheckCircle2, AlertTriangle, Bot, MessageSquare
 } from "lucide-react";
-import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
 import PageHero from "@/components/ui/PageHero";
 import { enquiryService } from "@/services/enquiryService";
 import { COLLEGE_INFO } from "@/constants/collegeData";
+import { Input, Textarea, Select } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 const courses = [
   { value: "b-tech-cse",  label: "B.Tech Computer Science Engineering (CSE)"         },
@@ -55,17 +58,17 @@ export default function EnquiryClient() {
     if (!validate()) return;
     setSubmitting(true);
     const res = await enquiryService.submitEnquiry({ ...formData });
-    setSubmitting(false);
+    setSubmitting(true);
     if (res.success) {
       setSuccess(true);
       setFormData({ name: "", email: "", phone: "", course_interest: "b-tech-cse", message: "" });
     } else {
       setGeneralError(res.error || "Submission failed. Please try again.");
     }
+    setSubmitting(false);
   };
 
-  const handleChange = (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = ev.target;
+  const handleTextChange = (name: string, value: string) => {
     setFormData((p) => ({ ...p, [name]: value }));
     if (errors[name]) setErrors((p) => ({ ...p, [name]: "" }));
   };
@@ -88,7 +91,7 @@ export default function EnquiryClient() {
 
             {/* ── Form ── */}
             <div className="lg:col-span-2">
-              <div className="card p-6 sm:p-8">
+              <Card variant="default" className="p-6 sm:p-8">
                 <AnimatePresence mode="wait">
                   {success ? (
                     <motion.div
@@ -101,16 +104,17 @@ export default function EnquiryClient() {
                       <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
                         <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">Enquiry Submitted!</h3>
-                      <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
+                      <h3 className="text-sm font-bold text-slate-900">Enquiry Submitted!</h3>
+                      <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                         Thank you! Our admissions counsellor will contact you within 24 working hours.
                       </p>
-                      <button
+                      <Button
+                        variant="secondary"
                         onClick={() => setSuccess(false)}
-                        className="btn btn-secondary mx-auto"
+                        className="mx-auto"
                       >
                         Submit Another Enquiry
-                      </button>
+                      </Button>
                     </motion.div>
                   ) : (
                     <motion.form
@@ -129,170 +133,114 @@ export default function EnquiryClient() {
                       )}
 
                       {/* Name */}
-                      <div>
-                        <label htmlFor="eq-name" className="text-label text-slate-700 mb-1.5">
-                          Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input
-                            id="eq-name"
-                            name="name"
-                            type="text"
-                            placeholder="Your full name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className={`input pl-10 ${errors.name ? "border-red-300 focus:ring-red-200" : ""}`}
-                          />
-                        </div>
-                        {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
-                      </div>
+                      <Input
+                        label="Full Name"
+                        placeholder="Your full name"
+                        value={formData.name}
+                        onChange={(e) => handleTextChange("name", e.target.value)}
+                        leftIcon={<User className="w-4 h-4 text-slate-400" />}
+                        error={errors.name}
+                      />
 
                       {/* Email + Phone row */}
                       <div className="grid sm:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="eq-email" className="text-label text-slate-700 mb-1.5">
-                            Email <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                              id="eq-email"
-                              name="email"
-                              type="email"
-                              placeholder="you@example.com"
-                              value={formData.email}
-                              onChange={handleChange}
-                              className={`input pl-10 ${errors.email ? "border-red-300" : ""}`}
-                            />
-                          </div>
-                          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-                        </div>
-                        <div>
-                          <label htmlFor="eq-phone" className="text-label text-slate-700 mb-1.5">
-                            Phone <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                              id="eq-phone"
-                              name="phone"
-                              type="tel"
-                              placeholder="+91 9999999999"
-                              value={formData.phone}
-                              onChange={handleChange}
-                              className={`input pl-10 ${errors.phone ? "border-red-300" : ""}`}
-                            />
-                          </div>
-                          {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
-                        </div>
+                        <Input
+                          label="Email Address"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={formData.email}
+                          onChange={(e) => handleTextChange("email", e.target.value)}
+                          leftIcon={<Mail className="w-4 h-4 text-slate-400" />}
+                          error={errors.email}
+                        />
+                        <Input
+                          label="Phone Number"
+                          type="tel"
+                          placeholder="e.g. 9876543210"
+                          value={formData.phone}
+                          onChange={(e) => handleTextChange("phone", e.target.value)}
+                          leftIcon={<Phone className="w-4 h-4 text-slate-400" />}
+                          error={errors.phone}
+                        />
                       </div>
 
-                      {/* Course Interest */}
-                      <div>
-                        <label htmlFor="eq-course" className="text-label text-slate-700 mb-1.5">
-                          Course of Interest <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <select
-                            id="eq-course"
-                            name="course_interest"
-                            value={formData.course_interest}
-                            onChange={handleChange}
-                            className="input select pl-10"
-                          >
-                            {courses.map((c) => (
-                              <option key={c.value} value={c.value}>{c.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
+                      {/* Course */}
+                      <Select
+                        label="Program of Interest"
+                        options={courses}
+                        value={formData.course_interest}
+                        onChange={(e) => handleTextChange("course_interest", e.target.value)}
+                        leftIcon={<BookOpen className="w-4 h-4 text-slate-400" />}
+                      />
 
                       {/* Message */}
-                      <div>
-                        <label htmlFor="eq-message" className="text-label text-slate-700 mb-1.5">
-                          Your Message <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          id="eq-message"
-                          name="message"
-                          rows={4}
-                          placeholder="Tell us what you'd like to know about SSIET..."
-                          value={formData.message}
-                          onChange={handleChange}
-                          className={`input resize-none ${errors.message ? "border-red-300" : ""}`}
-                        />
-                        {errors.message && <p className="text-xs text-red-500 mt-1">{errors.message}</p>}
-                      </div>
+                      <Textarea
+                        label="Your Query"
+                        placeholder="How can we help you? Please specify admission type or marks scores..."
+                        value={formData.message}
+                        onChange={(e) => handleTextChange("message", e.target.value)}
+                        error={errors.message}
+                        rows={5}
+                      />
 
-                      <button
+                      {/* Submit */}
+                      <Button
                         type="submit"
-                        id="enquiry-submit-btn"
-                        disabled={submitting}
-                        className="btn btn-primary w-full justify-center"
+                        variant="primary"
+                        isLoading={submitting}
+                        fullWidth
+                        rightIcon={<Send className="w-4 h-4" />}
                       >
-                        {submitting ? (
-                          <>
-                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Submitting...
-                          </>
-                        ) : (
-                          <><Send className="w-4 h-4" /> Submit Enquiry</>
-                        )}
-                      </button>
+                        Submit Enquiry
+                      </Button>
                     </motion.form>
                   )}
                 </AnimatePresence>
-              </div>
+              </Card>
             </div>
 
             {/* ── Sidebar ── */}
-            <div className="space-y-5">
-              {/* Quick Contact */}
-              <div className="card p-5">
-                <h3 className="text-sm font-bold text-slate-900 mb-4">Quick Contact</h3>
-                <div className="space-y-3">
-                  <a href={`tel:${COLLEGE_INFO.phone}`} className="flex items-center gap-3 text-sm text-slate-600 hover:text-blue-600 transition-colors">
-                    <Phone className="w-4 h-4 text-blue-500 shrink-0" /> {COLLEGE_INFO.phone}
-                  </a>
-                  <a href={`mailto:${COLLEGE_INFO.email}`} className="flex items-center gap-3 text-sm text-slate-600 hover:text-blue-600 transition-colors">
-                    <Mail className="w-4 h-4 text-blue-500 shrink-0" /> {COLLEGE_INFO.email}
-                  </a>
-                </div>
-              </div>
-
-              {/* Ask AI */}
-              <div className="card p-5 bg-slate-900 border-slate-800">
-                <div className="flex items-center gap-2 mb-2">
-                  <Bot className="w-5 h-5 text-emerald-400" />
-                  <span className="text-sm font-bold text-white">Campus AI</span>
-                </div>
-                <p className="text-xs text-slate-400 leading-relaxed mb-3">
-                  Get instant answers about admissions, fees, and courses 24/7.
+            <div className="space-y-6">
+              {/* Guidance Desk */}
+              <Card variant="default" className="p-6 space-y-4">
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                  <MessageSquare className="w-4.5 h-4.5 text-blue-600" /> Guidance Desk
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Our admissions office is located in the Central Administration wing. You can reach us directly:
                 </p>
-                <button onClick={() => setAiOpen(true)} className="btn btn-sm bg-emerald-500 text-white hover:bg-emerald-400 w-full justify-center">
-                  Ask AI Now
-                </button>
-              </div>
-
-              {/* Links */}
-              <div className="card p-5">
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Useful Links</h3>
-                <div className="space-y-2">
-                  {[
-                    { label: "Admission Process", href: "/admissions" },
-                    { label: "Fee Structure",     href: "/fees"       },
-                    { label: "Scholarships",      href: "/scholarships"},
-                    { label: "FAQ",               href: "/faq"        },
-                  ].map((l) => (
-                    <Link key={l.href} href={l.href}
-                      className="flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition-colors">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> {l.label}
-                    </Link>
-                  ))}
+                <div className="space-y-3.5 pt-2 text-xs text-slate-600">
+                  <div className="flex items-center gap-2.5">
+                    <Phone className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span className="font-semibold">{COLLEGE_INFO.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span className="font-semibold">{COLLEGE_INFO.email}</span>
+                  </div>
                 </div>
-              </div>
+              </Card>
+
+              {/* Campus AI widget */}
+              <Card variant="default" className="p-5 bg-blue-600 border-blue-700 text-white shadow-lg hover:border-blue-600">
+                <div className="flex items-start gap-3">
+                  <Bot className="w-5 h-5 text-blue-200 shrink-0 mt-0.5 animate-pulse" />
+                  <div>
+                    <h4 className="font-bold text-xs mb-1 uppercase tracking-wider">Admissions AI Assistant</h4>
+                    <p className="text-blue-100 text-xs leading-relaxed mb-4">
+                      Get immediate answers regarding seat intake, exam procedures, fee schedules, and student residency rules.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAiOpen(true)}
+                      className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:border-white/30"
+                    >
+                      Start AI Chat
+                    </Button>
+                  </div>
+                </div>
+              </Card>
             </div>
 
           </div>

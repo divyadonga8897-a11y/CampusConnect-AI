@@ -2,21 +2,26 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, TrendingUp, Building2, IndianRupee, Users, Award, Briefcase } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, TrendingUp, Building2, IndianRupee, Users, Award } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { PLACEMENT_STATS, RECRUITERS } from "@/constants/collegeData";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 const stats = [
-  { icon: TrendingUp,   label: "Placement Rate",     value: `${PLACEMENT_STATS.placementRate}%`, color: "text-emerald-600", bg: "bg-emerald-50" },
-  { icon: IndianRupee,  label: "Highest Package",    value: PLACEMENT_STATS.highestPackage,      color: "text-blue-600",    bg: "bg-blue-50"    },
-  { icon: Award,        label: "Average Package",    value: PLACEMENT_STATS.averagePackage,      color: "text-amber-600",   bg: "bg-amber-50"   },
-  { icon: Building2,    label: "Companies Visited",  value: `${PLACEMENT_STATS.companies}+`,     color: "text-purple-600",  bg: "bg-purple-50"  },
+  { icon: TrendingUp,   label: "Placement Rate",     value: `${PLACEMENT_STATS.placementRate}%`, color: "text-emerald-700", bg: "bg-emerald-50",  col: "green" as const },
+  { icon: IndianRupee,  label: "Highest Package",    value: PLACEMENT_STATS.highestPackage,      color: "text-blue-700",    bg: "bg-blue-50",     col: "blue" as const  },
+  { icon: Award,        label: "Average Package",    value: PLACEMENT_STATS.averagePackage,      color: "text-amber-700",   bg: "bg-amber-50",    col: "amber" as const },
+  { icon: Building2,    label: "Companies Visited",  value: `${PLACEMENT_STATS.companies}+`,     color: "text-indigo-700",  bg: "bg-indigo-50",   col: "indigo" as const},
 ];
 
 export default function PlacementSection() {
+  const router = useRouter();
+
   return (
-    <section className="section bg-slate-50">
+    <section className="section bg-slate-50 border-t border-slate-100">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
@@ -42,21 +47,26 @@ export default function PlacementSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: i * 0.08 }}
-                    className="card p-5"
                   >
-                    <div className={`w-9 h-9 rounded-lg ${s.bg} flex items-center justify-center mb-3`}>
-                      <Icon className={`w-4 h-4 ${s.color}`} />
-                    </div>
-                    <div className="text-xl font-black text-slate-900 mb-0.5">{s.value}</div>
-                    <div className="text-xs text-slate-500 font-medium">{s.label}</div>
+                    <Card variant="default" className="p-5">
+                      <div className={`w-9 h-9 rounded-lg ${s.bg} flex items-center justify-center mb-3`}>
+                        <Icon className={`w-4 h-4 ${s.color}`} />
+                      </div>
+                      <div className="text-xl font-black text-slate-900 mb-0.5">{s.value}</div>
+                      <div className="text-xs text-slate-500 font-medium">{s.label}</div>
+                    </Card>
                   </motion.div>
                 );
               })}
             </div>
 
-            <Link href="/placements" className="btn btn-primary">
-              View Placement Details <ArrowRight className="w-4 h-4" />
-            </Link>
+            <Button
+              variant="primary"
+              onClick={() => router.push("/placements")}
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              View Placement Details
+            </Button>
           </div>
 
           {/* Right: Image + Recruiters */}
@@ -75,22 +85,26 @@ export default function PlacementSection() {
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent" />
             </div>
 
             {/* Recruiter Tags */}
-            <div className="card p-5">
+            <Card variant="default" className="p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-4 h-4 text-blue-600" />
-                <span className="text-xs font-black text-slate-700 uppercase tracking-wider">Top Recruiters</span>
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Top Recruiters</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {RECRUITERS.slice(0, 16).map((r) => (
-                  <span key={r} className="badge badge-slate text-[11px]">{r}</span>
+                  <Badge key={r} variant="light" color="slate">
+                    {r}
+                  </Badge>
                 ))}
-                <span className="badge badge-blue text-[11px]">+{Math.max(0, RECRUITERS.length - 16)} more</span>
+                <Badge variant="light" color="blue">
+                  +{Math.max(0, RECRUITERS.length - 16)} more
+                </Badge>
               </div>
-            </div>
+            </Card>
           </motion.div>
 
         </div>

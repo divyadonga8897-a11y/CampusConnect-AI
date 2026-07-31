@@ -922,7 +922,7 @@ export const FACILITIES = [
     name: "Sports Complex",
     icon: "Dumbbell",
     description: "Multi-sport complex with indoor and outdoor facilities for physical fitness.",
-    image: "/images/sports.png",
+    image: "/images/campus/sports-ground.png",
   },
   {
     name: "Cafeteria",

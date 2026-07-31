@@ -2,21 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Tag } from "lucide-react";
+import { Calendar } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
 import PageHero from "@/components/ui/PageHero";
 import { campusService, type CampusEventItem } from "@/services/campusService";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 const categories = ["All", "Hackathons", "Festivals", "Workshops", "Technical Events", "Cultural Events"];
 
-const catColors: Record<string, string> = {
-  "Hackathons":       "badge-blue",
-  "Festivals":        "badge-amber",
-  "Workshops":        "badge-green",
-  "Technical Events": "badge-blue",
-  "Cultural Events":  "badge-amber",
+const catColors: Record<string, "blue" | "green" | "amber" | "slate" | "indigo"> = {
+  "Hackathons":       "blue",
+  "Festivals":        "amber",
+  "Workshops":        "green",
+  "Technical Events": "blue",
+  "Cultural Events":  "amber",
 };
 
 export default function EventsClient() {
@@ -44,7 +46,16 @@ export default function EventsClient() {
           eyebrow="Events & Activities"
           title="Campus Life &"
           highlight="Events"
-          description="Hackathons, tech fests, cultural events, workshops — a vibrant student life calendar throughout the year."
+          description={
+            <div className="space-y-2">
+              <p>
+                Our campus is alive with year-round activities, technical symposia, hackathons, and cultural festivals that provide students a stage to showcase talents and build lasting collaborations.
+              </p>
+              <p>
+                Browse through our event calendar to find upcoming computational contests, national engineering workshops, and annual cultural celebrations.
+              </p>
+            </div>
+          }
           breadcrumbs={[{ label: "Home", href: "/" }, { label: "Events" }]}
         />
 
@@ -55,10 +66,10 @@ export default function EventsClient() {
               <button
                 key={cat}
                 onClick={() => setSelectedCat(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer transition-all ${
                   selectedCat === cat
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
+                    ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
                 }`}
               >
                 {cat}
@@ -69,45 +80,50 @@ export default function EventsClient() {
           {/* Events Grid */}
           {loading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="skeleton h-52 rounded-xl" />)}
+              {[1, 2, 3].map(i => <div key={i} className="skeleton h-52 rounded-xl" />)}
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((event, i) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="card p-5 group"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <span className={`badge ${catColors[event.category] ?? "badge-slate"} text-[10px]`}>
-                      {event.category}
-                    </span>
-                  </div>
+              {filtered.map((event, i) => {
+                const bColor = catColors[event.category] ?? "slate";
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.06 }}
+                    className="flex flex-col h-full"
+                  >
+                    <Card variant="default" className="flex flex-col h-full p-5 group hover:border-blue-400">
+                      <div className="flex items-start justify-between mb-3 shrink-0">
+                        <Badge variant="light" color={bColor}>
+                          {event.category}
+                        </Badge>
+                      </div>
 
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">
-                    {event.event_name}
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4">{event.description}</p>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2 leading-snug">
+                        {event.event_name}
+                      </h3>
+                      <p className="text-xs text-slate-500 leading-relaxed mb-4 flex-grow line-clamp-3">{event.description}</p>
 
-                  <div className="space-y-1.5 text-[11px] text-slate-400 border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3" />
-                      {event.event_date}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                      <div className="space-y-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-t border-slate-100 pt-3.5 shrink-0 mt-auto">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                          <span>{event.event_date}</span>
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </div>
           )}
 
           {!loading && filtered.length === 0 && (
-            <div className="card p-10 text-center">
+            <div className="card p-10 text-center max-w-sm mx-auto">
               <Calendar className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 text-sm">No events in this category.</p>
+              <p className="text-slate-500 text-xs font-semibold">No events in this category.</p>
             </div>
           )}
         </div>

@@ -6,8 +6,10 @@ import { Monitor, Brain, Cpu, BookOpen, Lightbulb, MapPin, CheckCircle2 } from "
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
 import { campusService, type Facility } from "@/services/campusService";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 const iconMap: Record<string, React.ElementType> = {
   "smart-classrooms": Monitor,
@@ -23,78 +25,75 @@ export default function InfrastructureClient() {
 
   useEffect(() => {
     campusService.getFacilities().then((res) => {
-      setFacilities(res.data);
+      setFacilities(res.data || []);
     });
   }, []);
 
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Campus Assets"
-            title="Premium Academic"
-            highlight="Infrastructure"
-            description="Explore our tech-integrated academic assets engineered to facilitate high-intensity learning, computing research, and design innovation."
-            className="mb-14"
-          />
+      <main className="bg-slate-50 min-h-screen">
+        
+        <PageHero
+          eyebrow="Campus Assets"
+          title="Premium Academic"
+          highlight="Infrastructure"
+          description="Explore our tech-integrated academic assets engineered to facilitate high-intensity learning, computing research, and design innovation."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Infrastructure" }]}
+        />
 
+        <div className="container py-12">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {facilities.map((fac, i) => {
               const Icon = iconMap[fac.id] ?? Monitor;
-
               return (
                 <motion.div
                   key={fac.id}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  className="glass rounded-2xl overflow-hidden border border-navy-700/30 card-hover flex flex-col justify-between group"
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: i * 0.05 }}
+                  className="flex flex-col h-full"
                 >
-                  <div>
-                    {/* Header Image placeholder */}
-                    <div className="h-44 bg-navy-950/60 relative overflow-hidden flex items-center justify-center border-b border-navy-800/40">
-                      <div className="absolute inset-0 bg-mesh opacity-40 pointer-events-none" />
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-navy-600/20 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <Icon className="w-8 h-8 text-emerald-400" />
+                  <Card variant="default" className="flex flex-col h-full p-5 group hover:border-blue-400">
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-350">
+                          <Icon className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <Badge variant="light" color="slate" className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-blue-500" />
+                          <span>{fac.location}</span>
+                        </Badge>
                       </div>
-                      <span className="absolute bottom-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-lg glass-light text-[10px] text-navy-200 font-semibold">
-                        <MapPin className="w-3 h-3 text-emerald-450 shrink-0" />
-                        {fac.location}
-                      </span>
-                    </div>
 
-                    {/* Content */}
-                    <div className="p-6">
-                      <h3 className="text-white font-bold text-base sm:text-lg mb-2 flex items-center gap-2">
+                      <h3 className="text-slate-900 font-extrabold text-sm sm:text-base mb-2 group-hover:text-blue-600 transition-colors">
                         {fac.name}
                       </h3>
-                      <p className="text-navy-300 text-sm leading-relaxed mb-6">
+                      <p className="text-slate-500 text-xs leading-relaxed mb-6">
                         {fac.description}
                       </p>
                     </div>
-                  </div>
 
-                  {/* Highlights checklist footer */}
-                  <div className="px-6 pb-6 pt-2 border-t border-navy-800/20 space-y-2">
-                    {[
-                      "Fully air-conditioned environments",
-                      "24/7 dedicated support technicians",
-                      "Integration with student digital IDs",
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-navy-350 text-xs">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-450 shrink-0" />
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                  </div>
+                    {/* Highlights checklist footer */}
+                    <div className="pt-4 border-t border-slate-100 space-y-2 mt-auto shrink-0">
+                      {[
+                        "Fully air-conditioned environments",
+                        "24/7 dedicated support technicians",
+                        "Integration with student digital IDs",
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
                 </motion.div>
               );
             })}
           </div>
-        </section>
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

@@ -13,7 +13,6 @@ import {
   FileText, 
   Image as ImageIcon, 
   Mail, 
-  Settings, 
   LogOut, 
   User as UserIcon,
   Plus, 
@@ -22,9 +21,16 @@ import {
   Check, 
   AlertTriangle,
   History,
-  Briefcase
+  TrendingUp,
+  Inbox
 } from "lucide-react";
 import { adminService } from "@/services/adminService";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Input, Textarea, Select } from "@/components/ui/Input";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
+import { StatCard } from "@/components/ui/StatCard";
 
 // Validation schemas for Zod forms
 const deptSchema = z.object({
@@ -54,7 +60,7 @@ const feeSchema = z.object({
 export default function AdminDashboardClient() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [currentView, setCurrentView] = useState("dashboard"); // dashboard, college, departments, courses, fees, admissions, gallery, enquiries
+  const [currentView, setCurrentView] = useState("dashboard"); // dashboard, departments, courses, fees, enquiries
   
   // Dashboard statistics
   const [stats, setStats] = useState<any>(null);
@@ -116,7 +122,7 @@ export default function AdminDashboardClient() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Department Form
-  const { register: regDept, handleSubmit: subDept, reset: resDept } = useForm({
+  const { register: regDept, handleSubmit: subDept, reset: resDept, setValue: setDeptValue } = useForm({
     resolver: zodResolver(deptSchema)
   });
 
@@ -138,7 +144,7 @@ export default function AdminDashboardClient() {
   };
 
   // Course Form
-  const { register: regCourse, handleSubmit: subCourse, reset: resCourse } = useForm({
+  const { register: regCourse, handleSubmit: subCourse, reset: resCourse, setValue: setCourseValue } = useForm({
     resolver: zodResolver(courseSchema)
   });
 
@@ -192,82 +198,67 @@ export default function AdminDashboardClient() {
   };
 
   return (
-    <div className="min-h-screen flex bg-navy-950 text-white">
+    <div className="min-h-screen flex bg-slate-50 text-slate-800">
+      
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-navy-900 border-r border-navy-800/40 p-6 flex flex-col justify-between hidden sm:flex shrink-0">
+      <aside className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between hidden md:flex shrink-0 shadow-sm">
         <div className="space-y-8">
           <div>
-            <div className="text-emerald-450 font-black text-sm uppercase tracking-widest">SSIET Console</div>
-            <div className="text-[10px] text-navy-450 uppercase font-semibold mt-1">College Discovery CMS</div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+                <LayoutDashboard className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-sm font-black text-slate-900 tracking-tight">SSIET Console</span>
+            </div>
+            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider pl-9">Discovery CMS</div>
           </div>
 
           <nav className="space-y-1">
-            <button
-              onClick={() => { setCurrentView("dashboard"); setEditingId(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                currentView === "dashboard" ? "bg-emerald-500/10 text-emerald-400" : "text-navy-300 hover:bg-navy-800/30"
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard Home
-            </button>
-            <button
-              onClick={() => { setCurrentView("departments"); setEditingId(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                currentView === "departments" ? "bg-emerald-500/10 text-emerald-400" : "text-navy-300 hover:bg-navy-800/30"
-              }`}
-            >
-              <Building2 className="w-4 h-4" />
-              Departments
-            </button>
-            <button
-              onClick={() => { setCurrentView("courses"); setEditingId(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                currentView === "courses" ? "bg-emerald-500/10 text-emerald-400" : "text-navy-300 hover:bg-navy-800/30"
-              }`}
-            >
-              <BookOpen className="w-4 h-4" />
-              Courses
-            </button>
-            <button
-              onClick={() => { setCurrentView("fees"); setEditingId(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                currentView === "fees" ? "bg-emerald-500/10 text-emerald-400" : "text-navy-300 hover:bg-navy-800/30"
-              }`}
-            >
-              <Coins className="w-4 h-4" />
-              Fee Structures
-            </button>
-            <button
-              onClick={() => { setCurrentView("enquiries"); setEditingId(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
-                currentView === "enquiries" ? "bg-emerald-500/10 text-emerald-400" : "text-navy-300 hover:bg-navy-800/30"
-              }`}
-            >
-              <Mail className="w-4 h-4" />
-              Enquiries Inbox
-            </button>
+            {[
+              { id: "dashboard", label: "Dashboard Home", icon: LayoutDashboard },
+              { id: "departments", label: "Departments", icon: Building2 },
+              { id: "courses", label: "Courses & Programs", icon: BookOpen },
+              { id: "fees", label: "Fee Structures", icon: Coins },
+              { id: "enquiries", label: "Enquiries Inbox", icon: Mail },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = currentView === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => { setCurrentView(tab.id); setEditingId(null); }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    active 
+                      ? "bg-blue-50 border-l-4 border-blue-600 text-blue-700 shadow-sm" 
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${active ? "text-blue-600" : "text-slate-400"}`} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </nav>
         </div>
 
-        {/* User profile footer info */}
-        <div className="pt-4 border-t border-navy-800/40 space-y-4">
+        {/* User Profile Info */}
+        <div className="pt-4 border-t border-slate-200 space-y-4">
           {currentUser && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
                 <UserIcon className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold truncate text-white">{currentUser.full_name}</div>
-                <div className="text-[9px] font-black text-navy-450 uppercase">{currentUser.role}</div>
+                <div className="text-xs font-bold truncate text-slate-900 leading-snug">{currentUser.full_name}</div>
+                <div className="text-[9px] font-black text-slate-400 uppercase">{currentUser.role}</div>
               </div>
             </div>
           )}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-red-400 hover:bg-red-500/10 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 text-red-400" />
             Sign Out
           </button>
         </div>
@@ -279,34 +270,34 @@ export default function AdminDashboardClient() {
         {alertMessage && (
           <div className={`p-4 rounded-xl mb-6 flex items-start gap-2.5 text-xs sm:text-sm border ${
             alertType === "success" 
-              ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-400" 
-              : "bg-red-950/20 border-red-500/30 text-red-400"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+              : "bg-red-50 border-red-200 text-red-700"
           }`}>
-            <Check className="w-4.5 h-4.5 shrink-0" />
+            <Check className="w-4.5 h-4.5 shrink-0 mt-0.5" />
             <span>{alertMessage}</span>
           </div>
         )}
 
         {/* Header */}
-        <header className="flex justify-between items-center pb-6 border-b border-navy-800/40 mb-8">
+        <header className="flex justify-between items-center pb-6 border-b border-slate-200 mb-8">
           <div>
-            <h1 className="text-white text-xl sm:text-2xl font-black uppercase tracking-tight">
+            <h1 className="text-slate-900 text-xl sm:text-2xl font-black uppercase tracking-tight">
               {currentView} console
             </h1>
-            <p className="text-navy-350 text-xs mt-1">
+            <p className="text-slate-400 text-xs mt-1">
               Welcome back, managing credentials lists and directories information.
             </p>
           </div>
         </header>
 
         {loading ? (
-          <div className="space-y-6 animate-pulse">
+          <div className="space-y-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 4 }).map((_, idx) => (
-                <div key={idx} className="glass h-28 rounded-2xl" />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="skeleton h-28 rounded-xl animate-pulse" />
               ))}
             </div>
-            <div className="glass h-64 rounded-2xl" />
+            <div className="skeleton h-64 rounded-xl animate-pulse" />
           </div>
         ) : (
           <>
@@ -316,258 +307,296 @@ export default function AdminDashboardClient() {
                 {/* Stats Cards */}
                 {stats && (
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="glass p-5 rounded-2xl border border-navy-800/30 text-center">
-                      <BookOpen className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-                      <div className="text-3xl font-extrabold text-white">{stats.courses}</div>
-                      <div className="text-[10px] text-navy-450 uppercase font-black tracking-widest mt-1">Total Courses</div>
-                    </div>
-                    <div className="glass p-5 rounded-2xl border border-navy-800/30 text-center">
-                      <Building2 className="w-5 h-5 text-emerald-450 mx-auto mb-2" />
-                      <div className="text-3xl font-extrabold text-white">{stats.departments}</div>
-                      <div className="text-[10px] text-navy-450 uppercase font-black tracking-widest mt-1">Departments</div>
-                    </div>
-                    <div className="glass p-5 rounded-2xl border border-navy-800/30 text-center">
-                      <Mail className="w-5 h-5 text-gold-450 mx-auto mb-2" />
-                      <div className="text-3xl font-extrabold text-white">{stats.student_enquiries}</div>
-                      <div className="text-[10px] text-navy-450 uppercase font-black tracking-widest mt-1">Student Enquiries</div>
-                    </div>
-                    <div className="glass p-5 rounded-2xl border border-navy-800/30 text-center">
-                      <ImageIcon className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-                      <div className="text-3xl font-extrabold text-white">{stats.gallery_images}</div>
-                      <div className="text-[10px] text-navy-450 uppercase font-black tracking-widest mt-1">Gallery Images</div>
-                    </div>
+                    <StatCard
+                      title="Total Courses"
+                      value={String(stats.courses)}
+                      icon={BookOpen}
+                      trend={{ value: "4 streams active", isPositive: true }}
+                    />
+                    <StatCard
+                      title="Departments"
+                      value={String(stats.departments)}
+                      icon={Building2}
+                      trend={{ value: "Central administration", isPositive: true }}
+                    />
+                    <StatCard
+                      title="Student Enquiries"
+                      value={String(stats.student_enquiries)}
+                      icon={Mail}
+                      trend={{ value: "Pending reviews", isPositive: false }}
+                    />
+                    <StatCard
+                      title="Gallery Images"
+                      value={String(stats.gallery_images)}
+                      icon={ImageIcon}
+                      trend={{ value: "Updated weekly", isPositive: true }}
+                    />
                   </div>
                 )}
 
                 {/* Audit Logs Table */}
-                <div className="glass p-6 sm:p-8 rounded-3xl border border-navy-800/30">
-                  <h2 className="text-base sm:text-lg font-black text-white mb-6 flex items-center gap-3">
-                    <History className="w-5 h-5 text-emerald-400" />
+                <Card variant="default" className="p-6 sm:p-8">
+                  <h2 className="text-base font-bold text-slate-900 mb-6 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <History className="w-5 h-5 text-blue-600" />
                     Admin Action Audit Logs
                   </h2>
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="border-b border-navy-800/50 text-navy-400 uppercase tracking-wider font-semibold">
-                          <th className="py-3 px-4">User</th>
-                          <th className="py-3 px-4">Action</th>
-                          <th className="py-3 px-4">Module</th>
-                          <th className="py-3 px-4">Description</th>
-                          <th className="py-3 px-4">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {logs.map((log) => (
-                          <tr key={log.id} className="border-b border-navy-850 hover:bg-navy-900/35 transition-colors">
-                            <td className="py-3.5 px-4 font-bold text-white">{log.user_name}</td>
-                            <td className="py-3.5 px-4">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                log.action === "CREATE" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15" :
-                                log.action === "UPDATE" ? "bg-blue-500/10 text-blue-400 border border-blue-500/15" :
-                                "bg-red-500/10 text-red-400 border border-red-500/15"
-                              }`}>
-                                {log.action}
-                              </span>
-                            </td>
-                            <td className="py-3.5 px-4 text-navy-200">{log.module}</td>
-                            <td className="py-3.5 px-4 text-navy-300">{log.description}</td>
-                            <td className="py-3.5 px-4 text-navy-450">{log.created_at}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Action</TableHead>
+                        <TableHead>Module</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {logs.map((log) => (
+                        <TableRow key={log.id}>
+                          <TableCell className="font-bold text-slate-800">{log.user_name}</TableCell>
+                          <TableCell>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                                log.action === "CREATE"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                  : log.action === "UPDATE"
+                                  ? "bg-blue-50 text-blue-700 border-blue-100"
+                                  : "bg-red-50 text-red-700 border-red-100"
+                              }`}
+                            >
+                              {log.action}
+                            </span>
+                          </TableCell>
+                          <TableCell>{log.module}</TableCell>
+                          <TableCell>{log.description}</TableCell>
+                          <TableCell className="text-slate-400 font-medium">{log.created_at}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
               </div>
             )}
 
             {/* VIEW 2: DEPARTMENTS CRUD */}
             {currentView === "departments" && (
               <div className="space-y-8 max-w-2xl">
-                <div className="glass p-6 sm:p-8 rounded-3xl border border-navy-800/30">
-                  <h2 className="text-white font-bold text-sm sm:text-base mb-6">
+                <Card variant="default" className="p-6 sm:p-8">
+                  <h2 className="text-slate-900 font-bold text-sm sm:text-base mb-6 border-b border-slate-100 pb-3">
                     {editingId ? "Update Department" : "Add New Department"}
                   </h2>
                   <form onSubmit={subDept(onDeptSubmit)} className="space-y-4">
                     {!editingId && (
-                      <div>
-                        <label htmlFor="dept-code" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Code/Slug ID</label>
-                        <input id="dept-code" type="text" {...regDept("id")} placeholder="e.g. cse" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                      </div>
+                      <Input
+                        label="Code/Slug ID"
+                        placeholder="e.g. cse"
+                        {...regDept("id")}
+                      />
                     )}
-                    <div>
-                      <label htmlFor="dept-name" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Name</label>
-                      <input id="dept-name" type="text" {...regDept("name")} placeholder="e.g. Computer Science Engineering" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                    </div>
-                    <div>
-                      <label htmlFor="dept-desc" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Description</label>
-                      <textarea id="dept-desc" rows={4} {...regDept("description")} placeholder="Outlines of courses, milestones..." className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                    </div>
-                    <div>
-                      <label htmlFor="dept-hod" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Head of Department (HOD)</label>
-                      <input id="dept-hod" type="text" {...regDept("hod")} placeholder="Dr. Sastry" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                    </div>
-                    <button type="submit" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:from-emerald-450 hover:to-emerald-550 transition-colors">
+                    <Input
+                      label="Name"
+                      placeholder="e.g. Computer Science Engineering"
+                      {...regDept("name")}
+                    />
+                    <Textarea
+                      label="Description"
+                      placeholder="Outlines of courses, milestones..."
+                      {...regDept("description")}
+                    />
+                    <Input
+                      label="Head of Department (HOD)"
+                      placeholder="Dr. Sastry"
+                      {...regDept("hod")}
+                    />
+                    <Button type="submit" variant="primary">
                       {editingId ? "Update Parameters" : "Publish Department"}
-                    </button>
+                    </Button>
                   </form>
-                </div>
+                </Card>
               </div>
             )}
 
             {/* VIEW 3: COURSES CRUD */}
             {currentView === "courses" && (
               <div className="space-y-8 max-w-2xl">
-                <div className="glass p-6 sm:p-8 rounded-3xl border border-navy-800/30">
-                  <h2 className="text-white font-bold text-sm sm:text-base mb-6">
+                <Card variant="default" className="p-6 sm:p-8">
+                  <h2 className="text-slate-900 font-bold text-sm sm:text-base mb-6 border-b border-slate-100 pb-3">
                     {editingId ? "Update Course Details" : "Add New Course"}
                   </h2>
                   <form onSubmit={subCourse(onCourseSubmit)} className="space-y-4">
                     {!editingId && (
                       <>
-                        <div>
-                          <label htmlFor="course-id" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Course Code/ID</label>
-                          <input id="course-id" type="text" {...regCourse("id")} placeholder="e.g. b-tech-cse" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                        </div>
-                        <div>
-                          <label htmlFor="course-dept" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Department ID</label>
-                          <input id="course-dept" type="text" {...regCourse("dept_id")} placeholder="e.g. cse" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                        </div>
+                        <Input
+                          label="Course Code/ID"
+                          placeholder="e.g. b-tech-cse"
+                          {...regCourse("id")}
+                        />
+                        <Input
+                          label="Department ID"
+                          placeholder="e.g. cse"
+                          {...regCourse("dept_id")}
+                        />
                       </>
                     )}
-                    <div>
-                      <label htmlFor="course-name" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Course Name</label>
-                      <input id="course-name" type="text" {...regCourse("name")} placeholder="e.g. B.Tech Computer Science Engineering" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                    </div>
+                    <Input
+                      label="Course Name"
+                      placeholder="e.g. B.Tech Computer Science Engineering"
+                      {...regCourse("name")}
+                    />
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="course-duration" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Duration</label>
-                        <input id="course-duration" type="text" {...regCourse("duration")} placeholder="e.g. 4 Years" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                      </div>
-                      <div>
-                        <label htmlFor="course-intake" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Intake Capacity</label>
-                        <input id="course-intake" type="number" {...regCourse("intake", { valueAsNumber: true })} placeholder="120" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                      </div>
+                      <Input
+                        label="Duration"
+                        placeholder="e.g. 4 Years"
+                        {...regCourse("duration")}
+                      />
+                      <Input
+                        label="Intake Capacity"
+                        type="number"
+                        placeholder="120"
+                        {...regCourse("intake", { valueAsNumber: true })}
+                      />
                     </div>
-                    <button type="submit" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:from-emerald-450 hover:to-emerald-550 transition-colors">
+                    <Button type="submit" variant="primary">
                       Submit Course Details
-                    </button>
+                    </Button>
                   </form>
-                </div>
+                </Card>
               </div>
             )}
 
             {/* VIEW 4: FEES CRUD */}
             {currentView === "fees" && (
               <div className="space-y-8 max-w-2xl">
-                <div className="glass p-6 sm:p-8 rounded-3xl border border-navy-800/30">
-                  <h2 className="text-white font-bold text-sm sm:text-base mb-6">
+                <Card variant="default" className="p-6 sm:p-8">
+                  <h2 className="text-slate-900 font-bold text-sm sm:text-base mb-6 border-b border-slate-100 pb-3">
                     {editingId ? "Update Tuition/Hostel Fees" : "Create Fee Structure"}
                   </h2>
                   <form onSubmit={subFee(onFeeSubmit)} className="space-y-4">
                     {!editingId && (
                       <div className="grid sm:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="fee-course" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Course Code</label>
-                          <input id="fee-course" type="text" {...regFee("course_id")} placeholder="e.g. b-tech-cse" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                        </div>
-                        <div>
-                          <label htmlFor="fee-year" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Academic Year</label>
-                          <input id="fee-year" type="text" {...regFee("academic_year")} placeholder="e.g. 2025-2026" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                        </div>
+                        <Input
+                          label="Course Code"
+                          placeholder="e.g. b-tech-cse"
+                          {...regFee("course_id")}
+                        />
+                        <Input
+                          label="Academic Year"
+                          placeholder="e.g. 2025-2026"
+                          {...regFee("academic_year")}
+                        />
                       </div>
                     )}
                     <div className="grid sm:grid-cols-3 gap-4">
-                      <div>
-                        <label htmlFor="fee-tuition" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Tuition Fee</label>
-                        <input id="fee-tuition" type="number" {...regFee("tuition", { valueAsNumber: true })} placeholder="75000" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                      </div>
-                      <div>
-                        <label htmlFor="fee-hostel" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Hostel Fee</label>
-                        <input id="fee-hostel" type="number" {...regFee("hostel", { valueAsNumber: true })} placeholder="35000" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                      </div>
-                      <div>
-                        <label htmlFor="fee-other" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Other Charges</label>
-                        <input id="fee-other" type="number" {...regFee("other", { valueAsNumber: true })} placeholder="5000" className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none focus:border-emerald-500/50 bg-navy-900" />
-                      </div>
+                      <Input
+                        label="Tuition Fee"
+                        type="number"
+                        placeholder="75000"
+                        {...regFee("tuition", { valueAsNumber: true })}
+                      />
+                      <Input
+                        label="Hostel Fee"
+                        type="number"
+                        placeholder="35000"
+                        {...regFee("hostel", { valueAsNumber: true })}
+                      />
+                      <Input
+                        label="Other Charges"
+                        type="number"
+                        placeholder="5000"
+                        {...regFee("other", { valueAsNumber: true })}
+                      />
                     </div>
                     {!editingId && (
-                      <div>
-                        <label htmlFor="fee-type-select" className="text-[10px] font-black uppercase text-navy-450 block mb-1">Admission Quota Type</label>
-                        <select id="fee-type-select" {...regFee("fee_type")} className="w-full px-4 py-2.5 rounded-xl glass-light border border-navy-800 text-white focus:outline-none bg-navy-900 text-xs sm:text-sm">
-                          <option value="Convener">Convener Quota</option>
-                          <option value="Management">Management Quota</option>
-                          <option value="Scholarship">Scholarship Quota</option>
-                        </select>
-                      </div>
+                      <Select
+                        label="Admission Quota Type"
+                        options={[
+                          { value: "Convener", label: "Convener Quota" },
+                          { value: "Management", label: "Management Quota" },
+                          { value: "Scholarship", label: "Scholarship Quota" },
+                        ]}
+                        {...regFee("fee_type")}
+                      />
                     )}
-                    <button type="submit" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:from-emerald-455 hover:to-emerald-555 transition-colors">
+                    <Button type="submit" variant="primary">
                       Commit Fee Struct
-                    </button>
+                    </Button>
                   </form>
-                </div>
+                </Card>
               </div>
             )}
 
             {/* VIEW 5: ENQUIRIES INBOX */}
             {currentView === "enquiries" && (
-              <div className="glass p-6 sm:p-8 rounded-3xl border border-navy-800/30">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="border-b border-navy-800/50 text-navy-400 uppercase tracking-wider font-semibold">
-                        <th className="py-3 px-4">Student</th>
-                        <th className="py-3 px-4">Contact</th>
-                        <th className="py-3 px-4">Course Interest</th>
-                        <th className="py-3 px-4">Message</th>
-                        <th className="py-3 px-4">Status</th>
-                        <th className="py-3 px-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {enquiries.map((enq) => (
-                        <tr key={enq.id} className="border-b border-navy-850 hover:bg-navy-900/35 transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-white">{enq.student_name}</td>
-                          <td className="py-3.5 px-4 text-navy-300">
-                            <div>{enq.email}</div>
-                            <div className="text-[10px] text-navy-450 mt-0.5">{enq.phone}</div>
-                          </td>
-                          <td className="py-3.5 px-4 font-semibold text-emerald-450">{enq.course_interest.toUpperCase()}</td>
-                          <td className="py-3.5 px-4 text-navy-305 max-w-xs truncate">{enq.message}</td>
-                          <td className="py-3.5 px-4">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              enq.status === "New" ? "bg-blue-500/10 text-blue-400 border border-blue-500/15" :
-                              enq.status === "Contacted" ? "bg-orange-500/10 text-orange-400 border border-orange-500/15" :
-                              "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15"
-                            }`}>
-                              {enq.status}
-                            </span>
-                          </td>
-                          <td className="py-3.5 px-4 space-x-2">
+              <Card variant="default" className="p-6 sm:p-8">
+                <h2 className="text-base font-bold text-slate-900 mb-6 flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <Inbox className="w-5 h-5 text-blue-600" />
+                  Student Enquiries Inbox
+                </h2>
+                
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Contact Details</TableHead>
+                      <TableHead>Course Interest</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {enquiries.map((enq) => (
+                      <TableRow key={enq.id}>
+                        <TableCell className="font-bold text-slate-800">{enq.student_name}</TableCell>
+                        <TableCell>
+                          <div className="font-semibold text-slate-700">{enq.email}</div>
+                          <div className="text-[10px] text-slate-400">{enq.phone}</div>
+                        </TableCell>
+                        <TableCell className="font-semibold text-blue-700">{enq.course_interest.toUpperCase()}</TableCell>
+                        <TableCell className="max-w-xs truncate text-slate-500" title={enq.message}>
+                          {enq.message}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                              enq.status === "New"
+                                ? "bg-blue-50 text-blue-700 border-blue-100"
+                                : enq.status === "Contacted"
+                                ? "bg-amber-50 text-amber-700 border-amber-100"
+                                : "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            }`}
+                          >
+                            {enq.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
                             {enq.status === "New" && (
-                              <button
+                              <Button
+                                variant="secondary"
+                                size="xs"
                                 onClick={() => handleEnquiryStatus(enq.id, "Contacted")}
-                                className="px-2 py-1 rounded bg-navy-800 text-[10px] font-bold uppercase tracking-wider text-navy-200 hover:text-white"
                               >
                                 Mark Contacted
-                              </button>
+                              </Button>
                             )}
                             {enq.status !== "Resolved" && (
-                              <button
+                              <Button
+                                variant="primary"
+                                size="xs"
                                 onClick={() => handleEnquiryStatus(enq.id, "Resolved")}
-                                className="px-2 py-1 rounded bg-emerald-500/10 text-[10px] font-bold uppercase tracking-wider text-emerald-400 hover:text-white border border-emerald-500/20"
                               >
                                 Mark Resolved
-                              </button>
+                              </Button>
                             )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
             )}
           </>
         )}

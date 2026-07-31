@@ -139,7 +139,7 @@ const fallbackLabs: LaboratoryItem[] = [
     equipment_details: ["Intel Xeon GPU Servers", "Nvidia RTX Workstations"],
     software_details: ["TensorFlow GPU", "PyTorch Toolkit", "Jupyter Enterprise Server", "Apache Hadoop Spark"],
     capacity: 60,
-    image_url: "/images/campus/ai-lab.webp"
+    image_url: "/images/campus/computer-lab.png"
   },
   {
     id: "lab-prog",
@@ -161,7 +161,7 @@ const fallbackLibrary: LibraryInfo = {
   digital_resources: ["IEEE Xplore full database", "Elsevier ScienceDirect access", "NPTEL Video lecture servers", "DELNET institutional membership"],
   seating_capacity: 300,
   facilities: ["Computer-aided reference logs", "Silent individual study cubes", "Reprographic & printing setups"],
-  image_url: "/images/campus/academic-block.webp"
+  image_url: "/images/campus/library-interior.png"
 };
 
 const fallbackHostels: HostelInfo[] = [
@@ -174,7 +174,7 @@ const fallbackHostels: HostelInfo[] = [
     facilities: ["High-speed campus Wi-Fi access", "Hot water geysers and central laundry services", "Table tennis and TV recreational rooms"],
     mess_information: ["Nutritious vegetarian menus served 4 times daily", "Weekly special spreads and festival meals"],
     security_features: ["24/7 gate security guards", "Biometric check logs on entry/exit", "Resident wardens checking wings daily"],
-    image_url: "/images/hostel/hostel-room.webp"
+    image_url: "/images/hostel/hostel-room.png"
   },
   {
     id: "hostel-girls",
@@ -185,7 +185,7 @@ const fallbackHostels: HostelInfo[] = [
     facilities: ["High-speed campus Wi-Fi access", "In-house automatic laundry machinery", "Late-hour quiet study rooms"],
     mess_information: ["Hygienic vegetarian menus", "Purified RO drinking water system"],
     security_features: ["Female security guards at checkpoints", "Fingerprint login audit system", "High-walled perimeter fencing with CCTV control"],
-    image_url: "/images/hostel/hostel-room.webp"
+    image_url: "/images/hostel/hostel-room.png"
   }
 ];
 
@@ -195,7 +195,7 @@ const fallbackSports: SportsItem[] = [
     sport_name: "SSIET Cricket Oval & Turf",
     description: "A lush green matches ground equipped with practice nets, audience seating terraces, and floodlights.",
     facility_details: ["Match turf pitch", "Side practice nets", "Match lighting systems", "Sports gear kits"],
-    image_url: "/images/campus/sports.webp"
+    image_url: "/images/campus/sports-ground.png"
   }
 ];
 

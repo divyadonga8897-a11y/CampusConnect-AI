@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Quote, User, Building, Landmark, Award } from "lucide-react";
+import { Quote, User, Building, Award } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import SectionTitle from "@/components/ui/SectionTitle";
+import PageHero from "@/components/ui/PageHero";
 import { careerService, type SuccessStory } from "@/services/careerService";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 export default function SuccessStoriesClient() {
   const [aiOpen, setAiOpen] = useState(false);
@@ -29,20 +31,21 @@ export default function SuccessStoriesClient() {
   return (
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
-      <main className="min-h-screen gradient-hero bg-grid">
-        <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionTitle
-            badge="Inspiring Journeys"
-            title="Student Success"
-            highlight="Stories"
-            description="Read inspiring career path stories from engineering students who successfully converted academic training into placements at multinational firms."
-            className="mb-14"
-          />
+      <main className="bg-slate-50 min-h-screen">
+        
+        <PageHero
+          eyebrow="Inspiring Journeys"
+          title="Student Success"
+          highlight="Stories"
+          description="Read inspiring career path stories from engineering students who successfully converted academic training into placements at multinational firms."
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Success Stories" }]}
+        />
 
+        <div className="container py-12">
           {loading ? (
-            <div className="grid md:grid-cols-2 gap-8 animate-pulse">
-              {Array.from({ length: 2 }).map((_, idx) => (
-                <div key={idx} className="glass h-64 rounded-3xl" />
+            <div className="grid md:grid-cols-2 gap-8">
+              {[1, 2].map((i) => (
+                <div key={i} className="skeleton h-64 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : (
@@ -52,46 +55,48 @@ export default function SuccessStoriesClient() {
                   key={story.id}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: i * 0.15 }}
-                  className="glass rounded-3xl p-6 sm:p-8 border border-navy-700/30 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/20"
+                  transition={{ duration: 0.45, delay: i * 0.05 }}
+                  className="flex flex-col h-full"
                 >
-                  <div className="absolute top-6 right-6 text-emerald-500/10 group-hover:text-emerald-500/20 transition-colors pointer-events-none">
-                    <Quote className="w-16 h-16 transform rotate-180" />
-                  </div>
+                  <Card variant="default" className="flex flex-col h-full p-6 sm:p-8 group hover:border-blue-400 relative overflow-hidden">
+                    <div className="absolute top-6 right-6 text-slate-100 group-hover:text-blue-50/60 transition-colors pointer-events-none">
+                      <Quote className="w-16 h-16 transform rotate-180" />
+                    </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-navy-900 border border-navy-800 flex items-center justify-center text-emerald-450">
-                        <User className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-extrabold text-base sm:text-lg">{story.student_name}</h3>
-                        <div className="text-[10px] text-navy-450 uppercase font-bold tracking-wider">
-                          Batch of {story.graduation_year} | {story.department_id.toUpperCase()}
+                    <div className="flex-grow space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">
+                          {story.student_name.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 className="text-slate-900 font-extrabold text-sm sm:text-base leading-snug">{story.student_name}</h3>
+                          <Badge variant="light" color="blue" className="mt-1 leading-none">
+                            Batch of {story.graduation_year} | {story.department_id.toUpperCase()}
+                          </Badge>
                         </div>
                       </div>
+
+                      <p className="text-slate-500 text-xs sm:text-sm leading-relaxed italic pl-4 border-l-2 border-blue-200">
+                        "{story.story}"
+                      </p>
                     </div>
 
-                    <p className="text-navy-300 text-xs sm:text-sm leading-relaxed italic relative z-10 pl-4 border-l-2 border-emerald-500/30">
-                      "{story.story}"
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-navy-800/40 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-navy-400">
-                      <Building className="w-4 h-4 text-emerald-450" />
-                      <span>Company: <strong className="text-white">{story.current_company}</strong></span>
+                    <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap gap-4 items-center justify-between mt-auto shrink-0">
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <Building className="w-3.5 h-3.5 text-blue-500" />
+                        <span>Company: <strong className="text-slate-700">{story.current_company}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <Award className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Role: <strong className="text-slate-700">{story.current_role}</strong></span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-navy-400">
-                      <Award className="w-4 h-4 text-gold-450" />
-                      <span>Role: <strong className="text-white">{story.current_role}</strong></span>
-                    </div>
-                  </div>
+                  </Card>
                 </motion.div>
               ))}
             </div>
           )}
-        </section>
+        </div>
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

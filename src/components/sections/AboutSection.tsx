@@ -2,10 +2,12 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { COLLEGE_INFO } from "@/constants/collegeData";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { useRouter } from "next/navigation";
 
 const highlights = [
   "NAAC Accredited with high-grade score for academic excellence",
@@ -15,6 +17,8 @@ const highlights = [
 ];
 
 export default function AboutSection() {
+  const router = useRouter();
+
   return (
     <section className="section bg-white">
       <div className="container">
@@ -52,38 +56,71 @@ export default function AboutSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="order-1 lg:order-2"
+            className="order-1 lg:order-2 space-y-6"
           >
             <SectionHeader
-              eyebrow="About SSIET"
+              eyebrow="About Our Institution"
               title="A Legacy of Engineering"
               highlight="Excellence"
               align="left"
-              className="mb-6"
+              className="mb-4"
             />
 
-            <p className="text-slate-500 text-base leading-relaxed mb-5">
-              {COLLEGE_INFO.description}
+            <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+              Established in the year 2000, Sri Satya Institute of Engineering and Technology (SSIET) stands as a premier beacon of technical learning in Andhra Pradesh. Over the past two and a half decades, our institution has been deeply committed to cultivating a robust academic environment that blends scientific rigor with ethical responsibilities. We believe that true engineering excellence goes beyond textbooks, requiring hands-on design experiences and creative problem-solving capabilities.
             </p>
 
-            <ul className="space-y-3 mb-8">
-              {highlights.map((h) => (
-                <li key={h} className="flex items-start gap-3 text-sm text-slate-600">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  {h}
-                </li>
-              ))}
-            </ul>
+            <p className="text-slate-500 text-sm md:text-base leading-relaxed">
+              Our campus serves as a thriving collaborative hub where passionate faculty and aspiring engineers come together to explore emergent fields, from AI and machine learning to structural integrity and green technology. Through strategic partnerships with over 100 industrial firms, our curriculum is constantly refreshed to ensure that every graduate transitions seamlessly from academic coursework to professional real-world engineering careers.
+            </p>
 
-            <div className="flex flex-wrap gap-2 mb-8">
-              {["NAAC Accredited", "AICTE Approved", "NBA Certified", "JNTU Affiliated"].map((tag) => (
-                <span key={tag} className="badge badge-slate">{tag}</span>
+            {/* Structured Feature Highlights */}
+            <div className="grid sm:grid-cols-2 gap-6 pt-2 pb-2 text-left">
+              {[
+                {
+                  title: "NAAC Accredited with Excellence",
+                  desc: "Providing nationally recognized educational benchmarks and consistent quality improvements across all engineering fields.",
+                },
+                {
+                  title: "Industry-Aligned Curriculum",
+                  desc: "Syllabi structured alongside technology companies and corporate panels to ensure real-world career readiness.",
+                },
+                {
+                  title: "Modern Research Facilities",
+                  desc: "Equipped with specialized AI research spaces, high-tech computation arrays, and structural testing labs.",
+                },
+                {
+                  title: "Dedicated Veteran Faculty",
+                  desc: "Professor teams combining years of academic theory with commercial project consultation expertise.",
+                },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 leading-snug">{item.title}</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed mt-1">{item.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
 
-            <Link href="/about" className="btn btn-outline inline-flex">
-              Learn Our Story <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {["NAAC Accredited", "AICTE Approved", "NBA Certified", "JNTU Affiliated"].map((tag) => (
+                <Badge key={tag} variant="light" color="slate">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="pt-2">
+              <Button
+                variant="outline"
+                onClick={() => router.push("/about")}
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+              >
+                Explore Our Story →
+              </Button>
+            </div>
           </motion.div>
 
         </div>

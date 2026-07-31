@@ -2,25 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Terminal, Users, Trophy, Code2, Music, Layers, Bot } from "lucide-react";
+import { Users, Calendar, Bot, Image, BookOpen, Lightbulb, Building2, Flame, MapPin } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
 import PageHero from "@/components/ui/PageHero";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { campusService, type ClubItem } from "@/services/campusService";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 const categories = ["All", "Technical", "Cultural", "Sports", "Innovation"];
-
-const catColors: Record<string, string> = {
-  Technical:  "badge-blue",
-  Cultural:   "badge-amber",
-  Sports:     "badge-green",
-  Innovation: "badge-slate",
+const catColors: Record<string, "blue" | "green" | "amber" | "slate" | "indigo"> = {
+  Technical:  "blue",
+  Cultural:   "amber",
+  Sports:     "green",
+  Innovation: "indigo",
 };
 
 const journeySteps = [
-  { year: "Year 1", title: "Campus Introduction & Foundation",     color: "bg-blue-500",
+  { year: "Year 1", title: "Campus Induction & Foundation",     color: "bg-blue-500",
     desc: "Comprehensive induction, club registrations, computational thinking, and core engineering fundamentals." },
   { year: "Year 2", title: "Skill Development & Projects",         color: "bg-emerald-500",
     desc: "Mini lab projects, tech clubs, local workshops, and developer certifications in core engineering streams." },
@@ -28,6 +30,15 @@ const journeySteps = [
     desc: "Industrial internships, hackathons, system architecture study, and placement training bootcamps." },
   { year: "Year 4", title: "Major Project & Career Launch",        color: "bg-purple-500",
     desc: "Capstone projects, research papers, 100+ company placement interviews, graduation as industry-ready engineers." },
+];
+
+const galleryGrid = [
+  { title: "Kalam Central Library", cat: "Library", img: "/images/campus/library-interior.png", size: "col-span-2 row-span-2" },
+  { title: "Advanced AI Lab Workspace", cat: "Labs", img: "/images/campus/computer-lab.png", size: "col-span-1 row-span-1" },
+  { title: "Annual Technical Hackathon", cat: "Events", img: "/images/campus/auditorium-event.png", size: "col-span-1 row-span-2" },
+  { title: "Sports Arena Athletics", cat: "Sports", img: "/images/campus/sports-ground.png", size: "col-span-2 row-span-1" },
+  { title: "Student Residency Halls", cat: "Hostel", img: "/images/hostel/hostel-room.png", size: "col-span-1 row-span-1" },
+  { title: "Innovation Hub Meetup", cat: "Innovation", img: "/images/campus/computer-lab-natural.png", size: "col-span-1 row-span-1" },
 ];
 
 export default function StudentLifeClient() {
@@ -50,41 +61,61 @@ export default function StudentLifeClient() {
     <>
       <Navbar onAIClick={() => setAiOpen(true)} />
       <main className="bg-slate-50 min-h-screen">
-
         <PageHero
-          eyebrow="Student Life"
-          title="Life at"
-          highlight="SSIET"
-          description="Clubs, sports, cultural events, and a 4-year journey designed to make you an industry-ready engineer."
+          eyebrow="Campus Experience"
+          title="Vibrant Student"
+          highlight="Life & Clubs"
+          description={
+            <div className="space-y-2">
+              <p>
+                Life at Sri Satya Institute of Engineering and Technology is dynamic, inclusive, and designed to foster all-round student development beyond standard classrooms.
+              </p>
+              <p>
+                From student-run coding communities and technical clubs to cultural societies, sports championships, and campus residency activities, we nurture diverse interests.
+              </p>
+            </div>
+          }
           breadcrumbs={[{ label: "Home", href: "/" }, { label: "Student Life" }]}
           actions={
-            <button onClick={() => setAiOpen(true)} className="btn btn-secondary">
-              <Bot className="w-4 h-4 text-emerald-500" /> Ask Campus AI
-            </button>
+            <Button variant="secondary" onClick={() => setAiOpen(true)} leftIcon={<Bot className="w-4 h-4 text-emerald-500" />}>
+              Ask Campus AI
+            </Button>
           }
         />
 
-        {/* Student Journey Timeline */}
+        {/* Pinterest style gallery */}
         <section className="section bg-white">
           <div className="container">
-            <SectionHeader eyebrow="Student Journey" title="4 Years of" highlight="Growth" className="mb-10" />
-            <div className="relative border-l-2 border-slate-200 ml-4 space-y-8 max-w-2xl mx-auto">
-              {journeySteps.map((step, i) => (
+            <SectionHeader
+              eyebrow="Campus Highlights"
+              title="Experience"
+              highlight="Life at SSIET"
+              className="mb-10"
+            />
+            {/* Masonry CSS grid style */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
+              {galleryGrid.map((item, idx) => (
                 <motion.div
-                  key={step.year}
-                  initial={{ opacity: 0, x: -16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.45, delay: i * 0.1 }}
-                  className="relative pl-10"
+                  transition={{ duration: 0.45, delay: idx * 0.05 }}
+                  className={`relative overflow-hidden rounded-2xl group border border-slate-200/60 shadow-sm ${item.size}`}
                 >
-                  <span className={`absolute -left-[17px] top-0.5 flex h-8 w-8 items-center justify-center rounded-full ${step.color} text-xs text-white font-black shadow-sm`}>
-                    {i + 1}
-                  </span>
-                  <div className="card p-5">
-                    <span className="text-label text-slate-400 mb-1">{step.year}</span>
-                    <h3 className="text-sm font-bold text-slate-900 mb-1">{step.title}</h3>
-                    <p className="text-xs text-slate-500 leading-relaxed">{step.desc}</p>
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <span className="badge bg-white/95 text-slate-800 text-[9px] font-bold border-transparent mb-1">
+                      {item.cat}
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-bold text-white tracking-tight leading-snug">
+                      {item.title}
+                    </h4>
                   </div>
                 </motion.div>
               ))}
@@ -92,20 +123,48 @@ export default function StudentLifeClient() {
           </div>
         </section>
 
-        {/* Clubs */}
-        <section className="section bg-slate-50">
+        {/* Student Journey Timeline */}
+        <section className="section bg-slate-50 border-t border-slate-100">
           <div className="container">
-            <SectionHeader eyebrow="Clubs & Associations" title="Student" highlight="Clubs" className="mb-8" />
+            <SectionHeader eyebrow="Student Journey" title="4 Years of" highlight="Professional Growth" className="mb-10" />
+            <div className="relative border-l-2 border-slate-200 ml-4.5 pl-6.5 space-y-8 max-w-2xl mx-auto">
+              {journeySteps.map((step, i) => (
+                <motion.div
+                  key={step.year}
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: i * 0.1 }}
+                  className="relative"
+                >
+                  <span className={`absolute -left-[38px] top-0.5 flex h-7.5 w-7.5 items-center justify-center rounded-full ${step.color} text-xs text-white font-black shadow-sm`}>
+                    {i + 1}
+                  </span>
+                  <Card variant="default" className="p-5">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">{step.year}</span>
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">{step.title}</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">{step.desc}</p>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Clubs Section */}
+        <section className="section bg-white border-t border-slate-100">
+          <div className="container">
+            <SectionHeader eyebrow="Clubs & Associations" title="SSIET Student" highlight="Communities" className="mb-8" />
 
             <div className="flex flex-wrap gap-2 mb-6">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCat(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer transition-all ${
                     selectedCat === cat
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
+                      ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
                   {cat}
@@ -115,12 +174,12 @@ export default function StudentLifeClient() {
 
             {loading ? (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="skeleton h-36 rounded-xl" />)}
+                {[1, 2, 3].map(i => <div key={i} className="skeleton h-36 rounded-xl" />)}
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredClubs.map((club, i) => {
-                  const badge = catColors[club.category] ?? "badge-slate";
+                  const bColor = catColors[club.category] || "slate";
                   return (
                     <motion.div
                       key={club.id}
@@ -128,25 +187,29 @@ export default function StudentLifeClient() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.4, delay: i * 0.06 }}
-                      className="card p-5 group"
+                      className="flex flex-col h-full"
                     >
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
-                          <Users className="w-5 h-5 text-blue-600" />
+                      <Card variant="default" className="flex flex-col h-full p-5 group hover:border-blue-400">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
+                            <Users className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug">{club.club_name}</h3>
+                            <Badge variant="light" color={bColor} className="mt-0.5">
+                              {club.category}
+                            </Badge>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{club.club_name}</h3>
-                          <span className={`badge ${badge} text-[10px] mt-0.5`}>{club.category}</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">{club.description}</p>
-                      {club.activities && club.activities.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
-                          {club.activities.slice(0, 3).map((a) => (
-                            <span key={a} className="badge badge-slate text-[10px]">{a}</span>
-                          ))}
-                        </div>
-                      )}
+                        <p className="text-xs text-slate-500 leading-relaxed mb-4 flex-grow line-clamp-3">{club.description}</p>
+                        {club.activities && club.activities.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-3.5 border-t border-slate-100 mt-auto shrink-0">
+                            {club.activities.slice(0, 3).map((a) => (
+                              <span key={a} className="badge badge-slate text-[9px]">{a}</span>
+                            ))}
+                          </div>
+                        )}
+                      </Card>
                     </motion.div>
                   );
                 })}
@@ -154,7 +217,6 @@ export default function StudentLifeClient() {
             )}
           </div>
         </section>
-
       </main>
       <Footer />
       <AIModal isOpen={aiOpen} onClose={() => setAiOpen(false)} />

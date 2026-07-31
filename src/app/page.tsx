@@ -33,10 +33,9 @@ export default function Home() {
       <Navbar onAIClick={() => handleOpenAI()} />
       <main>
         <HeroSection onAIClick={() => handleOpenAI()} />
-        <StatsSection />
-        <AboutSection />
         <CourseSection />
         <CampusPreview />
+        <AboutSection />
         <PlacementSection />
         <WhyChooseUs />
         <AIAssistantSection onAIClick={(q) => handleOpenAI(q)} />

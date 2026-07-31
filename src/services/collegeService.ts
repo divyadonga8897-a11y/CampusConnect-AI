@@ -131,7 +131,7 @@ const fallbackAchievements: CollegeAchievement[] = ACHIEVEMENTS.map((ach, idx) =
   description: ach.description,
   category: ach.category,
   year: idx % 2 === 0 ? 2024 : 2023,
-  image_url: idx % 2 === 0 ? "/images/campus/main-building.webp" : "/images/campus/ai-lab.webp"
+  image_url: idx % 2 === 0 ? "/images/campus/main-building.webp" : "/images/campus/computer-lab.png"
 }));
 
 const fallbackAccreditation: CollegeAccreditation[] = [
@@ -164,13 +164,13 @@ const fallbackAccreditation: CollegeAccreditation[] = [
 const fallbackGallery: GalleryItem[] = [
   { id: "gal-1", title: "Cinematic Campus Aerial", category: "campus", image_url: "/images/campus/main-building.webp", description: "Aerial view of Sri Satya Institute green campus lawns." },
   { id: "gal-2", title: "Modern Academic Block", category: "campus", image_url: "/images/campus/academic-block.webp", description: "Main entrance to the state-of-the-art engineering block." },
-  { id: "gal-3", title: "AI Deep Learning Lab", category: "labs", image_url: "/images/campus/ai-lab.webp", description: "Students collaborating on deep learning research projects." },
-  { id: "gal-4", title: "Spacious Central Library", category: "labs", image_url: "/images/campus/library.webp", description: "Comfortable reading cabins and computer reference sections." },
+  { id: "gal-3", title: "AI Deep Learning Lab", category: "labs", image_url: "/images/campus/computer-lab.png", description: "Students collaborating on deep learning research projects." },
+  { id: "gal-4", title: "Spacious Central Library", category: "labs", image_url: "/images/campus/library-interior.png", description: "Comfortable reading cabins and computer reference sections." },
   { id: "gal-5", title: "Smart Smart Classrooms", category: "labs", image_url: "/images/campus/academic-block.webp", description: "Interactive digital classroom environment in progress." },
   { id: "gal-6", title: "National Hackathon Finals", category: "events", image_url: "/images/student-life/coding.webp", description: "Tech-savvy minds solving real-world challenges at the annual event." },
   { id: "gal-7", title: "College Annual Cultural Fest", category: "events", image_url: "/images/student-life/events.webp", description: "A lively stage event showcasing student artistic talents." },
-  { id: "gal-8", title: "Inter-College Football Finals", category: "student_life", image_url: "/images/campus/sports.webp", description: "Our college football team celebrating a league victory." },
-  { id: "gal-9", title: "Modern Hostel Quadrangle", category: "campus", image_url: "/images/hostel/hostel-room.webp", description: "Green courtyards and study spaces inside the hostel wings." },
+  { id: "gal-8", title: "Inter-College Football Finals", category: "student_life", image_url: "/images/campus/sports-ground.png", description: "Our college football team celebrating a league victory." },
+  { id: "gal-9", title: "Modern Hostel Quadrangle", category: "campus", image_url: "/images/hostel/hostel-room.png", description: "Green courtyards and study spaces inside the hostel wings." },
   { id: "gal-10", title: "Spacious Student Dining Mess", category: "student_life", image_url: "/images/hostel/mess.webp", description: "Clean and hygienic dining services for hostel students." },
   { id: "gal-11", title: "Robotics Project Exhibition", category: "achievements", image_url: "/images/student-life/coding.webp", description: "Students showcasing autonomous drone prototypes." },
   { id: "gal-12", title: "Best Engineering College Award", category: "achievements", image_url: "/images/campus/main-building.webp", description: "Receiving academic excellence awards from state council representatives." }
