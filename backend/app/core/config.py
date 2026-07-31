@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from typing import List, Union
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite:///./college.db"
+    DATABASE_URL: str = "postgresql://postgres.zayoiqgkbinpegqmgjeu:[Divya@120531]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
     ENVIRONMENT: str = "development"
     SECRET_KEY: str = "ssiet_jwt_secret_key_999_super_secured"
     ALGORITHM: str = "HS256"
@@ -33,7 +33,7 @@ except ValidationError as e:
     print(f"WARNING: Configuration validation failed. Error: {e}")
     print("Falling back to safe default settings.")
     class DefaultSettings:
-        DATABASE_URL = "sqlite:///./college.db"
+        DATABASE_URL = "postgresql://postgres.zayoiqgkbinpegqmgjeu:[Divya@120531]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
         ENVIRONMENT = "development"
         SECRET_KEY = "ssiet_jwt_secret_key_999_super_secured"
         ALGORITHM = "HS256"

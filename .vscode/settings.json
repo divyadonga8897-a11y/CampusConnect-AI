@@ -1,0 +1,9 @@
+{
+  "typescript.tsdk": "frontend/node_modules/typescript/lib",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "eslint.workingDirectories": ["frontend"],
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true
+  }
+}
