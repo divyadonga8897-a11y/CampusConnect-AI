@@ -52,17 +52,17 @@ export function Timeline({ steps, className = "" }: TimelineProps) {
             <div className="card p-5">
               <div className="flex flex-wrap items-start justify-between gap-2 mb-1.5">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 leading-snug">{step.title}</h3>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">{step.title}</h3>
                   {step.subtitle && (
-                    <span className="text-[11px] font-medium text-slate-400 block mt-0.5">{step.subtitle}</span>
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400 block mt-0.5">{step.subtitle}</span>
                   )}
                 </div>
                 {step.date && (
-                  <span className="badge badge-slate text-[10px] shrink-0 font-bold">{step.date}</span>
+                  <span className="badge badge-slate text-[10px] sm:text-[11px] shrink-0 font-bold">{step.date}</span>
                 )}
               </div>
               {step.description && (
-                <p className="text-xs text-slate-500 leading-relaxed">{step.description}</p>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{step.description}</p>
               )}
             </div>
           </motion.div>

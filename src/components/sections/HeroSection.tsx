@@ -58,11 +58,10 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
   const [selectedDept, setSelectedDept] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
 
-  // Auto scroll campus photos
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 7000);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 
@@ -86,7 +85,7 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
     <div className="relative w-full overflow-visible pb-10 bg-slate-50 select-none">
 
       {/* ── Immersive Full-Width Image Banner (Large Height) ── */}
-      <div className="relative w-full h-[85vh] min-h-[1000px] max-h-[1050px] overflow-hidden bg-slate-950">
+      <div className="relative w-full h-[75vh] min-h-[800px] max-h-[900px] overflow-hidden bg-slate-950">
 
         {/* Slideshow background */}
         <AnimatePresence initial={false} mode="wait">
@@ -122,8 +121,8 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-widest inline-flex items-center gap-1.5 backdrop-blur-md">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+              <span className="bg-white/10 text-white border border-white/20 rounded-full px-3.5 py-1 text-[10px] sm:text-xs font-black tracking-widest inline-flex items-center gap-1.5 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 SSIET ADMISSIONS 2026-27 OPEN
               </span>
             </motion.div>
@@ -133,7 +132,7 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-[54px] font-black !text-white leading-[1.1] mt-3.5 max-w-4xl tracking-tight uppercase"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black !text-white leading-[1.1] mt-3.5 max-w-4xl tracking-tight"
               style={{ color: "white" }}
             >
               Sri Satya Institute of <br className="hidden sm:inline" />
@@ -145,7 +144,7 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-slate-200 text-xs sm:text-sm md:text-base max-w-2xl mt-3.5 font-medium leading-relaxed"
+              className="text-slate-100 text-xs sm:text-sm md:text-base max-w-2xl mt-4 font-semibold leading-relaxed"
             >
               Nurturing innovation, academic excellence, and ethical leadership in engineering. Explore accredited B.Tech and postgraduate courses backed by premier placement records.
             </motion.p>
@@ -159,13 +158,13 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
             >
               <button
                 onClick={() => router.push("/admissions")}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-md shadow-blue-500/10 hover:shadow-blue-500/25 transition-all cursor-pointer uppercase tracking-wider hover:scale-105 active:scale-95"
+                className="bg-gradient-to-r from-blue-600 to-indigo-650 hover:from-blue-700 hover:to-indigo-750 text-white font-extrabold text-xs px-6 py-3.5 rounded-full shadow-md shadow-blue-500/10 hover:shadow-blue-500/25 transition-all cursor-pointer uppercase tracking-wider hover:scale-[1.03] active:scale-95"
               >
                 Apply Online
               </button>
               <button
                 onClick={() => router.push("/campus")}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 backdrop-blur-sm font-bold text-xs px-5 py-2.5 rounded-full transition-all cursor-pointer uppercase tracking-wider hover:scale-105 active:scale-95 inline-flex items-center gap-1.5"
+                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 hover:border-white/30 backdrop-blur-sm font-extrabold text-xs px-6 py-3.5 rounded-full transition-all cursor-pointer uppercase tracking-wider hover:scale-[1.03] active:scale-95 inline-flex items-center gap-1.5"
               >
                 <Compass className="w-3.5 h-3.5 text-blue-300" />
                 Virtual Tour
@@ -212,13 +211,13 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="bg-white/20 backdrop-blur-xl border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-3xl p-4 sm:p-5 focus-within:shadow-[0_22px_60px_rgba(37,99,235,0.08)] focus-within:bg-white/30 transition-all duration-300"
+          className="bg-white/45 backdrop-blur-xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.03)] rounded-3xl p-4 sm:p-5 focus-within:shadow-[0_22px_60px_rgba(37,99,235,0.06)] focus-within:bg-white/60 transition-all duration-300"
         >
           <form onSubmit={handleSearchSubmit} className="flex flex-col gap-4">
 
             {/* Search Pill Row */}
             <div className="flex flex-col sm:flex-row gap-2">
-              <div className="flex-1 bg-white/45 border border-white/30 shadow-sm focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/20 focus-within:bg-white/75 transition-all rounded-full px-5 py-2 sm:py-2.5 flex items-center gap-2.5 backdrop-blur-md">
+              <div className="flex-1 bg-white/70 border border-white/50 shadow-sm focus-within:border-blue-500/40 focus-within:ring-1 focus-within:ring-blue-500/10 focus-within:bg-white transition-all rounded-full px-5 py-2 sm:py-2.5 flex items-center gap-2.5 backdrop-blur-md">
                 <Search className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                 <input
                   type="text"
@@ -246,7 +245,7 @@ export default function HeroSection({ onAIClick }: HeroSectionProps) {
 
               <button
                 type="submit"
-                className="bg-gradient-to-r from-[#2E3192] to-blue-700 hover:from-[#1E2061] hover:to-blue-800 text-white font-black text-xs sm:text-sm px-6 py-2.5 sm:py-3 rounded-full transition-all duration-300 shadow-md shadow-blue-900/10 cursor-pointer uppercase tracking-wider active:scale-95 shrink-0"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-black text-xs sm:text-sm px-6 py-2.5 sm:py-3 rounded-full transition-all duration-300 shadow-md shadow-blue-900/10 cursor-pointer uppercase tracking-wider active:scale-95 shrink-0"
               >
                 Search
               </button>

@@ -66,7 +66,7 @@ export default function CourseSection() {
 
             <button
               onClick={() => router.push("/courses")}
-              className="text-xs sm:text-sm font-extrabold text-[#2E3192] flex items-center gap-1.5 hover:underline tracking-wider uppercase group cursor-pointer"
+              className="text-xs sm:text-sm font-extrabold text-blue-600 flex items-center gap-1.5 hover:underline tracking-wider uppercase group cursor-pointer"
             >
               Learn more <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
@@ -103,7 +103,7 @@ export default function CourseSection() {
 
             <button
               onClick={() => router.push("/labs")}
-              className="text-xs sm:text-sm font-extrabold text-[#2E3192] flex items-center gap-1.5 hover:underline tracking-wider uppercase group cursor-pointer"
+              className="text-xs sm:text-sm font-extrabold text-blue-600 flex items-center gap-1.5 hover:underline tracking-wider uppercase group cursor-pointer"
             >
               Learn more <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
@@ -140,7 +140,7 @@ export default function CourseSection() {
 
             <button
               onClick={() => router.push("/research")}
-              className="text-xs sm:text-sm font-extrabold text-[#2E3192] flex items-center gap-1.5 hover:underline tracking-wider uppercase group cursor-pointer"
+              className="text-xs sm:text-sm font-extrabold text-blue-600 flex items-center gap-1.5 hover:underline tracking-wider uppercase group cursor-pointer"
             >
               Learn more <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>

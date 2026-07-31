@@ -120,7 +120,7 @@ export default function AdmissionsClient() {
 
               {/* Admission Steps */}
               <div className="bg-white/35 backdrop-blur-xl border border-white/45 p-6 sm:p-8 rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow duration-300">
-                <h2 className="text-sm sm:text-base font-black text-slate-900 mb-6 flex items-center gap-2 border-b border-white/40 pb-3.5 uppercase tracking-wider">
+                <h2 className="text-base sm:text-lg font-black text-slate-900 mb-6 flex items-center gap-2 border-b border-white/40 pb-3.5 uppercase tracking-wider">
                   <ClipboardList className="w-5 h-5 text-blue-600" />
                   Admission Process
                 </h2>
@@ -141,8 +141,8 @@ export default function AdmissionsClient() {
                           {st.step_number < 10 ? `0${st.step_number}` : st.step_number}
                         </span>
                         <div className="bg-white/50 hover:bg-white/80 border border-white/35 hover:border-blue-400 p-4 rounded-2xl shadow-sm transition-all duration-300">
-                          <h3 className="text-xs font-bold text-slate-950 mb-1 leading-snug">{st.title}</h3>
-                          <p className="text-xs text-slate-650 leading-relaxed">{st.description}</p>
+                          <h3 className="text-sm sm:text-base font-bold text-slate-950 mb-1 leading-snug">{st.title}</h3>
+                          <p className="text-xs sm:text-sm text-slate-655 leading-relaxed">{st.description}</p>
                         </div>
                       </motion.div>
                     ))}
@@ -152,11 +152,11 @@ export default function AdmissionsClient() {
 
               {/* Eligibility Explorer */}
               <div className="bg-white/35 backdrop-blur-xl border border-white/45 p-6 sm:p-8 rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow duration-300">
-                <h2 className="text-sm sm:text-base font-black text-slate-900 mb-1 flex items-center gap-2 uppercase tracking-wider">
+                <h2 className="text-base sm:text-lg font-black text-slate-900 mb-1 flex items-center gap-2 uppercase tracking-wider">
                   <GraduationCap className="w-5 h-5 text-blue-600" />
                   Eligibility Explorer
                 </h2>
-                <p className="text-xs text-slate-400 mb-5 border-b border-white/40 pb-3 font-semibold">Select a program to check eligibility criteria.</p>
+                <p className="text-xs sm:text-sm text-slate-450 mb-5 border-b border-white/40 pb-3 font-semibold">Select a program to check eligibility criteria.</p>
 
                 {/* Glass Custom Dropdown */}
                 <div className="relative w-full max-w-md mb-6">
@@ -164,7 +164,7 @@ export default function AdmissionsClient() {
                   <select
                     value={selectedCourse}
                     onChange={(e) => setSelectedCourse(e.target.value)}
-                    className="w-full appearance-none bg-white/40 hover:bg-white/65 border border-white/35 text-slate-700 text-xs font-bold pl-10 pr-9 py-2 sm:py-2.5 rounded-full outline-none transition-all cursor-pointer backdrop-blur-sm shadow-sm"
+                    className="w-full appearance-none bg-white/40 hover:bg-white/65 border border-white/35 text-slate-750 text-xs sm:text-sm font-bold pl-10 pr-9 py-2 sm:py-2.5 rounded-full outline-none transition-all cursor-pointer backdrop-blur-sm shadow-sm"
                   >
                     {availableCourses.map((c) => (
                       <option key={c.value} value={c.value} className="bg-white text-slate-800">
@@ -191,21 +191,21 @@ export default function AdmissionsClient() {
                     >
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
-                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Entrance Exam</div>
-                          <div className="text-xs font-bold text-slate-850 flex items-center gap-1.5">
-                            <BookmarkCheck className="w-4 h-4 text-blue-600" /> {eligibility.entrance_requirement}
+                          <div className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Entrance Exam</div>
+                          <div className="text-xs sm:text-sm font-bold text-slate-850 flex items-center gap-1.5">
+                            <BookmarkCheck className="w-4 h-4 text-blue-600 font-black shrink-0" /> {eligibility.entrance_requirement}
                           </div>
                         </div>
                         <div>
-                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Minimum Marks</div>
-                          <div className="text-xs font-bold text-slate-850 flex items-center gap-1.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" /> {eligibility.minimum_percentage}% in MPC
+                          <div className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Minimum Marks</div>
+                          <div className="text-xs sm:text-sm font-bold text-slate-850 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 font-black shrink-0" /> {eligibility.minimum_percentage}% in MPC
                           </div>
                         </div>
                       </div>
                       <div className="border-t border-slate-200/50 pt-4">
-                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Academic Qualification</div>
-                        <p className="text-xs text-slate-650 leading-relaxed">{eligibility.qualification}</p>
+                        <div className="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Academic Qualification</div>
+                        <p className="text-xs sm:text-sm text-slate-655 leading-relaxed">{eligibility.qualification}</p>
                       </div>
                     </motion.div>
                   )}
@@ -219,7 +219,7 @@ export default function AdmissionsClient() {
 
               {/* Documents Card */}
               <div className="bg-white/35 backdrop-blur-xl border border-white/45 p-6 rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow duration-300">
-                <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2 border-b border-white/40 pb-3 uppercase tracking-wider">
+                <h3 className="text-base font-black text-slate-900 mb-4 flex items-center gap-2 border-b border-white/40 pb-3 uppercase tracking-wider">
                   <FileText className="w-4.5 h-4.5 text-blue-600" /> Required Documents
                 </h3>
                 {loading ? (
@@ -227,7 +227,7 @@ export default function AdmissionsClient() {
                 ) : (
                   <ul className="space-y-3.5">
                     {docs.map((d) => (
-                      <li key={d.id} className="flex items-start gap-2.5 text-xs text-slate-650 font-semibold">
+                      <li key={d.id} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-655 font-semibold">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0 mt-2" />
                         <span>{d.document_name}</span>
                       </li>
@@ -238,7 +238,7 @@ export default function AdmissionsClient() {
 
               {/* Admissions Timeline */}
               <div className="bg-white/35 backdrop-blur-xl border border-white/45 p-6 rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow duration-300">
-                <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2 border-b border-white/40 pb-3 uppercase tracking-wider">
+                <h3 className="text-base font-black text-slate-900 mb-4 flex items-center gap-2 border-b border-white/40 pb-3 uppercase tracking-wider">
                   <Calendar className="w-4.5 h-4.5 text-blue-600" /> Key Dates
                 </h3>
                 {loading ? (
