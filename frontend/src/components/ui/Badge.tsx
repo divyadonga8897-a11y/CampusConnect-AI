@@ -4,6 +4,7 @@ interface BadgeProps {
   children: React.ReactNode;
   variant?: string;
   className?: string;
+  color?: string; // added color prop
 }
 
 export function Badge({ children }: BadgeProps) {
