@@ -99,9 +99,15 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-900 pt-8 mt-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-slate-500 font-medium">
-            © 2024 Sri Satya Institute of Engineering and Technology
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-slate-500 font-medium">
+              © 2024 Sri Satya Institute of Engineering and Technology
+            </p>
+            <span className="text-slate-800 hidden md:inline">|</span>
+            <Link href="/admin/login" className="text-xs text-slate-500 hover:text-slate-300 font-semibold transition-colors">
+              Administrator Portal
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

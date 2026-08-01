@@ -5,7 +5,13 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const getApiBase = () => {
+  const envVal = process.env.NEXT_PUBLIC_API_URL;
+  if (!envVal) return "http://localhost:8000";
+  if (envVal.includes(",")) return envVal.split(",")[0].trim();
+  return envVal.trim();
+};
+const API_BASE = getApiBase();
 
 function getHeaders(isMultipart = false) {
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
@@ -379,5 +385,79 @@ export const adminService = {
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  },
+
+  // Knowledge Base APIs
+  getKnowledgeDocuments: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/documents`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load documents");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  uploadKnowledgeDocument: async (file: File, category: string): Promise<ApiResponse<any>> => {
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("category", category);
+      const res = await fetch(`${API_BASE}/api/v1/admin/upload-document`, {
+        method: "POST",
+        headers: getHeaders(true),
+        body: fd,
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to upload document");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  deleteKnowledgeDocument: async (id: string): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/document/${id}`, {
+        method: "DELETE",
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to delete document");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  reindexKnowledgeDocument: async (id: string): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/reindex/${id}`, {
+        method: "POST",
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to reindex document");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  getKnowledgeStats: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/statistics`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load statistics");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   }
 };
+

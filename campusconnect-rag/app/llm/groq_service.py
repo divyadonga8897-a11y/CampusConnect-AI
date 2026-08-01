@@ -24,7 +24,7 @@ class GroqService:
         if self.client:
             try:
                 chat_completion = self.client.chat.completions.create(
-                    model="llama3-8b-8192",
+                    model="llama-3.1-8b-instant",
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}

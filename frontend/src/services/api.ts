@@ -17,7 +17,13 @@ import {
 } from "@/constants/collegeData";
 import type { ApiResponse } from "@/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const getApiBase = () => {
+  const envVal = process.env.NEXT_PUBLIC_API_URL;
+  if (!envVal) return "http://localhost:8000";
+  if (envVal.includes(",")) return envVal.split(",")[0].trim();
+  return envVal.trim();
+};
+const API_BASE = getApiBase();
 
 async function apiFetch<T>(endpoint: string, fallback: T): Promise<ApiResponse<T>> {
   try {

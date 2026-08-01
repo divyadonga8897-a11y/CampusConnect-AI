@@ -46,8 +46,14 @@ export default function Navbar({ onAIClick }: NavbarProps) {
               <Mail className="w-3 h-3 text-indigo-400" /> info@ssiet.ac.in
             </a>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <MapPin className="w-3 h-3 text-emerald-400" /> West Godavari, Andhra Pradesh
+          <div className="flex items-center gap-4 text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-3 h-3 text-emerald-400" /> West Godavari, Andhra Pradesh
+            </div>
+            <span className="text-slate-700">|</span>
+            <Link href="/admin/login" className="hover:text-white transition-colors text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Admin Portal
+            </Link>
           </div>
         </div>
       </div>
@@ -174,6 +180,15 @@ export default function Navbar({ onAIClick }: NavbarProps) {
                   className="flex-1 py-2 bg-gradient-to-r from-blue-600 to-indigo-650 text-white font-bold text-xs rounded-full text-center justify-center flex items-center cursor-pointer shadow-md shadow-blue-500/10"
                 >
                   Apply Now
+                </Link>
+              </div>
+              <div className="text-center pt-2">
+                <Link
+                  href="/admin/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-[10px] text-slate-500 hover:text-slate-300 font-black tracking-widest uppercase transition-colors"
+                >
+                  Administrator Sign In
                 </Link>
               </div>
             </motion.div>
