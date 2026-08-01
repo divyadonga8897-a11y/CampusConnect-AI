@@ -7,6 +7,7 @@ interface CardProps {
   variant?: string; // added variant prop
   hoverEffect?: boolean; // added compatibility prop
   border?: boolean; // added compatibility prop
+  clickable?: boolean; // added clickable prop
 }
 
 export function Card({ children, onClick }: CardProps) {
