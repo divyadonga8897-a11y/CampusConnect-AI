@@ -21,10 +21,10 @@ UPLOAD_DIR = "public/uploads/kb"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def verify_admin(current_user: User):
-    if current_user.role != "super_admin":
+    if current_user.role not in ["super_admin", "ADMIN"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied. Super admins only."
+            detail="Access denied. Administrators only."
         )
 
 @router.post("/upload-document", response_model=ApiResponse[KnowledgeDocumentBase])
