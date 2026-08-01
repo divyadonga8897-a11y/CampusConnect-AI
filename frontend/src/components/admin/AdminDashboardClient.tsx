@@ -2434,68 +2434,70 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
       {/* Indexing Failure Error Modal */}
       {errorModalDoc && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setErrorModalDoc(null)}>
-          <Card className="w-full max-w-lg p-6 shadow-2xl bg-white text-left" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="w-5 h-5 text-red-600" />
-                <h3 className="font-display font-extrabold text-sm text-text-dark">
-                  Indexing Failure Details
-                </h3>
-              </div>
-              <button
-                onClick={() => setErrorModalDoc(null)}
-                className="px-3.5 py-1.5 rounded-full border border-slate-200 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 cursor-pointer"
-              >
-                Dismiss
-              </button>
-            </div>
-
-            <div className="py-4 space-y-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-text-gray uppercase">Document Reference</span>
-                <p className="text-xs font-bold text-text-dark">{errorModalDoc.filename}</p>
-                <span className="text-[9px] text-text-gray block font-mono">ID: {errorModalDoc.id}</span>
+          <div className="w-full max-w-lg" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <Card className="w-full p-6 shadow-2xl bg-white text-left">
+              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-5 h-5 text-red-650" />
+                  <h3 className="font-display font-extrabold text-sm text-text-dark">
+                    Indexing Failure Details
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setErrorModalDoc(null)}
+                  className="px-3.5 py-1.5 rounded-full border border-slate-200 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 cursor-pointer"
+                >
+                  Dismiss
+                </button>
               </div>
 
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-text-gray uppercase">Error Diagnostics</span>
-                <div className="bg-red-50/70 border border-red-200 p-4 rounded-xl">
-                  <p className="text-xs font-mono font-bold text-red-700 leading-relaxed break-words whitespace-pre-wrap">
-                    {errorModalDoc.error_message || "Indexing process failed silently without outputting a message trace. Verify your API connections and model permissions."}
-                  </p>
+              <div className="py-4 space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-text-gray uppercase">Document Reference</span>
+                  <p className="text-xs font-bold text-text-dark">{errorModalDoc.filename}</p>
+                  <span className="text-[9px] text-text-gray block font-mono">ID: {errorModalDoc.id}</span>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-text-gray uppercase">Error Diagnostics</span>
+                  <div className="bg-red-50/70 border border-red-200 p-4 rounded-xl">
+                    <p className="text-xs font-mono font-bold text-red-700 leading-relaxed break-words whitespace-pre-wrap">
+                      {errorModalDoc.error_message || "Indexing process failed silently without outputting a message trace. Verify your API connections and model permissions."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl space-y-1 text-xs">
+                  <span className="text-[9px] font-bold text-text-gray uppercase block">Suggested Resolutions</span>
+                  <ul className="list-disc pl-4 space-y-1 text-text-gray text-[11px] font-medium">
+                    <li>Verify if your <span className="font-semibold text-text-dark">PINECONE_API_KEY</span> is active and matches the index.</li>
+                    <li>Check if the Pinecone index dimension matches (1024 or 1536).</li>
+                    <li>Ensure the backend can write to <span className="font-mono bg-slate-100 px-1 rounded">public/uploads/kb</span>.</li>
+                    <li>Check backend logs for detailed traceback.</li>
+                  </ul>
                 </div>
               </div>
 
-              <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl space-y-1 text-xs">
-                <span className="text-[9px] font-bold text-text-gray uppercase block">Suggested Resolutions</span>
-                <ul className="list-disc pl-4 space-y-1 text-text-gray text-[11px] font-medium">
-                  <li>Verify if your <span className="font-semibold text-text-dark">PINECONE_API_KEY</span> is active and matches the index.</li>
-                  <li>Check if the Pinecone index dimension matches (1024 or 1536).</li>
-                  <li>Ensure the backend can write to <span className="font-mono bg-slate-100 px-1 rounded">public/uploads/kb</span>.</li>
-                  <li>Check backend logs for detailed traceback.</li>
-                </ul>
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  onClick={() => {
+                    const docId = errorModalDoc.id;
+                    setErrorModalDoc(null);
+                    handleKbDocReindex(docId);
+                  }}
+                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Re-index Document
+                </button>
+                <button
+                  onClick={() => setErrorModalDoc(null)}
+                  className="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 text-text-dark text-xs font-bold rounded-xl cursor-pointer transition-all"
+                >
+                  Close
+                </button>
               </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-2">
-              <button
-                onClick={() => {
-                  const docId = errorModalDoc.id;
-                  setErrorModalDoc(null);
-                  handleKbDocReindex(docId);
-                }}
-                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow-sm"
-              >
-                <RefreshCw className="w-3.5 h-3.5" /> Re-index Document
-              </button>
-              <button
-                onClick={() => setErrorModalDoc(null)}
-                className="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 text-text-dark text-xs font-bold rounded-xl cursor-pointer transition-all"
-              >
-                Close
-              </button>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       )}
     </div>
