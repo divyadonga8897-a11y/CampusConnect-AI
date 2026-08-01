@@ -363,20 +363,36 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
               })}
 
               {currentUser?.role === "super_admin" && (
-                <button
-                  onClick={() => {
-                    setCurrentView("knowledge-base");
-                    setEditingId(null);
-                  }}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    currentView === "knowledge-base"
-                      ? "bg-indigo-50 text-indigo-700 shadow-sm font-extrabold"
-                      : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
-                  }`}
-                >
-                  <Database className="w-4 h-4 shrink-0" />
-                  AI Knowledge Base
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setCurrentView("knowledge-base");
+                      setEditingId(null);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      currentView === "knowledge-base"
+                        ? "bg-indigo-50 text-indigo-700 shadow-sm font-extrabold"
+                        : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
+                    }`}
+                  >
+                    <Database className="w-4 h-4 shrink-0" />
+                    AI Knowledge Base
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCurrentView("rag-flow");
+                      setEditingId(null);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      currentView === "rag-flow"
+                        ? "bg-indigo-50 text-indigo-700 shadow-sm font-extrabold"
+                        : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
+                    }`}
+                  >
+                    <RefreshCw className="w-4 h-4 shrink-0" />
+                    How RAG Works
+                  </button>
+                </>
               )}
             </nav>
           </div>
@@ -866,6 +882,7 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                               <TableRow>
                                 <TableHead>Filename</TableHead>
                                 <TableHead>Group</TableHead>
+                                <TableHead>Chunks</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Actions</TableHead>
                               </TableRow>
@@ -875,8 +892,9 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                                 <TableRow key={doc.id}>
                                   <TableCell className="font-bold text-text-dark text-left truncate max-w-[150px]">{doc.filename}</TableCell>
                                   <TableCell><Badge color="blue">{doc.category}</Badge></TableCell>
+                                  <TableCell className="font-mono font-bold text-xs">{doc.chunk_count || 0}</TableCell>
                                   <TableCell>
-                                    <Badge color={doc.status === "Processed" ? "green" : doc.status === "Processing" ? "amber" : "red"}>
+                                    <Badge color={doc.status === "Processed" || doc.status === "Indexed" ? "green" : doc.status === "Processing" ? "amber" : "red"}>
                                       {doc.status}
                                     </Badge>
                                   </TableCell>
@@ -905,6 +923,179 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                         )}
                       </Card>
                     </div>
+
+                  </div>
+
+                  {/* RAG System Parameters Ingestion Config */}
+                  <Card className="p-6 text-left space-y-4 mt-6">
+                    <h3 className="font-display font-extrabold text-sm text-text-dark">RAG Splitter & Embeddings Configuration</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-sans">
+                      <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                        <span className="text-[9px] font-bold text-text-gray/80 uppercase">Embedding Model</span>
+                        <p className="font-bold text-text-dark pt-1">multilingual-e5-large</p>
+                        <p className="text-[9px] text-text-gray/60">1024 dimensions</p>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                        <span className="text-[9px] font-bold text-text-gray/80 uppercase">Max Chunk Size</span>
+                        <p className="font-bold text-text-dark pt-1">1,000 characters</p>
+                        <p className="text-[9px] text-text-gray/60">Recursive Text Splitting</p>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                        <span className="text-[9px] font-bold text-text-gray/80 uppercase">Chunk Overlap</span>
+                        <p className="font-bold text-text-dark pt-1">200 characters</p>
+                        <p className="text-[9px] text-text-gray/60">Preserves text boundary</p>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                        <span className="text-[9px] font-bold text-text-gray/80 uppercase">Query Top K retrieve</span>
+                        <p className="font-bold text-text-dark pt-1">5 matched chunks</p>
+                        <p className="text-[9px] text-text-gray/60">Similarity score threshold ≥ 0.5</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {/* VIEW 7: HOW RAG WORKS FLOW SCHEMATIC */}
+              {currentView === "rag-flow" && currentUser?.role === "super_admin" && (
+                <div className="space-y-6 text-left animate-fadeIn">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100">
+                      <RefreshCw className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="font-display font-extrabold text-base text-text-dark">How the RAG Pipeline Works</h2>
+                      <p className="text-[10px] text-text-gray font-medium">Technical workflow of vector ingestion, recursive chunking, and similarity semantic retrieval</p>
+                    </div>
+                  </div>
+
+                  {/* Flow Schematic Container */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    
+                    {/* Panel A: Ingestion Flow */}
+                    <Card className="p-6 space-y-6">
+                      <h3 className="font-display font-extrabold text-sm text-indigo-700 flex items-center gap-2">
+                        <UploadCloud className="w-5 h-5 text-indigo-600" /> Phase 1: Document Ingestion Flow
+                      </h3>
+                      
+                      <div className="space-y-4 relative">
+                        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-slate-100 z-0" />
+
+                        {/* Step 1 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                            1
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">Document Upload</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              Admin uploads a syllabus, placements statistics, or fee schedule document (.pdf, .docx, .txt, .md).
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                            2
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">Text Extraction & Normalization</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              Backend extracts raw text sequences and structures, eliminating page numbers or redundant whitespace.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                            3
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">Recursive Text Chunking</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              Paragraphs are recursively split into text chunks of maximum <strong>1,000 characters</strong> with a <strong>200 characters overlap</strong>. This overlap ensures key semantic context is not lost at block boundaries.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                            4
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">Vector Generation & Index Ingestion</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              Each chunk is processed through the <code>multilingual-e5-large</code> model to generate 1024-dimensional float vectors, which are upserted into the <strong>Pinecone</strong> vector index.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Panel B: Retrieval Flow */}
+                    <Card className="p-6 space-y-6">
+                      <h3 className="font-display font-extrabold text-sm text-indigo-700 flex items-center gap-2">
+                        <Users className="w-5 h-5 text-indigo-600" /> Phase 2: RAG Query Retrieval Flow
+                      </h3>
+
+                      <div className="space-y-4 relative">
+                        <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-slate-100 z-0" />
+
+                        {/* Step 1 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0">
+                            1
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">User Prompts AI</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              A visitor submits a prompt in the chatbot drawer, e.g. <em>"What are the hostel rules for boys?"</em>
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0">
+                            2
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">Semantic Similarity Match</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              The prompt is converted to a vector and compared against the Pinecone Index. The system retrieves the <strong>top 5 most similar chunks</strong> with a similarity threshold ≥ 0.5.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0">
+                            3
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">Context Construction</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              The retrieved context chunks are assembled into a structured system prompt, mapping direct citations to the original document sources.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className="flex items-start gap-4 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0">
+                            4
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-text-dark">LLM Synthesis & Response Stream</h4>
+                            <p className="text-[10px] text-text-gray leading-relaxed font-normal">
+                              The LLM (Groq Llama-3.1) compiles the facts and streams a verified response containing source file links back to the user.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
 
                   </div>
                 </div>
