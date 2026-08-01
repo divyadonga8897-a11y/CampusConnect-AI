@@ -34,19 +34,25 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   label?: string;
   error?: string;
   options: { value: string; label: string }[];
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, options, id, ...props }, ref) => {
+  ({ label, error, options, id, leftIcon, rightIcon, ...props }, ref) => {
     const selectId = id || React.useId();
     return (
       <div>
         {label && <label htmlFor={selectId}>{label}</label>}
-        <select ref={ref} id={selectId} {...props}>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
+        <div>
+          {leftIcon && <span>{leftIcon}</span>}
+          <select ref={ref} id={selectId} {...props}>
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          {rightIcon && <span>{rightIcon}</span>}
+        </div>
         {error && <p>{error}</p>}
       </div>
     );

@@ -12,11 +12,20 @@ interface StatCardProps {
 
 export function StatCard({ label, title, value, icon, description }: StatCardProps) {
   const displayLabel = label || title;
-  const IconComponent = typeof icon === "function" ? icon : null;
+  
+  const renderIcon = () => {
+    if (!icon) return null;
+    if (React.isValidElement(icon)) {
+      return icon;
+    }
+    // If it's a component class or function or object (like forwardRef)
+    const IconComponent = icon;
+    return <IconComponent />;
+  };
 
   return (
     <div>
-      {IconComponent ? <IconComponent /> : icon && <span>{icon}</span>}
+      {renderIcon()}
       <p>{value}</p>
       <p>{displayLabel}</p>
       {description && <p>{description}</p>}

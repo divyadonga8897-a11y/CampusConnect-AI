@@ -6,12 +6,16 @@ interface PageHeroProps {
   title: string;
   highlight?: string;
   subtitle?: string;
-  description?: React.ReactNode; // relaxed to React.ReactNode to allow JSX description blocks
+  description?: React.ReactNode;
   breadcrumbs?: any[];
+  actions?: React.ReactNode;
+  variant?: string;
+  bgImage?: string;
   children?: React.ReactNode;
+  [key: string]: any; // Allow arbitrary props for compatibility
 }
 
-export default function PageHero({ badge, eyebrow, title, highlight, subtitle, description, children }: PageHeroProps) {
+export default function PageHero({ badge, eyebrow, title, highlight, subtitle, description, actions, children }: PageHeroProps) {
   const displayBadge = badge || eyebrow;
   return (
     <div>
@@ -21,6 +25,7 @@ export default function PageHero({ badge, eyebrow, title, highlight, subtitle, d
       </h1>
       {subtitle && <h2>{subtitle}</h2>}
       {description && <div>{description}</div>}
+      {actions && <div>{actions}</div>}
       {children}
     </div>
   );
