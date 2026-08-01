@@ -5,20 +5,5 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/.next": true
-  },
-  "css.validate": false,
-  "css.lint.unknownAtRules": "ignore",
-  "scss.validate": false,
-  "tailwindCSS.includeLanguages": {
-    "typescript": "javascript",
-    "typescriptreact": "javascript"
-  },
-  "tailwindCSS.experimental.classRegex": [
-    ["className=\"([^\"]*)\"", "([a-zA-Z0-9\\-:_/\\[\\]]+)"]
-  ],
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "python.analysis.ignore": ["**/__pyrefly_virtual__/**"]
+  }
 }
-

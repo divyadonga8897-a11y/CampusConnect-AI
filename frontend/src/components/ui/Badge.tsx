@@ -11,9 +11,9 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 export function Badge({ children, className = "", variant = "light", color = "blue", ...props }: BadgeProps) {
-  // Base style — flex + w-fit ensures badge sits on its own line and reserves vertical space
+  // Base style
   const baseStyle =
-    "flex w-fit items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider select-none border mb-2.5";
+    "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider select-none border";
 
   // Light theme colors
   const lightStyles: Record<BadgeColor, string> = {

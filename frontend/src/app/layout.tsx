@@ -38,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full scroll-smooth antialiased dark">
+    <html lang="en" className="h-full scroll-smooth antialiased">
       <head>
         {/* Inter via Google Fonts CDN — loaded at runtime, not build time */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
