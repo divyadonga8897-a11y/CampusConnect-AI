@@ -78,6 +78,30 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
   const [waSearchQuery, setWaSearchQuery] = useState("");
   const [selectedConvo, setSelectedConvo] = useState<any>(null);
 
+  // RAG Playground state
+  const [playgroundQuery, setPlaygroundQuery] = useState("");
+  const [playgroundResult, setPlaygroundResult] = useState<any>(null);
+  const [playgroundLoading, setPlaygroundLoading] = useState(false);
+
+  const handlePlaygroundQuery = async () => {
+    if (!playgroundQuery.trim()) return;
+    setPlaygroundLoading(true);
+    setPlaygroundResult(null);
+    try {
+      const res = await adminService.ragPlayground(playgroundQuery);
+      if (res.success) {
+        setPlaygroundResult(res.data);
+      } else {
+        triggerAlert(res.error || "RAG query failed", "error");
+      }
+    } catch (err: any) {
+      triggerAlert(err.message || "An unexpected error occurred", "error");
+    } finally {
+      setPlaygroundLoading(false);
+    }
+  };
+
+
   useEffect(() => {
     adminService.getCurrentUser()
       .then((res) => {
@@ -1302,6 +1326,7 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                       { id: "ai-kb", label: "Knowledge Base", icon: Database },
                       { id: "ai-docs", label: "Documents", icon: FileText },
                       { id: "ai-chunks", label: "Chunk Explorer", icon: BookOpen },
+                      { id: "ai-playground", label: "RAG Playground", icon: Search },
                       { id: "ai-monitors", label: "Monitors", icon: Activity },
                       { id: "ai-whatsapp", label: "WhatsApp Bot", icon: Bot },
                       { id: "ai-conversations", label: "Conversations", icon: Users },
@@ -1315,7 +1340,7 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                             setAiTab(tab.id);
                             if (tab.id === "ai-kb" || tab.id === "ai-docs" || tab.id === "ai-chunks") {
                               loadKnowledgeData();
-                            } else {
+                            } else if (tab.id !== "ai-playground") {
                               loadAiManagementData();
                             }
                           }}
@@ -1577,6 +1602,177 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                                 <Card className="p-12 text-center text-xs font-bold text-text-gray uppercase tracking-widest bg-white">
                                   No document selected to view chunks
                                 </Card>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* TAB 3.5: RAG PLAYGROUND */}
+                      {aiTab === "ai-playground" && (
+                        <div className="space-y-6 animate-fadeIn text-left">
+                          <div className="text-left">
+                            <h2 className="font-display font-extrabold text-lg text-text-dark font-sans">RAG Playground</h2>
+                            <p className="text-[11px] text-text-gray font-medium">Test semantic retrieval, check chunk relevance scores, and verify LLM answers</p>
+                          </div>
+
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Input Form & Suggested Queries */}
+                            <Card className="p-6 text-left space-y-4 h-fit bg-white border border-slate-200/60 shadow-sm">
+                              <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-text-gray">Test Query Interface</h3>
+                              <div className="space-y-4 font-sans text-xs">
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] font-bold text-text-gray uppercase block">Enter Student Question</label>
+                                  <div className="relative">
+                                    <input
+                                      type="text"
+                                      value={playgroundQuery}
+                                      onChange={(e) => setPlaygroundQuery(e.target.value)}
+                                      onKeyDown={(e) => e.key === "Enter" && handlePlaygroundQuery()}
+                                      placeholder="Ask about fees, admissions, placements..."
+                                      className="w-full pr-10 pl-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-xs text-text-dark"
+                                      disabled={playgroundLoading}
+                                    />
+                                    <button
+                                      onClick={handlePlaygroundQuery}
+                                      disabled={playgroundLoading || !playgroundQuery.trim()}
+                                      className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 hover:bg-slate-100 rounded-lg text-text-gray hover:text-emerald-600 transition-colors cursor-pointer"
+                                    >
+                                      <Search className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <Button
+                                  onClick={handlePlaygroundQuery}
+                                  disabled={playgroundLoading || !playgroundQuery.trim()}
+                                  className="w-full py-2.5 bg-emerald-650 hover:bg-emerald-700 text-white font-bold rounded-xl cursor-pointer flex items-center justify-center gap-2"
+                                >
+                                  {playgroundLoading ? (
+                                    <>
+                                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                      Querying pipeline...
+                                    </>
+                                  ) : (
+                                    "Execute RAG Chain"
+                                  )}
+                                </Button>
+
+                                <div className="pt-4 border-t border-slate-100 space-y-2">
+                                  <span className="text-[9px] font-bold text-text-gray uppercase block">Sample Test Scenarios</span>
+                                  {[
+                                    "What are the fees for B.Tech CSE?",
+                                    "What was the highest package offered in placements?",
+                                    "Is there a hostel facility inside the campus?",
+                                    "What eligibility criteria exist for admission?"
+                                  ].map((q, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => {
+                                        setPlaygroundQuery(q);
+                                      }}
+                                      className="w-full p-2 bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-lg text-left text-[11px] text-text-gray hover:text-text-dark transition-all block cursor-pointer truncate"
+                                      disabled={playgroundLoading}
+                                    >
+                                      {q}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </Card>
+
+                            {/* Results & Debug View */}
+                            <div className="lg:col-span-2 space-y-4">
+                              {playgroundLoading && (
+                                <Card className="p-12 text-center text-xs font-bold text-text-gray uppercase tracking-widest bg-white animate-pulse flex flex-col items-center justify-center gap-3">
+                                  <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
+                                  Evaluating RAG pipeline retrieval & synthesis...
+                                </Card>
+                              )}
+
+                              {!playgroundLoading && !playgroundResult && (
+                                <Card className="p-12 text-center text-xs font-bold text-text-gray uppercase tracking-widest bg-white">
+                                  Enter a question to inspect RAG execution results
+                                </Card>
+                              )}
+
+                              {!playgroundLoading && playgroundResult && (
+                                <div className="space-y-5 animate-fadeIn">
+                                  {/* Consolidated generated response */}
+                                  <Card className="p-6 text-left space-y-3.5 bg-white border border-slate-200/60 shadow-sm">
+                                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                      <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-text-gray">Synthesized AI Response</h3>
+                                      <Badge variant={playgroundResult.has_context ? "success" : "danger"} className="text-[9px]">
+                                        {playgroundResult.has_context ? "Context Found" : "No Context"}
+                                      </Badge>
+                                    </div>
+                                    <div className="text-xs leading-relaxed text-text-dark font-sans bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+                                      {playgroundResult.answer}
+                                    </div>
+                                  </Card>
+
+                                  {/* Retrieved documents summary */}
+                                  <Card className="p-6 text-left space-y-3.5 bg-white border border-slate-200/60 shadow-sm">
+                                    <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-text-gray">Sources Referenced</h3>
+                                    {playgroundResult.retrieved_documents && playgroundResult.retrieved_documents.length > 0 ? (
+                                      <div className="flex flex-wrap gap-2 pt-1">
+                                        {playgroundResult.retrieved_documents.map((doc: string, idx: number) => (
+                                          <Badge key={idx} variant="info" className="text-[10px] px-2.5 py-1">
+                                            {doc}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p className="text-[11px] text-text-gray italic">No source files cited in context</p>
+                                    )}
+                                  </Card>
+
+                                  {/* Ranked Semantic vector matches */}
+                                  <Card className="p-6 text-left space-y-4 bg-white border border-slate-200/60 shadow-sm">
+                                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                                      <h3 className="font-display font-extrabold text-xs uppercase tracking-wider text-text-gray">Ranked Vector Database Chunks</h3>
+                                      <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+                                        {playgroundResult.chunks_retrieved} Matches
+                                      </span>
+                                    </div>
+
+                                    <div className="space-y-3.5 max-h-[40vh] overflow-y-auto pr-1 font-sans">
+                                      {playgroundResult.matches && playgroundResult.matches.length > 0 ? (
+                                        playgroundResult.matches.map((match: any, idx: number) => (
+                                          <div key={idx} className="bg-slate-50 border border-slate-150 p-4 rounded-xl space-y-2.5">
+                                            <div className="flex items-center justify-between text-[10px]">
+                                              <span className="inline-flex items-center px-2 py-0.5 rounded-full font-mono font-bold bg-indigo-50 text-indigo-700 text-[9px]">
+                                                MATCH #{idx + 1}
+                                              </span>
+                                              <span className="font-mono text-emerald-600 font-extrabold">{match.score}% Score</span>
+                                            </div>
+
+                                            {/* Relevance score visual bar */}
+                                            <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                                              <div 
+                                                className={`h-full rounded-full transition-all ${
+                                                  match.score > 70 ? "bg-emerald-500" : match.score > 55 ? "bg-amber-500" : "bg-red-400"
+                                                }`}
+                                                style={{ width: `${match.score}%` }}
+                                              ></div>
+                                            </div>
+
+                                            <p className="text-[11px] leading-relaxed text-text-dark font-mono bg-white p-3 rounded-lg border border-slate-200/50 whitespace-pre-wrap select-text">
+                                              {match.text}
+                                            </p>
+
+                                            <div className="flex justify-between items-center text-[8px] font-mono text-text-gray">
+                                              <span>Source File: {match.filename}</span>
+                                              <span>Chunk Index: #{match.chunk_number}</span>
+                                            </div>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <p className="text-[11px] text-text-gray italic text-center py-4">No chunks met relevance search constraints</p>
+                                      )}
+                                    </div>
+                                  </Card>
+                                </div>
                               )}
                             </div>
                           </div>

@@ -536,5 +536,21 @@ export const adminService = {
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  },
+
+  ragPlayground: async (question: string): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/rag-playground`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ question }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to query RAG playground");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   }
 };
+
