@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
 
 export const metadata: Metadata = {
   title: {
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning>
         {children}
+        <WhatsAppFloat />
       </body>
     </html>
   );

@@ -484,6 +484,57 @@ export const adminService = {
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  },
+
+  getWhatsappStatus: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/whatsapp/admin/status`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load WhatsApp status");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  getWhatsappConversations: async (): Promise<ApiResponse<any[]>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/whatsapp/admin/conversations`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load conversations");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  getWhatsappLogs: async (): Promise<ApiResponse<any[]>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/whatsapp/admin/logs`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load message logs");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  getSystemHealth: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/health`, {
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(5000),
+      });
+      const json = await res.json();
+      return { success: true, data: json };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   }
 };
-

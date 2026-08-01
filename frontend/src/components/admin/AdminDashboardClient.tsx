@@ -14,7 +14,8 @@ import { Badge } from "@/components/ui/Badge";
 import { 
   GraduationCap, LayoutDashboard, Building2, BookOpen, Coins, Mail, 
   Database, Settings, Users, LogOut, CheckCircle2, AlertTriangle, 
-  Trash2, RefreshCw, UploadCloud, ShieldAlert
+  Trash2, RefreshCw, UploadCloud, ShieldAlert, Sparkles, Activity, 
+  Shield, HeartPulse, Bot, Calendar, Clock, ListFilter, Search, FileText, Check, XCircle
 } from "lucide-react";
 
 const deptSchema = z.object({
@@ -66,6 +67,16 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
   const [chunksLoading, setChunksLoading] = useState(false);
   const [searchLogs, setSearchLogs] = useState<any[]>([]);
   const [searchLogsLoading, setSearchLogsLoading] = useState(false);
+
+  // AI Management state
+  const [aiTab, setAiTab] = useState("ai-whatsapp");
+  const [waStatus, setWaStatus] = useState<any>(null);
+  const [waConversations, setWaConversations] = useState<any[]>([]);
+  const [waLogs, setWaLogs] = useState<any[]>([]);
+  const [systemHealth, setSystemHealth] = useState<any>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [waSearchQuery, setWaSearchQuery] = useState("");
+  const [selectedConvo, setSelectedConvo] = useState<any>(null);
 
   useEffect(() => {
     adminService.getCurrentUser()
@@ -311,6 +322,25 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
     }
   };
 
+  const loadAiManagementData = async () => {
+    setAiLoading(true);
+    try {
+      const [statusRes, convRes, logsRes, healthRes] = await Promise.all([
+        adminService.getWhatsappStatus(),
+        adminService.getWhatsappConversations(),
+        adminService.getWhatsappLogs(),
+        adminService.getSystemHealth()
+      ]);
+      setWaStatus(statusRes.data || null);
+      setWaConversations(convRes.data || []);
+      setWaLogs(logsRes.data || []);
+      setSystemHealth(healthRes.data || null);
+    } catch (err) {
+      console.error("Failed to load AI management data", err);
+    }
+    setAiLoading(false);
+  };
+
   const sidebarMenu = [
     { id: "dashboard", label: "Overview", icon: LayoutDashboard },
     { id: "departments", label: "Departments", icon: Building2 },
@@ -397,6 +427,7 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
 
               {currentUser?.role === "super_admin" && (
                 <>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-text-gray/40 block text-left pt-4">AI & RAG</span>
                   <button
                     onClick={() => {
                       setCurrentView("knowledge-base");
@@ -409,7 +440,7 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                     }`}
                   >
                     <Database className="w-4 h-4 shrink-0" />
-                    AI Knowledge Base
+                    Knowledge Base
                   </button>
                   <button
                     onClick={() => {
@@ -436,8 +467,23 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                         : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
                     }`}
                   >
-                    <Mail className="w-4 h-4 shrink-0" />
+                    <Clock className="w-4 h-4 shrink-0" />
                     Search History
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCurrentView("ai-management");
+                      setEditingId(null);
+                      loadAiManagementData();
+                    }}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      currentView === "ai-management"
+                        ? "bg-emerald-50 text-emerald-700 shadow-sm font-extrabold"
+                        : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    AI Management
                   </button>
                 </>
               )}
@@ -1245,6 +1291,305 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                     </div>
                   )}
                 </Card>
+              )}
+
+              {/* VIEW: AI MANAGEMENT */}
+              {currentView === "ai-management" && (
+                <div className="space-y-6">
+                  {/* Sub-Tab Navigation */}
+                  <div className="flex flex-wrap gap-1.5 border-b border-slate-200 pb-3">
+                    {[
+                      { id: "ai-whatsapp", label: "WhatsApp Bot", icon: Bot },
+                      { id: "ai-conversations", label: "Live Conversations", icon: Users },
+                      { id: "ai-logs", label: "Message Logs", icon: FileText },
+                      { id: "ai-health", label: "System Health", icon: HeartPulse },
+                    ].map((tab) => {
+                      const TabIcon = tab.icon;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setAiTab(tab.id)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                            aiTab === tab.id
+                              ? "bg-emerald-50 text-emerald-700 shadow-sm"
+                              : "text-text-gray hover:bg-slate-50"
+                          }`}
+                        >
+                          <TabIcon className="w-3.5 h-3.5 shrink-0" />
+                          {tab.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {aiLoading ? (
+                    <div className="h-44 flex items-center justify-center text-xs font-bold text-text-gray uppercase tracking-widest animate-pulse">
+                      Loading AI Management Data...
+                    </div>
+                  ) : (
+                    <>
+                      {/* TAB: WHATSAPP BOT STATUS */}
+                      {aiTab === "ai-whatsapp" && (
+                        <div className="space-y-6">
+                          <div className="text-left">
+                            <h2 className="font-display font-extrabold text-lg text-text-dark">WhatsApp Bot</h2>
+                            <p className="text-[11px] text-text-gray font-medium">Wasender integration status and messaging statistics</p>
+                          </div>
+                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                              <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Connection</h4>
+                              <div className="flex items-center gap-2 pt-2">
+                                <div className={`w-2.5 h-2.5 rounded-full ${waStatus?.connected ? 'bg-emerald-500 animate-pulse' : 'bg-red-400'}`}></div>
+                                <span className="text-sm font-display font-extrabold text-text-dark">{waStatus?.device_status || 'Offline'}</span>
+                              </div>
+                            </div>
+                            <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                              <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Today Messages</h4>
+                              <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{waStatus?.today_messages || 0}</h3>
+                            </div>
+                            <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                              <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Total Messages</h4>
+                              <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{waStatus?.monthly_messages || 0}</h3>
+                            </div>
+                            <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                              <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Active Chats</h4>
+                              <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{waStatus?.active_conversations || 0}</h3>
+                            </div>
+                          </div>
+
+                          <Card className="p-6 text-left">
+                            <h3 className="font-display font-extrabold text-sm text-text-dark pb-4">Connection Details</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {[
+                                { label: "WhatsApp Number", value: waStatus?.whatsapp_number || "Not configured" },
+                                { label: "Device Status", value: waStatus?.device_status || "—" },
+                                { label: "API Status", value: waStatus?.api_status || "—" },
+                                { label: "Session Status", value: waStatus?.session_status || "—" },
+                                { label: "Webhook", value: waStatus?.webhook_status || "—" },
+                                { label: "Total Conversations", value: String(waStatus?.total_conversations || 0) },
+                              ].map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-text-gray">{item.label}</span>
+                                  <span className="text-[11px] font-bold text-text-dark font-mono">{item.value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </Card>
+                        </div>
+                      )}
+
+                      {/* TAB: LIVE CONVERSATIONS */}
+                      {aiTab === "ai-conversations" && (
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-between">
+                            <div className="text-left">
+                              <h2 className="font-display font-extrabold text-lg text-text-dark">Live Conversations</h2>
+                              <p className="text-[11px] text-text-gray font-medium">{waConversations.length} active WhatsApp conversations</p>
+                            </div>
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-gray" />
+                              <input
+                                type="text"
+                                placeholder="Search by phone..."
+                                value={waSearchQuery}
+                                onChange={(e) => setWaSearchQuery(e.target.value)}
+                                className="pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-[11px] font-medium bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 w-56"
+                              />
+                            </div>
+                          </div>
+
+                          {selectedConvo ? (
+                            <Card className="p-6 text-left">
+                              <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                <div>
+                                  <h3 className="font-display font-extrabold text-sm text-text-dark">Chat: {selectedConvo.phone_number}</h3>
+                                  <p className="text-[10px] text-text-gray font-medium">Last active: {selectedConvo.last_interaction}</p>
+                                </div>
+                                <button
+                                  onClick={() => setSelectedConvo(null)}
+                                  className="px-3.5 py-1.5 rounded-full border border-slate-200 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 cursor-pointer"
+                                >
+                                  Back to List
+                                </button>
+                              </div>
+                              <div className="pt-4 space-y-3 max-h-[50vh] overflow-y-auto">
+                                {(waConversations.find((c: any) => c.phone_number === selectedConvo.phone_number) || selectedConvo) && (
+                                  <div className="space-y-3">
+                                    <div className="bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl rounded-br-sm max-w-[80%] ml-auto text-right">
+                                      <p className="text-[11px] text-emerald-800 leading-relaxed">{selectedConvo.last_message || "No messages yet"}</p>
+                                      <span className="text-[9px] text-emerald-500 font-bold">Student</span>
+                                    </div>
+                                    <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl rounded-bl-sm max-w-[80%] text-left">
+                                      <p className="text-[11px] text-text-dark leading-relaxed">{selectedConvo.ai_reply || "—"}</p>
+                                      <span className="text-[9px] text-primary font-bold">CampusConnect AI</span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </Card>
+                          ) : (
+                            <div className="space-y-2">
+                              {waConversations
+                                .filter((c: any) => !waSearchQuery || c.phone_number.includes(waSearchQuery))
+                                .map((convo: any, idx: number) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => setSelectedConvo(convo)}
+                                    className="w-full flex items-center justify-between p-4 bg-white border border-slate-200/60 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer text-left"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-[10px] font-extrabold">
+                                        {convo.phone_number?.slice(-2) || "?"}
+                                      </div>
+                                      <div>
+                                        <h4 className="text-[11px] font-bold text-text-dark">{convo.phone_number}</h4>
+                                        <p className="text-[10px] text-text-gray truncate max-w-[280px]">{convo.last_message || "—"}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                      <span className="text-[9px] text-text-gray font-medium">{convo.last_interaction}</span>
+                                      <div className="pt-0.5">
+                                        <Badge variant="info" className="text-[8px]">{convo.conversation_length || 0} turns</Badge>
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))}
+                              {waConversations.length === 0 && (
+                                <div className="p-12 text-center text-xs font-bold text-text-gray uppercase tracking-widest">
+                                  No WhatsApp conversations yet
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* TAB: MESSAGE LOGS */}
+                      {aiTab === "ai-logs" && (
+                        <div className="space-y-6">
+                          <div className="text-left">
+                            <h2 className="font-display font-extrabold text-lg text-text-dark">WhatsApp Message Logs</h2>
+                            <p className="text-[11px] text-text-gray font-medium">Complete log of all webhook interactions</p>
+                          </div>
+                          <Card className="p-0 overflow-hidden">
+                            <div className="overflow-x-auto">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Timestamp</TableHead>
+                                    <TableHead>Phone</TableHead>
+                                    <TableHead>Query</TableHead>
+                                    <TableHead>Response</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Latency</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {waLogs.map((log: any) => (
+                                    <TableRow key={log.id} className="align-top">
+                                      <TableCell className="font-mono text-[10px] text-text-gray/80 pt-4 whitespace-nowrap">
+                                        {log.timestamp}
+                                      </TableCell>
+                                      <TableCell className="font-mono text-[10px] font-bold text-text-dark pt-4">
+                                        {log.phone_number}
+                                      </TableCell>
+                                      <TableCell className="text-[11px] text-text-dark pt-4 max-w-[200px] truncate">
+                                        {log.query}
+                                      </TableCell>
+                                      <TableCell className="text-[10px] text-text-gray pt-4 max-w-[220px] truncate">
+                                        {log.response}
+                                      </TableCell>
+                                      <TableCell className="pt-4">
+                                        <Badge variant={log.status === 'Success' ? 'success' : 'danger'} className="text-[8px]">
+                                          {log.status}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="font-mono text-[10px] text-text-gray pt-4">
+                                        {log.latency}s
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </div>
+                            {waLogs.length === 0 && (
+                              <div className="p-12 text-center text-xs font-bold text-text-gray uppercase tracking-widest">
+                                No message logs recorded yet
+                              </div>
+                            )}
+                          </Card>
+                        </div>
+                      )}
+
+                      {/* TAB: SYSTEM HEALTH */}
+                      {aiTab === "ai-health" && (
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-between">
+                            <div className="text-left">
+                              <h2 className="font-display font-extrabold text-lg text-text-dark">System Health Monitor</h2>
+                              <p className="text-[11px] text-text-gray font-medium">Real-time status of all connected services</p>
+                            </div>
+                            <Button
+                              variant="secondary"
+                              onClick={loadAiManagementData}
+                              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+                              className="text-[10px]"
+                            >
+                              Refresh
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {[
+                              { name: "FastAPI Server", key: "fastapi", icon: Activity },
+                              { name: "PostgreSQL Database", key: "postgresql", icon: Database },
+                              { name: "Pinecone Vector DB", key: "pinecone", icon: Database },
+                              { name: "Groq LLM API", key: "groq", icon: Sparkles },
+                              { name: "Wasender WhatsApp", key: "wasender", icon: Bot },
+                              { name: "Local Disk Storage", key: "storage", icon: Shield },
+                            ].map((svc) => {
+                              const SvcIcon = svc.icon;
+                              const status = systemHealth?.services?.[svc.key] || "unknown";
+                              const isGood = status === "connected" || status === "healthy" || status === "mocked";
+                              return (
+                                <Card key={svc.key} className="p-5 text-left">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                        isGood ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
+                                      }`}>
+                                        <SvcIcon className="w-5 h-5" />
+                                      </div>
+                                      <div>
+                                        <h4 className="text-[11px] font-bold text-text-dark">{svc.name}</h4>
+                                        <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                          isGood ? 'text-emerald-600' : 'text-red-500'
+                                        }`}>{status}</span>
+                                      </div>
+                                    </div>
+                                    <div className={`w-3 h-3 rounded-full mt-1 ${
+                                      isGood ? 'bg-emerald-500 animate-pulse' : 'bg-red-400'
+                                    }`}></div>
+                                  </div>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                          <Card className="p-5 text-left">
+                            <h4 className="text-[10px] font-bold uppercase tracking-wider text-text-gray/60 pb-2">Overall Status</h4>
+                            <div className="flex items-center gap-2">
+                              <div className={`w-3 h-3 rounded-full ${
+                                systemHealth?.status === 'healthy' ? 'bg-emerald-500 animate-pulse' : 'bg-red-400'
+                              }`}></div>
+                              <span className="text-sm font-display font-extrabold text-text-dark">
+                                {systemHealth?.status === 'healthy' ? 'All Systems Operational' : 'System Degraded'}
+                              </span>
+                            </div>
+                          </Card>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               )}
 
             </div>
