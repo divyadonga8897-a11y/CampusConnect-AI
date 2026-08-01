@@ -162,6 +162,14 @@ export default function HomePage() {
                 >
                   View Curriculum
                 </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push("/admin/login")}
+                  leftIcon={<Shield className="w-3.5 h-3.5 text-white" />}
+                  className="!text-white border-white/30 hover:bg-white/10"
+                >
+                  Admin Portal
+                </Button>
               </div>
             </div>
           </div>
