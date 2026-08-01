@@ -1007,6 +1007,52 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                       </div>
                     </div>
                   </Card>
+
+                  {/* File Chunks Breakdown Summary list */}
+                  <Card className="p-6 text-left space-y-4 mt-6">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-display font-extrabold text-sm text-text-dark">Knowledge Base Chunk Breakdown</h3>
+                        <p className="text-[10px] text-text-gray">Detailed view of how each file is divided into vector chunks.</p>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">
+                        Total Active Chunks: {kbStats?.total_chunks || 0}
+                      </span>
+                    </div>
+
+                    <div className="border border-slate-100 rounded-xl overflow-hidden divide-y divide-slate-100">
+                      {knowledgeDocs.length === 0 ? (
+                        <div className="p-6 text-xs text-text-gray text-center uppercase tracking-wider">
+                          No documents uploaded yet.
+                        </div>
+                      ) : (
+                        knowledgeDocs.map((doc) => (
+                          <div key={doc.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-slate-50 transition-colors">
+                            <div className="space-y-1">
+                              <p className="font-bold text-xs text-text-dark truncate max-w-[280px]" title={doc.filename}>{doc.filename}</p>
+                              <div className="flex items-center gap-2">
+                                <Badge color="blue">{doc.category}</Badge>
+                                <span className="text-[10px] text-text-gray">Status: {doc.status}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="text-right">
+                                <span className="text-[9px] font-bold text-text-gray uppercase block">Divided into</span>
+                                <span className="font-mono font-extrabold text-xs text-indigo-600">{doc.chunk_count || 0} Chunks</span>
+                              </div>
+                              <button
+                                onClick={() => handleViewChunks(doc)}
+                                disabled={doc.status !== "Processed" && doc.status !== "Indexed"}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-100 hover:text-indigo-600 disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer"
+                              >
+                                Inspect Chunks
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </Card>
                 </div>
               )}
 
