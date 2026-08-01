@@ -19,7 +19,7 @@ import type { ApiResponse } from "@/types";
 
 const getApiBase = () => {
   const envVal = process.env.NEXT_PUBLIC_API_URL;
-  if (!envVal) return "http://localhost:8000";
+  if (!envVal) return "https://inspiring-warmth-production-0b87.up.railway.app";
   if (envVal.includes(",")) return envVal.split(",")[0].trim();
   return envVal.trim();
 };

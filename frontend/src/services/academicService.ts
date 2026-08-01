@@ -110,7 +110,7 @@ export interface ScholarshipItem {
   created_at?: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://inspiring-warmth-production-0b87.up.railway.app";
 
 // --- Static Fallbacks for offline resilience ---
 const fallbackDepartments: DepartmentSummary[] = [
@@ -216,7 +216,7 @@ async function apiFetch<T>(endpoint: string, fallback: T): Promise<ApiResponse<T
 
 export const academicService = {
   getDepartments: () => apiFetch<DepartmentSummary[]>("/api/v1/academic/departments", fallbackDepartments),
-  
+
   getDepartment: (id: string) => {
     const defaultDept = fallbackDepartments.find(d => d.id === id) || fallbackDepartments[0];
     const fallbackDetail: DepartmentDetail = {
@@ -248,7 +248,7 @@ export const academicService = {
   },
 
   getCourses: (degree?: string) => {
-    const filteredFallback = degree 
+    const filteredFallback = degree
       ? fallbackCourses.filter(c => c.degree_type.toLowerCase() === degree.toLowerCase())
       : fallbackCourses;
     const query = degree ? `?degree=${degree}` : "";
@@ -297,6 +297,6 @@ export const academicService = {
   },
 
   getAdmissionInfo: () => apiFetch<AdmissionInfo>("/api/v1/academic/admission", fallbackAdmission),
-  
+
   getScholarships: () => apiFetch<ScholarshipItem[]>("/api/v1/academic/scholarships", fallbackScholarships)
 };
