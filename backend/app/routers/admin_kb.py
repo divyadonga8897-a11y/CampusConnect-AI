@@ -295,3 +295,23 @@ def get_search_history(
         })
     return ApiResponse(data=data)
 
+@router.post("/rag-playground", response_model=ApiResponse[dict])
+def rag_playground(
+    payload: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Admin RAG Playground — Test queries against the knowledge base.
+    Returns retrieved chunks, similarity scores, sources, and generated answer.
+    """
+    verify_admin(current_user)
+    
+    question = payload.get("question", "").strip()
+    if not question:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Question is required."
+        )
+    
+    result = rag_service.rag_playground(question)
+    return ApiResponse(data=result)
