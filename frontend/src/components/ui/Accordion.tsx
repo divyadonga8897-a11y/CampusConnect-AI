@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 
 export interface AccordionItem {
   id: string;
@@ -30,47 +28,19 @@ export function Accordion({ items, allowMultiple = false, className = "" }: Acco
   };
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={className}>
       {items.map((item) => {
         const isOpen = openIds.includes(item.id);
-
         return (
-          <div
-            key={item.id}
-            className={`bg-white/45 backdrop-blur-xl border rounded-2xl overflow-hidden transition-all duration-300 ${
-              isOpen ? "border-blue-500/40 shadow-md bg-white/70" : "border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.015)]"
-            }`}
-          >
-            {/* Toggle header button */}
-            <button
-              onClick={() => toggleItem(item.id)}
-              className="w-full flex items-center justify-between p-4.5 text-left font-black text-sm sm:text-base text-slate-900 cursor-pointer select-none"
-            >
-              <span>{item.title}</span>
-              <motion.span
-                animate={{ rotate: isOpen ? 180 : 0 }}
-                transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                className="text-slate-400 shrink-0"
-              >
-                <ChevronDown className="w-4 h-4" />
-              </motion.span>
+          <div key={item.id}>
+            <button onClick={() => toggleItem(item.id)}>
+              {item.title}
             </button>
-
-            {/* Accordion content */}
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.22, ease: "easeInOut" }}
-                >
-                  <div className="px-4.5 pb-4.5 pt-1 border-t border-slate-100/60 text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed">
-                    {item.content}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isOpen && (
+              <div>
+                {item.content}
+              </div>
+            )}
           </div>
         );
       })}

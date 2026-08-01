@@ -1,10 +1,5 @@
-/**
- * Backward-compatible SectionTitle shim.
- * New code should use SectionHeader instead.
- */
-"use client";
-
-import SectionHeader from "@/components/ui/SectionHeader";
+import React from "react";
+import SectionHeader from "./SectionHeader";
 
 interface SectionTitleProps {
   badge?: string;

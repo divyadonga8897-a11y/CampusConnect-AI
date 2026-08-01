@@ -1,18 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/navbar/Navbar";
-import Footer from "@/components/footer/Footer";
 import AIModal from "@/components/ui/AIModal";
-import HeroSection from "@/components/sections/HeroSection";
-import StatsSection from "@/components/sections/StatsSection";
-import AboutSection from "@/components/sections/AboutSection";
-import CourseSection from "@/components/sections/CourseSection";
-import CampusPreview from "@/components/sections/CampusPreview";
-import PlacementSection from "@/components/sections/PlacementSection";
-import WhyChooseUs from "@/components/sections/WhyChooseUs";
-import AIAssistantSection from "@/components/sections/AIAssistantSection";
-import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
+import Link from "next/link";
 
 export default function Home() {
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -29,20 +19,21 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Navbar onAIClick={() => handleOpenAI()} />
-      <main>
-        <HeroSection onAIClick={() => handleOpenAI()} />
-        <CourseSection />
-        <CampusPreview />
-        <AboutSection />
-        <PlacementSection />
-        <WhyChooseUs />
-        <AIAssistantSection onAIClick={(q) => handleOpenAI(q)} />
-      </main>
-      <Footer />
+    <main>
+      <h1>CampusConnect AI — SSIET</h1>
+      <nav>
+        <ul>
+          <li><Link href="/courses">Academics</Link></li>
+          <li><Link href="/admissions">Admissions</Link></li>
+          <li><Link href="/student-life">Campus Life</Link></li>
+          <li><Link href="/placements">Placements</Link></li>
+          <li><Link href="/research">Research</Link></li>
+          <li><Link href="/contact">Contact</Link></li>
+          <li><Link href="/admin/login">Admin</Link></li>
+        </ul>
+      </nav>
+      <button onClick={() => handleOpenAI()}>Ask AI</button>
       <AIModal isOpen={aiModalOpen} onClose={handleCloseAI} initialQuestion={initialQuestion} />
-      <WhatsAppFloat onAIClick={() => handleOpenAI()} />
-    </>
+    </main>
   );
 }
