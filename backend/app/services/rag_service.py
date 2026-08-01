@@ -193,7 +193,7 @@ class RagService:
             import datetime
             doc = db.query(KnowledgeDocument).filter(KnowledgeDocument.id == doc_id).first()
             if doc:
-                doc.status = "Failed"
+                doc.status = f"Failed: {str(e)[:150]}"
                 doc.updated_at = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
                 db.commit()
 
