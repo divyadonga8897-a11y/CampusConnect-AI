@@ -6,7 +6,7 @@ interface PageHeroProps {
   title: string;
   highlight?: string;
   subtitle?: string;
-  description?: string;
+  description?: React.ReactNode; // relaxed to React.ReactNode to allow JSX description blocks
   breadcrumbs?: any[];
   children?: React.ReactNode;
 }
@@ -20,7 +20,7 @@ export default function PageHero({ badge, eyebrow, title, highlight, subtitle, d
         {title} {highlight && <span>{highlight}</span>}
       </h1>
       {subtitle && <h2>{subtitle}</h2>}
-      {description && <p>{description}</p>}
+      {description && <div>{description}</div>}
       {children}
     </div>
   );
