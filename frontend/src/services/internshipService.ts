@@ -23,6 +23,7 @@ async function apiFetch<T>(endpoint: string, fallback: T): Promise<ApiResponse<T
     const res = await fetch(`${API_BASE}${endpoint}`, {
       next: { revalidate: 60 },
       headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) throw new Error("API Connection down");
     const json = await res.json();
