@@ -83,6 +83,17 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
   const [playgroundResult, setPlaygroundResult] = useState<any>(null);
   const [playgroundLoading, setPlaygroundLoading] = useState(false);
 
+  // AI System Status connection health states
+  const [pineconeHealth, setPineconeHealth] = useState<any>(null);
+  const [groqHealth, setGroqHealth] = useState<any>(null);
+  const [embeddingHealth, setEmbeddingHealth] = useState<any>(null);
+
+  const [pineconeTesting, setPineconeTesting] = useState(false);
+  const [groqTesting, setGroqTesting] = useState(false);
+  const [embeddingTesting, setEmbeddingTesting] = useState(false);
+
+  const [errorModalDoc, setErrorModalDoc] = useState<any>(null);
+
   const handlePlaygroundQuery = async () => {
     if (!playgroundQuery.trim()) return;
     setPlaygroundLoading(true);
@@ -98,6 +109,63 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
       triggerAlert(err.message || "An unexpected error occurred", "error");
     } finally {
       setPlaygroundLoading(false);
+    }
+  };
+
+  const testPineconeConnection = async () => {
+    setPineconeTesting(true);
+    try {
+      const res = await adminService.testPinecone();
+      if (res.success) {
+        setPineconeHealth(res.data);
+        triggerAlert("Pinecone test successful! Status: Connected", "success");
+      } else {
+        setPineconeHealth({ status: "disconnected", error: res.error });
+        triggerAlert(res.error || "Pinecone test failed", "error");
+      }
+    } catch (err: any) {
+      setPineconeHealth({ status: "disconnected", error: err.message });
+      triggerAlert(err.message || "Pinecone test failed", "error");
+    } finally {
+      setPineconeTesting(false);
+    }
+  };
+
+  const testGroqConnection = async () => {
+    setGroqTesting(true);
+    try {
+      const res = await adminService.testGroq();
+      if (res.success) {
+        setGroqHealth(res.data);
+        triggerAlert("Groq test successful! Status: Connected", "success");
+      } else {
+        setGroqHealth({ status: "disconnected", error: res.error });
+        triggerAlert(res.error || "Groq test failed", "error");
+      }
+    } catch (err: any) {
+      setGroqHealth({ status: "disconnected", error: err.message });
+      triggerAlert(err.message || "Groq test failed", "error");
+    } finally {
+      setGroqTesting(false);
+    }
+  };
+
+  const testEmbeddingConnection = async () => {
+    setEmbeddingTesting(true);
+    try {
+      const res = await adminService.testEmbedding();
+      if (res.success) {
+        setEmbeddingHealth(res.data);
+        triggerAlert("Embedding service test successful! Status: Connected", "success");
+      } else {
+        setEmbeddingHealth({ status: "disconnected", error: res.error });
+        triggerAlert(res.error || "Embedding service test failed", "error");
+      }
+    } catch (err: any) {
+      setEmbeddingHealth({ status: "disconnected", error: err.message });
+      triggerAlert(err.message || "Embedding service test failed", "error");
+    } finally {
+      setEmbeddingTesting(false);
     }
   };
 
@@ -1365,10 +1433,147 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                     <>
                       {/* TAB 1: KNOWLEDGE BASE CONFIG */}
                       {aiTab === "ai-kb" && (
-                        <div className="space-y-6 animate-fadeIn text-left">
+                        <div className="space-y-8 animate-fadeIn text-left">
+                          {/* AI System Status Section */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <HeartPulse className="w-5 h-5 text-emerald-500 animate-pulse shrink-0" />
+                              <h2 className="font-display font-extrabold text-lg text-text-dark font-sans leading-none">AI System Status</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              {/* Pinecone Card */}
+                              <div className="rounded-2xl p-5 border shadow-sm transition-all flex flex-col justify-between"
+                                   style={{
+                                     background: "rgba(255, 255, 255, 0.45)",
+                                     backdropFilter: "blur(12px)",
+                                     borderColor: "rgba(226, 232, 240, 0.8)",
+                                   }}>
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-1.5">
+                                      <Database className="w-4 h-4 text-emerald-600 shrink-0" />
+                                      <span className="text-[10px] font-bold text-text-gray uppercase tracking-wider">Pinecone Database</span>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                      pineconeHealth?.status === "connected" || kbStats?.pinecone_status === "Operational"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-250/20"
+                                        : "bg-amber-50 text-amber-700 border border-amber-250/20"
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${
+                                        pineconeHealth?.status === "connected" || kbStats?.pinecone_status === "Operational"
+                                          ? "bg-emerald-500 animate-pulse"
+                                          : "bg-amber-500 animate-pulse"
+                                      }`} />
+                                      {pineconeHealth?.status === "connected" || kbStats?.pinecone_status === "Operational" ? "Connected" : "Disconnected"}
+                                    </span>
+                                  </div>
+                                  <div className="space-y-1.5 text-[11px] font-sans">
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Index:</span> <span className="font-mono font-bold text-text-dark text-[10px]">{pineconeHealth?.index || "campusconnect-ai"}</span></div>
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Vectors:</span> <span className="font-bold text-text-dark">{pineconeHealth?.vectors !== undefined ? pineconeHealth.vectors : (kbStats?.total_chunks || "—")}</span></div>
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Dimension:</span> <span className="font-bold text-text-dark">{pineconeHealth?.dimension || "1024 (Cosine)"}</span></div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={testPineconeConnection}
+                                  disabled={pineconeTesting}
+                                  className="mt-4 w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-xl cursor-pointer disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]"
+                                >
+                                  {pineconeTesting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                                  {pineconeTesting ? "Testing..." : "Test Pinecone"}
+                                </button>
+                              </div>
+
+                              {/* Groq LLM Card */}
+                              <div className="rounded-2xl p-5 border shadow-sm transition-all flex flex-col justify-between"
+                                   style={{
+                                     background: "rgba(255, 255, 255, 0.45)",
+                                     backdropFilter: "blur(12px)",
+                                     borderColor: "rgba(226, 232, 240, 0.8)",
+                                   }}>
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-1.5">
+                                      <Bot className="w-4 h-4 text-indigo-600 shrink-0" />
+                                      <span className="text-[10px] font-bold text-text-gray uppercase tracking-wider">Groq LLM Service</span>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                      groqHealth?.status === "connected" || kbStats?.groq_status === "Operational"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-250/20"
+                                        : "bg-amber-50 text-amber-700 border border-amber-250/20"
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${
+                                        groqHealth?.status === "connected" || kbStats?.groq_status === "Operational"
+                                          ? "bg-emerald-500 animate-pulse"
+                                          : "bg-amber-500 animate-pulse"
+                                      }`} />
+                                      {groqHealth?.status === "connected" || kbStats?.groq_status === "Operational" ? "Connected" : "Disconnected"}
+                                    </span>
+                                  </div>
+                                  <div className="space-y-1.5 text-[11px] font-sans">
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Model:</span> <span className="font-bold text-text-dark">{groqHealth?.model || "llama-3.3-70b-versatile"}</span></div>
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Latency:</span> <span className="font-bold text-text-dark">{groqHealth?.response_time ? `${groqHealth.response_time}s` : "1.2s (avg)"}</span></div>
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Model Type:</span> <span className="font-bold text-indigo-600">llama-3.3-70b</span></div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={testGroqConnection}
+                                  disabled={groqTesting}
+                                  className="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-xl cursor-pointer disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]"
+                                >
+                                  {groqTesting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Bot className="w-3 h-3" />}
+                                  {groqTesting ? "Testing..." : "Test Groq LLM"}
+                                </button>
+                              </div>
+
+                              {/* Embedding Service Card */}
+                              <div className="rounded-2xl p-5 border shadow-sm transition-all flex flex-col justify-between"
+                                   style={{
+                                     background: "rgba(255, 255, 255, 0.45)",
+                                     backdropFilter: "blur(12px)",
+                                     borderColor: "rgba(226, 232, 240, 0.8)",
+                                   }}>
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-1.5">
+                                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                                      <span className="text-[10px] font-bold text-text-gray uppercase tracking-wider">Embedding Service</span>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                      embeddingHealth?.status === "connected" || kbStats?.pinecone_status === "Operational"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-250/20"
+                                        : "bg-amber-50 text-amber-700 border border-amber-250/20"
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${
+                                        embeddingHealth?.status === "connected" || kbStats?.pinecone_status === "Operational"
+                                          ? "bg-emerald-500 animate-pulse"
+                                          : "bg-amber-500 animate-pulse"
+                                      }`} />
+                                      {embeddingHealth?.status === "connected" || kbStats?.pinecone_status === "Operational" ? "Connected" : "Disconnected"}
+                                    </span>
+                                  </div>
+                                  <div className="space-y-1.5 text-[11px] font-sans">
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Model:</span> <span className="font-bold text-text-dark">{embeddingHealth?.model || "multilingual-e5-large"}</span></div>
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Dimensions:</span> <span className="font-bold text-text-dark">{embeddingHealth?.dimension || "1024"}</span></div>
+                                    <div className="flex justify-between"><span className="text-text-gray/80 text-[10px]">Total Chunks:</span> <span className="font-bold text-text-dark">{kbStats?.total_embeddings || "—"}</span></div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={testEmbeddingConnection}
+                                  disabled={embeddingTesting}
+                                  className="mt-4 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider rounded-xl cursor-pointer disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98]"
+                                >
+                                  {embeddingTesting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                                  {embeddingTesting ? "Testing..." : "Test Embedding"}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <hr className="border-slate-200/80 my-4" />
+
                           <div className="text-left">
-                            <h2 className="font-display font-extrabold text-lg text-text-dark font-sans">Ingestion & Ingest Config</h2>
-                            <p className="text-[11px] text-text-gray font-medium">Upload files and manage embedding chunk size parameters</p>
+                            <h2 className="font-display font-extrabold text-lg text-text-dark font-sans leading-none">Ingestion & Ingest Config</h2>
+                            <p className="text-[11px] text-text-gray font-medium mt-1">Upload files and manage embedding chunk size parameters</p>
                           </div>
 
                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1473,53 +1678,117 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                             </div>
                           </div>
 
-                          <Card className="overflow-hidden">
+                          <Card className="overflow-hidden border border-slate-200/80 shadow-sm rounded-2xl bg-white/70 backdrop-blur-md">
                             <Table>
                               <TableHeader>
-                                <TableRow>
-                                  <TableHead>Filename</TableHead>
-                                  <TableHead>Category</TableHead>
-                                  <TableHead>Size (KB)</TableHead>
-                                  <TableHead>Chunks</TableHead>
-                                  <TableHead>Status</TableHead>
-                                  <TableHead>Actions</TableHead>
+                                <TableRow className="bg-slate-50/70 border-b border-slate-200">
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5">Filename</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5">Upload Date</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5">Category</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5 text-center">Chunks</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5 text-center">Embeddings</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5 text-center">Pinecone</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5">Status & Error</TableHead>
+                                  <TableHead className="font-bold text-[10px] text-text-gray uppercase tracking-wider py-3.5 text-center">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {knowledgeDocs.map((doc: any) => (
-                                  <TableRow key={doc.id}>
-                                    <TableCell className="font-bold text-xs text-text-dark text-left truncate max-w-[220px]">
-                                      {doc.filename}
-                                    </TableCell>
-                                    <TableCell className="text-left"><Badge>{doc.category}</Badge></TableCell>
-                                    <TableCell className="text-left font-mono text-[10px]">{Math.round(doc.file_size / 1024)} KB</TableCell>
-                                    <TableCell className="text-left font-mono text-[10px] font-bold text-indigo-600">{doc.chunk_count || 0}</TableCell>
-                                    <TableCell className="text-left">
-                                      <Badge variant={doc.status === 'Indexed' || doc.status === 'Processed' ? 'success' : doc.status === 'Processing' ? 'info' : 'danger'}>
-                                        {doc.status}
-                                      </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center gap-2">
-                                        <button 
-                                          onClick={() => handleViewChunks(doc)}
-                                          className="p-1.5 hover:bg-slate-100 rounded-lg text-text-gray hover:text-indigo-600 transition-colors cursor-pointer"
-                                          disabled={doc.status !== "Processed" && doc.status !== "Indexed"}
-                                          title="View Chunks"
-                                        >
-                                          <BookOpen className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button 
-                                          onClick={() => handleKbDocDelete(doc.id)}
-                                          className="p-1.5 hover:bg-red-50 rounded-lg text-text-gray hover:text-red-600 transition-colors cursor-pointer"
-                                          title="Delete document"
-                                        >
-                                          <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                      </div>
+                                {knowledgeDocs.length === 0 ? (
+                                  <TableRow>
+                                    <TableCell colSpan={8} className="text-center py-12 text-xs text-text-gray/75 italic">
+                                      No documents in knowledge base. Upload one under the &ldquo;Knowledge Base&rdquo; tab.
                                     </TableCell>
                                   </TableRow>
-                                ))}
+                                ) : (
+                                  knowledgeDocs.map((doc: any) => {
+                                    const isIndexed = doc.status === "Indexed" || doc.status === "Processed";
+                                    const isProcessing = doc.status === "Processing";
+                                    const isFailed = doc.status === "Failed" || (doc.status && doc.status.startsWith("Failed"));
+
+                                    return (
+                                      <TableRow key={doc.id} className="hover:bg-slate-50/50 border-b border-slate-100 transition-colors">
+                                        {/* Filename */}
+                                        <TableCell className="font-bold text-xs text-text-dark text-left py-4 truncate max-w-[200px]" title={doc.filename}>
+                                          {doc.filename}
+                                        </TableCell>
+                                        {/* Upload Date */}
+                                        <TableCell className="text-left font-mono text-[10px] text-text-gray py-4">
+                                          {doc.upload_date || doc.created_at || "—"}
+                                        </TableCell>
+                                        {/* Category */}
+                                        <TableCell className="text-left py-4">
+                                          <Badge variant="info" className="text-[9px] px-2 py-0.5">{doc.category}</Badge>
+                                        </TableCell>
+                                        {/* Chunks */}
+                                        <TableCell className="text-center font-mono text-xs font-bold text-indigo-600 py-4">
+                                          {doc.chunk_count || 0}
+                                        </TableCell>
+                                        {/* Embeddings */}
+                                        <TableCell className="text-center py-4">
+                                          <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${
+                                            isIndexed ? "text-emerald-700" : isProcessing ? "text-indigo-600 animate-pulse" : "text-red-600"
+                                          }`}>
+                                            {isIndexed ? (<><Check className="w-3 h-3" /> Done</>) : isProcessing ? "Running..." : (<><XCircle className="w-3 h-3" /> Failed</>)}
+                                          </span>
+                                        </TableCell>
+                                        {/* Pinecone */}
+                                        <TableCell className="text-center py-4">
+                                          <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${
+                                            isIndexed ? "text-emerald-700" : isProcessing ? "text-indigo-600 animate-pulse" : "text-red-600"
+                                          }`}>
+                                            {isIndexed ? (<><Database className="w-3 h-3" /> Synced</>) : isProcessing ? "Syncing..." : "Error"}
+                                          </span>
+                                        </TableCell>
+                                        {/* Status & Error */}
+                                        <TableCell className="text-left py-4 max-w-[220px]">
+                                          {isFailed ? (
+                                            <button
+                                              onClick={() => setErrorModalDoc(doc)}
+                                              className="flex items-center gap-1 text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors cursor-pointer bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg border border-red-200/50"
+                                            >
+                                              <ShieldAlert className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                                              <span className="truncate max-w-[130px]">{doc.error_message || "View failure cause"}</span>
+                                            </button>
+                                          ) : isProcessing ? (
+                                            <span className="text-[10px] text-text-gray italic animate-pulse">Chunking & embedding...</span>
+                                          ) : (
+                                            <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50/50 border border-emerald-100/50 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
+                                              <Check className="w-3 h-3 text-emerald-600" /> Active in RAG
+                                            </span>
+                                          )}
+                                        </TableCell>
+                                        {/* Actions */}
+                                        <TableCell className="py-4">
+                                          <div className="flex items-center justify-center gap-1">
+                                            <button
+                                              onClick={() => handleViewChunks(doc)}
+                                              className="p-2 hover:bg-slate-100 rounded-lg text-text-gray hover:text-indigo-600 transition-all cursor-pointer"
+                                              disabled={!isIndexed}
+                                              title="View Chunks"
+                                            >
+                                              <BookOpen className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                              onClick={() => handleKbDocReindex(doc.id)}
+                                              className="p-2 hover:bg-slate-100 rounded-lg text-text-gray hover:text-emerald-700 transition-all cursor-pointer"
+                                              disabled={isProcessing}
+                                              title="Re-index Document"
+                                            >
+                                              <RefreshCw className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                              onClick={() => handleKbDocDelete(doc.id)}
+                                              className="p-2 hover:bg-red-50 rounded-lg text-text-gray hover:text-red-600 transition-all cursor-pointer"
+                                              title="Delete document"
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                            </button>
+                                          </div>
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })
+                                )}
                               </TableBody>
                             </Table>
                           </Card>
@@ -2157,6 +2426,74 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                   </div>
                 ))
               )}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Indexing Failure Error Modal */}
+      {errorModalDoc && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setErrorModalDoc(null)}>
+          <Card className="w-full max-w-lg p-6 shadow-2xl bg-white text-left" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-red-600" />
+                <h3 className="font-display font-extrabold text-sm text-text-dark">
+                  Indexing Failure Details
+                </h3>
+              </div>
+              <button
+                onClick={() => setErrorModalDoc(null)}
+                className="px-3.5 py-1.5 rounded-full border border-slate-200 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-text-gray uppercase">Document Reference</span>
+                <p className="text-xs font-bold text-text-dark">{errorModalDoc.filename}</p>
+                <span className="text-[9px] text-text-gray block font-mono">ID: {errorModalDoc.id}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-text-gray uppercase">Error Diagnostics</span>
+                <div className="bg-red-50/70 border border-red-200 p-4 rounded-xl">
+                  <p className="text-xs font-mono font-bold text-red-700 leading-relaxed break-words whitespace-pre-wrap">
+                    {errorModalDoc.error_message || "Indexing process failed silently without outputting a message trace. Verify your API connections and model permissions."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl space-y-1 text-xs">
+                <span className="text-[9px] font-bold text-text-gray uppercase block">Suggested Resolutions</span>
+                <ul className="list-disc pl-4 space-y-1 text-text-gray text-[11px] font-medium">
+                  <li>Verify if your <span className="font-semibold text-text-dark">PINECONE_API_KEY</span> is active and matches the index.</li>
+                  <li>Check if the Pinecone index dimension matches (1024 or 1536).</li>
+                  <li>Ensure the backend can write to <span className="font-mono bg-slate-100 px-1 rounded">public/uploads/kb</span>.</li>
+                  <li>Check backend logs for detailed traceback.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-2">
+              <button
+                onClick={() => {
+                  const docId = errorModalDoc.id;
+                  setErrorModalDoc(null);
+                  handleKbDocReindex(docId);
+                }}
+                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Re-index Document
+              </button>
+              <button
+                onClick={() => setErrorModalDoc(null)}
+                className="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 text-text-dark text-xs font-bold rounded-xl cursor-pointer transition-all"
+              >
+                Close
+              </button>
             </div>
           </Card>
         </div>

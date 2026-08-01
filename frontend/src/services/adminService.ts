@@ -551,6 +551,45 @@ export const adminService = {
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  },
+
+  testPinecone: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/health/pinecone`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Pinecone test failed");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  testGroq: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/health/groq`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Groq test failed");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  testEmbedding: async (): Promise<ApiResponse<any>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/health/embedding`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Embedding test failed");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   }
 };
 
