@@ -28,12 +28,30 @@ class RagService:
         self.groq_client = Groq(api_key=self.groq_key) if (Groq and self.groq_key) else None
 
     def query_assistant(self, prompt: str, history: list, db: Session) -> str:
+        response = ""
         # Check if RAG is operational via external credentials
         if (self.groq_client or self.openai_client) and self.pinecone_key:
-            res = self._query_rag_pipeline(prompt, history)
-            if res:
-                return res
-        return self._query_local_semantic_router(prompt, db)
+            response = self._query_rag_pipeline(prompt, history)
+            
+        if not response:
+            response = self._query_local_semantic_router(prompt, db)
+
+        # Log search to database history
+        try:
+            import datetime
+            from app.models.models import SearchHistory
+            now_str = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            log_item = SearchHistory(
+                query=prompt,
+                response=response,
+                timestamp=now_str
+            )
+            db.add(log_item)
+            db.commit()
+        except Exception as log_err:
+            print(f"[RAG-Log] Error writing search history: {log_err}")
+
+        return response
 
     def _query_rag_pipeline(self, prompt: str, history: list) -> str:
         try:

@@ -458,6 +458,32 @@ export const adminService = {
     } catch (err: any) {
       return { success: false, error: err.message };
     }
+  },
+
+  getDocumentChunks: async (id: string): Promise<ApiResponse<string[]>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/document/${id}/chunks`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load chunks");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  getSearchHistory: async (): Promise<ApiResponse<any[]>> => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/admin/search-history`, {
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.detail || "Failed to load search history");
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   }
 };
 

@@ -61,6 +61,12 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"success" | "error">("success");
 
+  const [selectedDocForChunks, setSelectedDocForChunks] = useState<any>(null);
+  const [chunksList, setChunksList] = useState<string[]>([]);
+  const [chunksLoading, setChunksLoading] = useState(false);
+  const [searchLogs, setSearchLogs] = useState<any[]>([]);
+  const [searchLogsLoading, setSearchLogsLoading] = useState(false);
+
   useEffect(() => {
     adminService.getCurrentUser()
       .then((res) => {
@@ -107,9 +113,36 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
     });
   };
 
+  const loadSearchHistory = async () => {
+    setSearchLogsLoading(true);
+    const res = await adminService.getSearchHistory();
+    setSearchLogsLoading(false);
+    if (res.success) {
+      setSearchLogs(res.data || []);
+    } else {
+      triggerAlert(res.error || "Failed to load search history", "error");
+    }
+  };
+
+  const handleViewChunks = async (doc: any) => {
+    setSelectedDocForChunks(doc);
+    setChunksLoading(true);
+    setChunksList([]);
+    const res = await adminService.getDocumentChunks(doc.id);
+    setChunksLoading(false);
+    if (res.success) {
+      setChunksList(res.data || []);
+    } else {
+      triggerAlert(res.error || "Failed to load chunks", "error");
+      setSelectedDocForChunks(null);
+    }
+  };
+
   useEffect(() => {
     if (currentView === "knowledge-base") {
       loadKnowledgeData();
+    } else if (currentView === "search-history") {
+      loadSearchHistory();
     }
   }, [currentView]);
 
@@ -391,6 +424,20 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                   >
                     <RefreshCw className="w-4 h-4 shrink-0" />
                     How RAG Works
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCurrentView("search-history");
+                      setEditingId(null);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      currentView === "search-history"
+                        ? "bg-indigo-50 text-indigo-700 shadow-sm font-extrabold"
+                        : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
+                    }`}
+                  >
+                    <Mail className="w-4 h-4 shrink-0" />
+                    Search History
                   </button>
                 </>
               )}
@@ -901,6 +948,14 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                                   <TableCell>
                                     <div className="flex gap-1.5 justify-end">
                                       <button 
+                                        onClick={() => handleViewChunks(doc)}
+                                        className="p-1.5 hover:bg-slate-100 rounded-lg text-text-gray hover:text-indigo-600 transition-colors cursor-pointer"
+                                        title="View Chunks"
+                                        disabled={doc.status !== "Processed" && doc.status !== "Indexed"}
+                                      >
+                                        <BookOpen className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button 
                                         onClick={() => handleKbDocReindex(doc.id)}
                                         className="p-1.5 hover:bg-slate-100 rounded-lg text-text-gray hover:text-primary transition-colors cursor-pointer"
                                         title="Reindex Vectors"
@@ -1101,11 +1156,103 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
                 </div>
               )}
 
+              {/* VIEW 8: SEARCH HISTORY */}
+              {currentView === "search-history" && currentUser?.role === "super_admin" && (
+                <Card className="overflow-hidden">
+                  <CardHeader>
+                    <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Visitor Search & RAG Response History</h3>
+                  </CardHeader>
+                  {searchLogsLoading ? (
+                    <div className="p-12 text-xs font-bold text-text-gray uppercase tracking-widest animate-pulse">
+                      Retrieving search histories...
+                    </div>
+                  ) : searchLogs.length === 0 ? (
+                    <div className="p-12 text-xs font-bold text-text-gray uppercase tracking-widest">
+                      No search logs recorded.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[180px]">Timestamp</TableHead>
+                            <TableHead className="w-[240px]">User Query</TableHead>
+                            <TableHead>RAG Responded Information</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {searchLogs.map((log) => (
+                            <TableRow key={log.id} className="align-top">
+                              <TableCell className="font-mono text-[10px] text-text-gray/80 pt-4">
+                                {log.timestamp}
+                              </TableCell>
+                              <TableCell className="font-bold text-text-dark text-left pt-4 leading-relaxed whitespace-normal break-words max-w-[240px]">
+                                {log.query}
+                              </TableCell>
+                              <TableCell className="text-left text-text-gray text-[11px] pt-4 leading-relaxed whitespace-pre-wrap break-words">
+                                {log.response}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </Card>
+              )}
+
             </div>
           )}
         </main>
 
       </div>
+
+      {/* Document Chunks View Overlay Modal */}
+      {selectedDocForChunks && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl max-h-[85vh] flex flex-col p-6 overflow-hidden shadow-2xl">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div className="text-left">
+                <h3 className="font-display font-extrabold text-sm text-text-dark">
+                  Document Chunks: {selectedDocForChunks.filename}
+                </h3>
+                <p className="text-[10px] text-text-gray font-medium">
+                  Showing {chunksList.length} chunks extracted using 1000/200 split size.
+                </p>
+              </div>
+              <button 
+                onClick={() => setSelectedDocForChunks(null)}
+                className="px-3.5 py-1.5 rounded-full border border-slate-200 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+            
+            <div className="flex-grow overflow-y-auto py-4 space-y-3.5">
+              {chunksLoading ? (
+                <div className="p-12 text-xs font-bold text-text-gray uppercase tracking-widest animate-pulse">
+                  Parsing chunks from document...
+                </div>
+              ) : chunksList.length === 0 ? (
+                <div className="p-12 text-xs font-bold text-text-gray uppercase tracking-widest">
+                  No chunks extracted.
+                </div>
+              ) : (
+                chunksList.map((chunk, idx) => (
+                  <div key={idx} className="bg-slate-50 border border-slate-100 p-4 rounded-xl text-left space-y-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-indigo-50 text-indigo-700">
+                      CHUNK #{idx + 1}
+                    </span>
+                    <p className="text-[11px] leading-relaxed text-text-dark font-mono bg-white p-3 rounded-lg border border-slate-200/50 select-all whitespace-pre-wrap">
+                      {chunk}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

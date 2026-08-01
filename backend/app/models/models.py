@@ -566,6 +566,15 @@ class KnowledgeDocument(Base):
     updated_at = Column(String, nullable=True)
 
 
+class SearchHistory(Base):
+    __tablename__ = "search_histories"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    query = Column(String, nullable=False)
+    response = Column(String, nullable=False)
+    timestamp = Column(String, nullable=False)
+
+
 class Admin(Base):
     __tablename__ = "admins"
 
