@@ -3,14 +3,20 @@ import CourseDetailClient from "@/components/courses/CourseDetailClient";
 import { notFound } from "next/navigation";
 import { academicService } from "@/services/academicService";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const startTime = Date.now();
   const { id } = await params;
+  console.log(`[generateMetadata] starting for course id: ${id}`);
   const res = await academicService.getCourse(id);
   const course = res.data;
+  const duration = Date.now() - startTime;
+  console.log(`[generateMetadata] finished in ${duration}ms for course id: ${id}`);
   if (!course) return { title: "Course Not Found | CampusConnect AI" };
   return {
     title: `${course.course_name} | Sri Satya Institute of Engineering and Technology`,
@@ -18,16 +24,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const res = await academicService.getCourses();
-  const courses = res.data || [];
-  return courses.map((c) => ({ id: c.id }));
-}
-
 export default async function CourseDetailPage({ params }: Props) {
+  const startTime = Date.now();
   const { id } = await params;
+  console.log(`[CourseDetailPage] rendering start for course id: ${id}`);
   const res = await academicService.getCourse(id);
   const course = res.data;
+  const duration = Date.now() - startTime;
+  console.log(`[CourseDetailPage] rendering fetch finished in ${duration}ms for course id: ${id}`);
   if (!course) notFound();
   return <CourseDetailClient course={course} />;
 }
