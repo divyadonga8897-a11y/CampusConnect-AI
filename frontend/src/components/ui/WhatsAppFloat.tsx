@@ -7,9 +7,19 @@ export default function WhatsAppFloat() {
   const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Detect mobile device
+    const checkMobile = () => {
+      const ua = navigator.userAgent || "";
+      const mobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      setIsMobile(mobile || window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Hide on admin routes
@@ -17,38 +27,77 @@ export default function WhatsAppFloat() {
     return null;
   }
 
-  // Connected Wasender number (configurable via env, default placeholder)
+  // Connected WhatsApp number (configurable via env)
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919000000000";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi%20CampusConnect%20AI,%20I%20have%20a%20question%20about%20the%20college.`;
+  const prefilledText = encodeURIComponent("Hi CampusConnect AI, I have a question about the college.");
+
+  // Use whatsapp:// for mobile, web.whatsapp.com for desktop
+  const whatsappUrl = isMobile
+    ? `whatsapp://send?phone=${whatsappNumber}&text=${prefilledText}`
+    : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${prefilledText}`;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex items-center justify-end font-sans">
       {/* Liquid Glass Tooltip */}
       <div
-        className={`mr-3 px-4 py-2 rounded-2xl bg-white/70 backdrop-blur-md border border-white/20 text-slate-800 text-xs font-bold shadow-lg shadow-slate-900/5 transition-all duration-300 transform origin-right ${
-          showTooltip ? "opacity-100 translate-x-0 scale-100" : "opacity-0 translate-x-4 scale-95 pointer-events-none"
+        className={`mr-3 px-4 py-2.5 rounded-2xl border text-xs font-bold shadow-lg transition-all duration-300 transform origin-right ${
+          showTooltip
+            ? "opacity-100 translate-x-0 scale-100"
+            : "opacity-0 translate-x-4 scale-95 pointer-events-none"
         }`}
+        style={{
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(16px) saturate(180%)",
+          WebkitBackdropFilter: "blur(16px) saturate(180%)",
+          borderColor: "rgba(255,255,255,0.25)",
+          color: "#1e293b",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)"
+        }}
       >
         Chat with CampusConnect AI
-        {/* Tooltip triangle */}
-        <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-white/70"></div>
+        <div
+          className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0"
+          style={{
+            borderTop: "6px solid transparent",
+            borderBottom: "6px solid transparent",
+            borderLeft: "6px solid rgba(255,255,255,0.72)"
+          }}
+        />
       </div>
 
-      {/* Glow Rings / Pulse effect */}
+      {/* Glow + Pulse Container */}
       <div className="relative group">
-        {/* Glow Ring 1 */}
-        <div className="absolute -inset-1.5 rounded-full bg-emerald-500/30 blur-md opacity-75 group-hover:opacity-100 group-hover:scale-110 animate-ping duration-1000 pointer-events-none"></div>
-        {/* Glow Ring 2 */}
-        <div className="absolute -inset-0.5 rounded-full bg-emerald-500/20 blur-sm group-hover:bg-emerald-500/30 transition-all duration-300 pointer-events-none"></div>
+        {/* Outer Pulse Ring */}
+        <div
+          className="absolute -inset-2 rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(34,197,94,0.25) 0%, transparent 70%)",
+            animation: "whatsapp-pulse 2s ease-in-out infinite"
+          }}
+        />
+        {/* Inner Glow */}
+        <div
+          className="absolute -inset-0.5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-110"
+          style={{
+            background: "radial-gradient(circle, rgba(34,197,94,0.20) 0%, transparent 60%)",
+            filter: "blur(4px)"
+          }}
+        />
 
         {/* Floating WhatsApp Button */}
         <a
           href={whatsappUrl}
-          target="_blank"
+          target={isMobile ? "_self" : "_blank"}
           rel="noopener noreferrer"
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
-          className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-green-400 hover:from-emerald-600 hover:to-green-500 text-white shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer border border-emerald-400/20"
+          className="relative flex items-center justify-center w-14 h-14 rounded-full text-white cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
+          style={{
+            background: "linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%)",
+            boxShadow: "0 8px 32px rgba(34,197,94,0.35), 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            animation: "whatsapp-float 3s ease-in-out infinite"
+          }}
         >
           {/* WhatsApp SVG Icon */}
           <svg
@@ -61,6 +110,18 @@ export default function WhatsAppFloat() {
           </svg>
         </a>
       </div>
+
+      {/* Keyframe Animations */}
+      <style jsx>{`
+        @keyframes whatsapp-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes whatsapp-pulse {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.15); }
+        }
+      `}</style>
     </div>
   );
 }

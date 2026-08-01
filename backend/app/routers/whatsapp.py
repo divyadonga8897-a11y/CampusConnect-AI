@@ -1,3 +1,7 @@
+"""
+WhatsApp RAG Chatbot Router
+Handles incoming Wasender webhooks and admin analytics endpoints.
+"""
 import time
 import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Request
@@ -26,43 +30,56 @@ def verify_admin(current_user: User):
 async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
     """
     Receives incoming webhook payloads from Wasender.
-    Converts incoming queries to RAG context responses and sends replies via Wasender.
+    Extracts sender phone number, message content, timestamp, message ID.
+    Runs RAG pipeline and sends reply back via Wasender.
     """
     start_time = time.time()
     now_str = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     
     try:
-        # Wasender can POST nested formats. Let's extract safely from dict
         payload = await request.json()
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
-    # Wasender event check: typical payload might have: 
-    # { "event": "message", "data": { "from": "...", "body": "..." } } or flat keys
-    event_type = payload.get("event", "message")
+    # Validate webhook signature if provided
+    signature = request.headers.get("x-wasender-signature", "")
+    if not wasender_service.validate_webhook(payload, signature):
+        raise HTTPException(status_code=401, detail="Invalid webhook signature")
+
+    # Extract sender and message from various possible formats
+    sender = (
+        payload.get("sender") or payload.get("from") or payload.get("phone")
+    )
+    message_text = (
+        payload.get("message") or payload.get("body") or payload.get("text")
+    )
+    message_id = payload.get("id") or payload.get("message_id") or ""
+    msg_timestamp = payload.get("timestamp") or payload.get("t")
     
-    # Flat structure fallback
-    sender = payload.get("sender") or payload.get("from")
-    message_text = payload.get("message") or payload.get("body")
-    
-    # Nested structure lookup
+    # Handle nested data structure
     data_block = payload.get("data")
     if isinstance(data_block, dict):
         if not sender:
-            sender = data_block.get("from") or data_block.get("sender")
+            sender = data_block.get("from") or data_block.get("sender") or data_block.get("phone")
         if not message_text:
-            message_text = data_block.get("body") or data_block.get("text") or data_block.get("message")
-            if isinstance(message_text, dict):
-                message_text = message_text.get("body") or message_text.get("text")
+            msg_obj = data_block.get("message") or data_block.get("body") or data_block.get("text")
+            if isinstance(msg_obj, dict):
+                message_text = msg_obj.get("body") or msg_obj.get("text") or msg_obj.get("conversation")
+            elif isinstance(msg_obj, str):
+                message_text = msg_obj
+        if not message_id:
+            message_id = data_block.get("id") or data_block.get("message_id") or ""
 
     if not sender or not message_text:
-        # Ignore events with no sender/message content
         return {"status": "ignored", "reason": "No sender or message found"}
         
     clean_sender = "".join(filter(str.isdigit, str(sender)))
     
-    # Retrieve/Create Session
-    session = db.query(WhatsappChatSession).filter(WhatsappChatSession.phone_number == clean_sender).first()
+    # Retrieve or create conversation session
+    session = db.query(WhatsappChatSession).filter(
+        WhatsappChatSession.phone_number == clean_sender
+    ).first()
+    
     if not session:
         session = WhatsappChatSession(
             phone_number=clean_sender,
@@ -74,33 +91,40 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(session)
         
-    # Get conversational history (convert JSON block to list safely)
+    # Build conversation history for multi-turn context
     history_list = list(session.history) if session.history else []
     
-    # Generate Context-Aware response
+    # Run through existing RAG pipeline
     try:
-        reply = rag_service.query_assistant(prompt=str(message_text), history=history_list, db=db)
+        reply = rag_service.query_assistant(
+            prompt=str(message_text), 
+            history=history_list, 
+            db=db
+        )
     except Exception as query_err:
         print(f"[WhatsApp-Webhook] RAG query failed: {query_err}")
         reply = "I'm sorry, I'm having trouble retrieving that information right now. Please try again."
 
-    # Append to memory history
+    # Update conversation memory
     history_list.append({"role": "user", "content": str(message_text)})
     history_list.append({"role": "assistant", "content": reply})
     
-    # Limit memory to last 15 messages (7.5 turns) to prevent context explosion
-    if len(history_list) > 15:
-        history_list = history_list[-15:]
+    # Keep last 20 messages (10 turns) to prevent context overflow
+    if len(history_list) > 20:
+        history_list = history_list[-20:]
         
     session.history = history_list
     session.last_interaction = now_str
     
-    # Send Outgoing WhatsApp message via Wasender API
-    send_success = wasender_service.send_message(to_number=clean_sender, message=reply)
+    # Send reply back through Wasender API
+    send_success = wasender_service.send_text_message(
+        to_number=clean_sender, 
+        message=reply
+    )
     
-    latency = time.time() - start_time
+    latency = round(time.time() - start_time, 3)
     
-    # Log the interaction
+    # Log the interaction to database
     log_item = WhatsappMessageLog(
         phone_number=clean_sender,
         query=str(message_text),
@@ -112,7 +136,16 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
     db.add(log_item)
     db.commit()
     
-    return {"status": "success", "sender": clean_sender, "reply": reply}
+    return {
+        "status": "success", 
+        "sender": clean_sender, 
+        "reply": reply,
+        "latency": latency
+    }
+
+# ============================================================
+# Admin Analytics Endpoints
+# ============================================================
 
 @router.get("/admin/status", response_model=ApiResponse[Dict[str, Any]])
 def get_whatsapp_status(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -120,27 +153,55 @@ def get_whatsapp_status(db: Session = Depends(get_db), current_user: User = Depe
     
     status_info = wasender_service.get_status()
     
-    # Query database stats
     today_date = datetime.date.today().strftime("%Y-%m-%d")
     total_logs = db.query(WhatsappMessageLog).count()
-    today_logs = db.query(WhatsappMessageLog).filter(WhatsappMessageLog.timestamp.like(f"{today_date}%")).count()
+    today_logs = db.query(WhatsappMessageLog).filter(
+        WhatsappMessageLog.timestamp.like(f"{today_date}%")
+    ).count()
+    success_count = db.query(WhatsappMessageLog).filter(
+        WhatsappMessageLog.status == "Success"
+    ).count()
+    failed_count = db.query(WhatsappMessageLog).filter(
+        WhatsappMessageLog.status == "Failed"
+    ).count()
     active_conversations = db.query(WhatsappChatSession).count()
+    
+    # Calculate average response time
+    from sqlalchemy import func
+    avg_latency = db.query(func.avg(WhatsappMessageLog.latency)).scalar()
     
     status_info.update({
         "today_messages": today_logs,
-        "monthly_messages": total_logs,  # overall in dev environment
+        "monthly_messages": total_logs,
+        "successful_responses": success_count,
+        "failed_responses": failed_count,
         "active_conversations": active_conversations,
         "total_conversations": active_conversations,
-        "webhook_status": "Active"
+        "average_response_time": round(avg_latency or 0, 2),
+        "webhook_status": "Active",
+        "last_active": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     })
     
     return ApiResponse(success=True, data=status_info)
 
 @router.get("/admin/conversations", response_model=ApiResponse[List[Dict[str, Any]]])
-def get_whatsapp_conversations(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_whatsapp_conversations(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user),
+    search: str = "",
+    page: int = 1,
+    limit: int = 20
+):
     verify_admin(current_user)
     
-    sessions = db.query(WhatsappChatSession).order_by(WhatsappChatSession.last_interaction.desc()).all()
+    query = db.query(WhatsappChatSession)
+    if search:
+        query = query.filter(WhatsappChatSession.phone_number.like(f"%{search}%"))
+    
+    total = query.count()
+    sessions = query.order_by(
+        WhatsappChatSession.last_interaction.desc()
+    ).offset((page - 1) * limit).limit(limit).all()
     
     res_list = []
     for s in sessions:
@@ -157,16 +218,33 @@ def get_whatsapp_conversations(db: Session = Depends(get_db), current_user: User
             "last_message": last_msg,
             "ai_reply": ai_reply,
             "last_interaction": s.last_interaction,
-            "conversation_length": len(s.history) // 2 if s.history else 0
+            "conversation_length": len(s.history) // 2 if s.history else 0,
+            "total_messages": len(s.history) if s.history else 0
         })
         
     return ApiResponse(success=True, data=res_list)
 
 @router.get("/admin/logs", response_model=ApiResponse[List[Dict[str, Any]]])
-def get_whatsapp_logs(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_whatsapp_logs(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user),
+    search: str = "",
+    page: int = 1,
+    limit: int = 50
+):
     verify_admin(current_user)
     
-    logs = db.query(WhatsappMessageLog).order_by(WhatsappMessageLog.timestamp.desc()).limit(100).all()
+    query = db.query(WhatsappMessageLog)
+    if search:
+        query = query.filter(
+            WhatsappMessageLog.phone_number.like(f"%{search}%") |
+            WhatsappMessageLog.query.like(f"%{search}%")
+        )
+    
+    total = query.count()
+    logs = query.order_by(
+        WhatsappMessageLog.timestamp.desc()
+    ).offset((page - 1) * limit).limit(limit).all()
     
     res_list = []
     for l in logs:
