@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, Bot, Menu, X, Phone, Mail, MapPin } from "lucide-react";
+import { GraduationCap, Bot, Menu, X, Phone, Mail, MapPin, Sun, Moon } from "lucide-react";
 
 interface NavbarProps {
   onAIClick?: () => void;
@@ -24,6 +24,22 @@ export default function Navbar({ onAIClick }: NavbarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    if (nextTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    setTheme(nextTheme);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -118,6 +134,19 @@ export default function Navbar({ onAIClick }: NavbarProps) {
                 </span>
                 <Bot className="w-3.5 h-3.5" />
                 Ask AI
+              </button>
+
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+                className="p-1.5 sm:p-2 rounded-full border border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600 transition-all duration-300 cursor-pointer bg-slate-900/60 hover:scale-110 active:scale-95"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4 text-amber-400 transition-transform duration-500 rotate-0 hover:rotate-12" />
+                ) : (
+                  <Moon className="w-4 h-4 text-blue-400 transition-transform duration-500" />
+                )}
               </button>
 
               {/* Apply Now Button */}

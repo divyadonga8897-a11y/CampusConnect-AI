@@ -44,7 +44,15 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         ? "hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:border-white/80"
         : "";
 
-    const combinedClasses = `${baseStyle} ${variantStyles[variant]} ${hoverClass} ${clickable ? "cursor-pointer select-none" : ""
+    // Card Design Rules: enforce minimum padding (24px = p-6) and flex layout (gap 16px = gap-4)
+    // Only apply defaults when the caller hasn't specified their own padding or layout
+    const classTokens = className.split(" ");
+    const hasPadding = classTokens.some(c => /^p[xytblr]?-/.test(c));
+    const hasLayout = classTokens.some(c => c === "flex" || c === "grid" || c === "block" || c === "inline-flex" || c === "inline-block" || c === "hidden");
+    const defaultPadding = hasPadding ? "" : "p-6";
+    const defaultLayout = hasLayout ? "" : "flex flex-col gap-4";
+
+    const combinedClasses = `${baseStyle} ${variantStyles[variant]} ${hoverClass} ${defaultPadding} ${defaultLayout} ${clickable ? "cursor-pointer select-none" : ""
       } ${className}`;
 
     if (clickable) {

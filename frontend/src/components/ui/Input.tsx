@@ -143,15 +143,15 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const checkboxId = id || React.useId();
     return (
       <div className="flex flex-col">
-        <label htmlFor={checkboxId} className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+        <label htmlFor={checkboxId} className="inline-flex items-start gap-2.5 cursor-pointer select-none">
           <input
             ref={ref}
             id={checkboxId}
             type="checkbox"
-            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-colors"
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-colors shrink-0 mt-0.5"
             {...props}
           />
-          <span className="text-xs text-slate-600 font-medium">{label}</span>
+          <span className="text-xs text-slate-700 dark:text-slate-300 font-medium leading-tight">{label}</span>
         </label>
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </div>
@@ -171,15 +171,15 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
     const radioId = id || React.useId();
     return (
       <div className="flex flex-col">
-        <label htmlFor={radioId} className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+        <label htmlFor={radioId} className="inline-flex items-start gap-2.5 cursor-pointer select-none">
           <input
             ref={ref}
             id={radioId}
             type="radio"
-            className="w-4 h-4 rounded-full border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-colors"
+            className="w-4 h-4 rounded-full border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-colors shrink-0 mt-0.5"
             {...props}
           />
-          <span className="text-xs text-slate-600 font-medium">{label}</span>
+          <span className="text-xs text-slate-700 dark:text-slate-300 font-medium leading-tight">{label}</span>
         </label>
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </div>
