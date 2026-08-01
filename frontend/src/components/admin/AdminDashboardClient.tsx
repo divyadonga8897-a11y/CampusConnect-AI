@@ -6,10 +6,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { adminService } from "@/services/adminService";
-import { Card } from "@/components/ui/Card";
+import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
+import { Badge } from "@/components/ui/Badge";
+import { 
+  GraduationCap, LayoutDashboard, Building2, BookOpen, Coins, Mail, 
+  Database, Settings, Users, LogOut, CheckCircle2, AlertTriangle, 
+  Trash2, RefreshCw, UploadCloud, ShieldAlert
+} from "lucide-react";
 
 const deptSchema = z.object({
   id: z.string().min(2, "Code must be at least 2 characters."),
@@ -43,7 +49,6 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
   const [stats, setStats] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [kbExpanded, setKbExpanded] = useState(true);
 
   const [knowledgeDocs, setKnowledgeDocs] = useState<any[]>([]);
   const [kbStats, setKbStats] = useState<any>(null);
@@ -273,674 +278,643 @@ export default function AdminDashboardClient({ defaultView = "dashboard" }: { de
     }
   };
 
+  const sidebarMenu = [
+    { id: "dashboard", label: "Overview", icon: LayoutDashboard },
+    { id: "departments", label: "Departments", icon: Building2 },
+    { id: "courses", label: "Courses", icon: BookOpen },
+    { id: "fees", label: "Fees Config", icon: Coins },
+    { id: "enquiries", label: "Contact Inbox", icon: Mail },
+  ];
+
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      
       {/* Alert Banner Notification */}
       {alertMessage && (
-        <div style={{ border: "1px solid red", padding: "10px", margin: "10px 0" }}>
-          <strong>Notification:</strong> {alertMessage}
+        <div className={`fixed top-4 right-4 z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-xl border shadow-lg ${
+          alertType === "success" 
+            ? "bg-green-50 border-green-100 text-green-700" 
+            : "bg-red-50 border-red-100 text-red-700"
+        }`}>
+          {alertType === "success" ? <CheckCircle2 className="w-4.5 h-4.5" /> : <ShieldAlert className="w-4.5 h-4.5" />}
+          <span className="text-[10px] font-bold uppercase tracking-wider">{alertMessage}</span>
         </div>
       )}
 
       {/* Header Info Bar */}
-      <header>
-        <div>
-          <h1>SSIET Console</h1>
+      <header className="bg-white border-b border-slate-200/60 sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white">
+            <GraduationCap className="w-5 h-5" />
+          </div>
+          <div className="text-left">
+            <h1 className="font-display font-extrabold text-sm text-text-dark leading-none">SSIET Admin Portal</h1>
+            <p className="text-[9px] text-text-gray font-medium pt-1">Sri Satya Institute of Engineering & Technology</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
           {currentUser && (
-            <p>
-              Logged in as: <strong>{currentUser.full_name}</strong> ({currentUser.role})
-            </p>
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-xs font-bold text-text-dark">{currentUser.full_name}</span>
+              <span className="text-[9px] font-bold text-text-gray/80 uppercase tracking-wider">{currentUser.role}</span>
+            </div>
           )}
-          <button onClick={handleLogout}>Sign Out</button>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 hover:bg-slate-50 text-text-gray hover:text-red-600 transition-colors text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign Out
+          </button>
         </div>
       </header>
 
-      {/* Sidebar Navigation & Tabs Selector */}
-      <nav style={{ margin: "20px 0", borderBottom: "1px solid #ccc", paddingBottom: "10px" }}>
-        {[
-          { id: "dashboard", label: "Overview" },
-          { id: "college-info", label: "College Information" },
-          { id: "departments", label: "Departments" },
-          { id: "courses", label: "Courses" },
-          { id: "fees", label: "Fees" },
-          { id: "admissions", label: "Admissions" },
-          { id: "scholarships", label: "Scholarships" },
-          { id: "placements", label: "Placements" },
-          { id: "campus-life", label: "Campus Life" },
-          { id: "events", label: "Events" },
-          { id: "gallery", label: "Gallery" },
-          { id: "enquiries", label: "Contact Enquiries" },
-          { id: "users", label: "Users" },
-          { id: "settings", label: "Settings" }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setCurrentView(tab.id);
-              setEditingId(null);
-            }}
-            style={{
-              marginRight: "10px",
-              fontWeight: currentView === tab.id ? "bold" : "normal",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Main Workspace layout */}
+      <div className="flex-grow flex flex-col md:flex-row">
+        
+        {/* Left Console Sidebar Menu */}
+        <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200/60 p-6 flex flex-col justify-between shrink-0 space-y-6">
+          <div className="space-y-4">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-text-gray/60 block text-left">
+              Console Navigation
+            </span>
+            <nav className="flex flex-row md:flex-col flex-wrap gap-1">
+              {sidebarMenu.map((item) => {
+                const MenuIcon = item.icon;
+                const active = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentView(item.id);
+                      setEditingId(null);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      active 
+                        ? "bg-blue-50 text-primary shadow-sm shadow-blue-500/5 font-extrabold" 
+                        : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
+                    }`}
+                  >
+                    <MenuIcon className="w-4 h-4 shrink-0" />
+                    {item.label}
+                  </button>
+                );
+              })}
 
-        {currentUser?.role === "super_admin" && (
-          <button
-            onClick={() => {
-              setCurrentView("knowledge-base");
-              setEditingId(null);
-            }}
-            style={{
-              marginRight: "10px",
-              fontWeight: currentView === "knowledge-base" ? "bold" : "normal",
-            }}
-          >
-            AI Knowledge Base [NEW]
-          </button>
-        )}
-      </nav>
+              {currentUser?.role === "super_admin" && (
+                <button
+                  onClick={() => {
+                    setCurrentView("knowledge-base");
+                    setEditingId(null);
+                  }}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    currentView === "knowledge-base"
+                      ? "bg-indigo-50 text-indigo-700 shadow-sm font-extrabold"
+                      : "text-text-gray hover:bg-slate-50 hover:text-text-dark"
+                  }`}
+                >
+                  <Database className="w-4 h-4 shrink-0" />
+                  AI Knowledge Base
+                </button>
+              )}
+            </nav>
+          </div>
+        </aside>
 
-      {/* Main View Area */}
-      <main>
-        {loading ? (
-          <div>Loading central console data...</div>
-        ) : (
-          <>
-            {/* VIEW 1: CENTRAL OVERVIEW */}
-            {currentView === "dashboard" && (
-              <div>
-                <h2>Overview Console</h2>
-                {stats && (
-                  <ul>
-                    <li>Total Courses: {stats.courses}</li>
-                    <li>Departments: {stats.departments}</li>
-                    <li>Pending Enquiries: {stats.pending_enquiries}</li>
-                    <li>Active Admins: {stats.admins}</li>
-                  </ul>
-                )}
-
-                <h3>Audit Logs</h3>
-                <ul>
-                  {logs.map((log) => (
-                    <li key={log.id}>
-                      [{log.timestamp}] {log.username} ({log.role}): {log.action}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* VIEW 2: DEPARTMENTS */}
-            {currentView === "departments" && (
-              <div>
-                <h2>Departments Directory</h2>
-                
-                <h3>{editingId ? "Edit Department" : "Add Department"}</h3>
-                <form onSubmit={subDept(onDeptSubmit)}>
-                  <div>
-                    <label>Code (ID):</label>
-                    <input type="text" disabled={!!editingId} {...regDept("id")} />
+        {/* Right Content Workplace */}
+        <main className="flex-1 p-6 sm:p-8 min-w-0">
+          {loading ? (
+            <div className="h-44 flex items-center justify-center text-xs font-bold text-text-gray uppercase tracking-widest animate-pulse">
+              Loading Central Console Data...
+            </div>
+          ) : (
+            <div className="max-w-6xl mx-auto space-y-6">
+              
+              {/* VIEW 1: OVERVIEW */}
+              {currentView === "dashboard" && stats && (
+                <div className="space-y-6">
+                  {/* Summary Metric Stats grid */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                      <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Total Courses</h4>
+                      <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{stats.courses}</h3>
+                    </div>
+                    <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                      <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Departments</h4>
+                      <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{stats.departments}</h3>
+                    </div>
+                    <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                      <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Pending Enquiries</h4>
+                      <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{stats.pending_enquiries}</h3>
+                    </div>
+                    <div className="bg-white border border-slate-200/60 p-5 rounded-2xl text-left shadow-sm">
+                      <h4 className="text-[9px] uppercase tracking-wider font-bold text-text-gray/80">Active Admins</h4>
+                      <h3 className="text-xl font-display font-extrabold text-text-dark pt-1">{stats.admins}</h3>
+                    </div>
                   </div>
-                  <div>
-                    <label>Name:</label>
-                    <input type="text" {...regDept("name")} />
-                  </div>
-                  <div>
-                    <label>HOD Name:</label>
-                    <input type="text" {...regDept("hod")} />
-                  </div>
-                  <div>
-                    <label>Description:</label>
-                    <textarea {...regDept("description")} />
-                  </div>
-                  <button type="submit">Save Department</button>
-                  {editingId && <button type="button" onClick={() => setEditingId(null)}>Cancel</button>}
-                </form>
 
-                <h3>Department Listings</h3>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Name</th>
-                      <th>HOD</th>
-                      <th>Description</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats?.departments_list?.map((dept: any) => (
-                      <tr key={dept.id}>
-                        <td>{dept.id}</td>
-                        <td>{dept.name}</td>
-                        <td>{dept.hod}</td>
-                        <td>{dept.description}</td>
-                        <td>
-                          <button
-                            onClick={() => {
-                              setEditingId(dept.id);
-                              setDeptValue("id", dept.id);
-                              setDeptValue("name", dept.name);
-                              setDeptValue("hod", dept.hod);
-                              setDeptValue("description", dept.description);
-                            }}
-                          >
-                            Edit
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* VIEW 3: COURSES */}
-            {currentView === "courses" && (
-              <div>
-                <h2>Academic Programs</h2>
-
-                <h3>{editingId ? "Edit Course" : "Add Course"}</h3>
-                <form onSubmit={subCourse(onCourseSubmit)}>
-                  <div>
-                    <label>Course Code:</label>
-                    <input type="text" disabled={!!editingId} {...regCourse("id")} />
-                  </div>
-                  <div>
-                    <label>Course Name:</label>
-                    <input type="text" {...regCourse("name")} />
-                  </div>
-                  <div>
-                    <label>Department:</label>
-                    <select {...regCourse("dept_id")}>
-                      <option value="">Select Department</option>
-                      {stats?.departments_list?.map((d: any) => (
-                        <option key={d.id} value={d.id}>{d.name}</option>
+                  {/* Audit Logs activities */}
+                  <Card>
+                    <CardHeader>
+                      <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Administrative Audit Logs</h3>
+                    </CardHeader>
+                    <CardBody className="space-y-3 max-h-[400px] overflow-y-auto">
+                      {logs.map((log) => (
+                        <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl border border-slate-50 bg-slate-50/20 text-left text-xs font-sans">
+                          <Badge color="blue" className="shrink-0 mt-0.5">{log.role}</Badge>
+                          <div className="flex-1 space-y-1">
+                            <p className="text-text-dark font-medium leading-relaxed">{log.action}</p>
+                            <div className="flex items-center gap-2 text-[10px] text-text-gray/70">
+                              <span>Actor: <strong>{log.username}</strong></span>
+                              <span>•</span>
+                              <span>Timestamp: {log.timestamp}</span>
+                            </div>
+                          </div>
+                        </div>
                       ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label>Duration:</label>
-                    <input type="text" placeholder="e.g. 4 Years" {...regCourse("duration")} />
-                  </div>
-                  <div>
-                    <label>Intake Seats:</label>
-                    <input type="number" {...regCourse("intake", { valueAsNumber: true })} />
-                  </div>
-                  <button type="submit">Save Course</button>
-                  {editingId && <button type="button" onClick={() => setEditingId(null)}>Cancel</button>}
-                </form>
+                    </CardBody>
+                  </Card>
+                </div>
+              )}
 
-                <h3>Course Listings</h3>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Name</th>
-                      <th>Department</th>
-                      <th>Duration</th>
-                      <th>Intake</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats?.courses_list?.map((course: any) => (
-                      <tr key={course.id}>
-                        <td>{course.id}</td>
-                        <td>{course.name}</td>
-                        <td>{course.dept_id}</td>
-                        <td>{course.duration}</td>
-                        <td>{course.intake}</td>
-                        <td>
-                          <button
-                            onClick={() => {
-                              setEditingId(course.id);
-                              setCourseValue("id", course.id);
-                              setCourseValue("name", course.name);
-                              setCourseValue("dept_id", course.dept_id);
-                              setCourseValue("duration", course.duration);
-                              setCourseValue("intake", course.intake);
-                            }}
+              {/* VIEW 2: DEPARTMENTS */}
+              {currentView === "departments" && (
+                <div className="grid lg:grid-cols-12 gap-6 items-start">
+                  
+                  {/* Department form */}
+                  <div className="lg:col-span-4">
+                    <Card className="p-6 text-left space-y-5">
+                      <h3 className="font-display font-extrabold text-sm text-text-dark border-b border-slate-100 pb-2">
+                        {editingId ? "Edit Department" : "Add Department"}
+                      </h3>
+                      <form onSubmit={subDept(onDeptSubmit)} className="space-y-4">
+                        <Input label="Code (ID)" disabled={!!editingId} {...regDept("id")} />
+                        <Input label="Name" {...regDept("name")} />
+                        <Input label="HOD Name" {...regDept("hod")} />
+                        <Textarea label="Description" {...regDept("description")} />
+                        <Button type="submit" fullWidth>Save Department</Button>
+                        {editingId && (
+                          <Button 
+                            type="button" 
+                            variant="secondary" 
+                            fullWidth 
+                            onClick={() => { setEditingId(null); resDept(); }}
                           >
-                            Edit
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                            Cancel Edit
+                          </Button>
+                        )}
+                      </form>
+                    </Card>
+                  </div>
 
-            {/* VIEW 4: FEES */}
-            {currentView === "fees" && (
-              <div>
-                <h2>Fee Configurations</h2>
-
-                <h3>{editingId ? "Edit Fee Structure" : "Add Fee Structure"}</h3>
-                <form onSubmit={subFee(onFeeSubmit)}>
-                  {!editingId && (
-                    <>
-                      <div>
-                        <label>Course Select:</label>
-                        <select {...regFee("course_id")}>
-                          <option value="">Select Course</option>
-                          {stats?.courses_list?.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
+                  {/* Listings table */}
+                  <div className="lg:col-span-8">
+                    <Card className="overflow-hidden">
+                      <CardHeader>
+                        <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Department Listings</h3>
+                      </CardHeader>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Code</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>HOD</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stats?.departments_list?.map((dept: any) => (
+                            <TableRow key={dept.id}>
+                              <TableCell className="font-bold text-primary font-mono">{dept.id}</TableCell>
+                              <TableCell className="font-bold text-text-dark">{dept.name}</TableCell>
+                              <TableCell>{dept.hod}</TableCell>
+                              <TableCell>
+                                <Button 
+                                  variant="secondary" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingId(dept.id);
+                                    setDeptValue("id", dept.id);
+                                    setDeptValue("name", dept.name);
+                                    setDeptValue("hod", dept.hod);
+                                    setDeptValue("description", dept.description);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </TableCell>
+                            </TableRow>
                           ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label>Academic Year:</label>
-                        <input type="text" placeholder="2026-27" {...regFee("academic_year")} />
-                      </div>
-                      <div>
-                        <label>Fee Type Allocation:</label>
-                        <select {...regFee("fee_type")}>
-                          <option value="Convener">Convener Quota</option>
-                          <option value="Management">Management Quota</option>
-                          <option value="Scholarship">Scholarship Reserved</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
-                  <div>
-                    <label>Tuition Fee (INR):</label>
-                    <input type="number" {...regFee("tuition", { valueAsNumber: true })} />
+                        </TableBody>
+                      </Table>
+                    </Card>
                   </div>
-                  <div>
-                    <label>Hostel Fee (INR):</label>
-                    <input type="number" {...regFee("hostel", { valueAsNumber: true })} />
-                  </div>
-                  <div>
-                    <label>Other Miscellaneous Fee:</label>
-                    <input type="number" {...regFee("other", { valueAsNumber: true })} />
-                  </div>
-                  <button type="submit">Save Fee Parameter</button>
-                  {editingId && <button type="button" onClick={() => setEditingId(null)}>Cancel</button>}
-                </form>
+                </div>
+              )}
 
-                <h3>Fee Structure Registry</h3>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Course</th>
-                      <th>Year</th>
-                      <th>Tuition</th>
-                      <th>Hostel</th>
-                      <th>Other</th>
-                      <th>Type</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats?.fees_list?.map((fee: any) => (
-                      <tr key={fee.id}>
-                        <td>{fee.course_id}</td>
-                        <td>{fee.academic_year}</td>
-                        <td>{fee.tuition}</td>
-                        <td>{fee.hostel}</td>
-                        <td>{fee.other}</td>
-                        <td>{fee.fee_type}</td>
-                        <td>
-                          <button onClick={() => setEditingId(fee.id)}>Edit</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+              {/* VIEW 3: COURSES */}
+              {currentView === "courses" && (
+                <div className="grid lg:grid-cols-12 gap-6 items-start">
+                  
+                  {/* Course Form */}
+                  <div className="lg:col-span-4">
+                    <Card className="p-6 text-left space-y-5">
+                      <h3 className="font-display font-extrabold text-sm text-text-dark border-b border-slate-100 pb-2">
+                        {editingId ? "Edit Course" : "Add Course"}
+                      </h3>
+                      <form onSubmit={subCourse(onCourseSubmit)} className="space-y-4">
+                        <Input label="Course Code" disabled={!!editingId} {...regCourse("id")} />
+                        <Input label="Course Name" {...regCourse("name")} />
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-display font-semibold text-[10px] uppercase tracking-wider text-text-gray">
+                            Department
+                          </label>
+                          <select 
+                            {...regCourse("dept_id")}
+                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-[11px] font-sans bg-white focus:outline-none focus:border-primary"
+                          >
+                            <option value="">Select Department</option>
+                            {stats?.departments_list?.map((d: any) => (
+                              <option key={d.id} value={d.id}>{d.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <Input label="Duration" placeholder="e.g. 4 Years" {...regCourse("duration")} />
+                        <Input label="Intake Seats" type="number" {...regCourse("intake", { valueAsNumber: true })} />
+                        <Button type="submit" fullWidth>Save Course</Button>
+                        {editingId && (
+                          <Button 
+                            type="button" 
+                            variant="secondary" 
+                            fullWidth 
+                            onClick={() => { setEditingId(null); resCourse(); }}
+                          >
+                            Cancel Edit
+                          </Button>
+                        )}
+                      </form>
+                    </Card>
+                  </div>
 
-            {/* VIEW 5: CONTACT ENQUIRIES */}
-            {currentView === "enquiries" && (
-              <div>
-                <h2>Contact Enquiries Inbox</h2>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Applicant Name</th>
-                      <th>Email ID</th>
-                      <th>Phone</th>
-                      <th>Subject / Query Details</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {enquiries.map((enq) => (
-                      <tr key={enq.id}>
-                        <td>{enq.created_at}</td>
-                        <td>{enq.name}</td>
-                        <td>{enq.email}</td>
-                        <td>{enq.phone}</td>
-                        <td>{enq.subject}: {enq.message}</td>
-                        <td>{enq.status}</td>
-                        <td>
-                          {enq.status !== "RESOLVED" && (
-                            <button onClick={() => handleEnquiryStatus(enq.id, "RESOLVED")}>
-                              Mark Resolved
-                            </button>
+                  {/* Listings Table */}
+                  <div className="lg:col-span-8">
+                    <Card className="overflow-hidden">
+                      <CardHeader>
+                        <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Academic Programs List</h3>
+                      </CardHeader>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Code</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Duration</TableHead>
+                            <TableHead>Seats</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stats?.courses_list?.map((course: any) => (
+                            <TableRow key={course.id}>
+                              <TableCell className="font-bold font-mono text-primary">{course.id}</TableCell>
+                              <TableCell className="font-bold text-text-dark">{course.name}</TableCell>
+                              <TableCell>{course.duration}</TableCell>
+                              <TableCell>{course.intake}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingId(course.id);
+                                    setCourseValue("id", course.id);
+                                    setCourseValue("name", course.name);
+                                    setCourseValue("dept_id", course.dept_id);
+                                    setCourseValue("duration", course.duration);
+                                    setCourseValue("intake", course.intake);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
+              {/* VIEW 4: FEES */}
+              {currentView === "fees" && (
+                <div className="grid lg:grid-cols-12 gap-6 items-start">
+                  
+                  {/* Fee Form */}
+                  <div className="lg:col-span-4">
+                    <Card className="p-6 text-left space-y-5">
+                      <h3 className="font-display font-extrabold text-sm text-text-dark border-b border-slate-100 pb-2">
+                        {editingId ? "Edit Fee Structure" : "Add Fee Structure"}
+                      </h3>
+                      <form onSubmit={subFee(onFeeSubmit)} className="space-y-4">
+                        {!editingId && (
+                          <>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-display font-semibold text-[10px] uppercase tracking-wider text-text-gray">
+                                Course Select
+                              </label>
+                              <select 
+                                {...regFee("course_id")}
+                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-[11px] font-sans bg-white focus:outline-none focus:border-primary"
+                              >
+                                <option value="">Select Course</option>
+                                {stats?.courses_list?.map((c: any) => (
+                                  <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <Input label="Academic Year" placeholder="2026-27" {...regFee("academic_year")} />
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-display font-semibold text-[10px] uppercase tracking-wider text-text-gray">
+                                Allocation Quota
+                              </label>
+                              <select 
+                                {...regFee("fee_type")}
+                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-[11px] font-sans bg-white focus:outline-none focus:border-primary"
+                              >
+                                <option value="Convener">Convener Quota</option>
+                                <option value="Management">Management Quota</option>
+                                <option value="Scholarship">Scholarship Reserved</option>
+                              </select>
+                            </div>
+                          </>
+                        )}
+                        <Input label="Tuition Fee (INR)" type="number" {...regFee("tuition", { valueAsNumber: true })} />
+                        <Input label="Hostel Fee (INR)" type="number" {...regFee("hostel", { valueAsNumber: true })} />
+                        <Input label="Other Fee (INR)" type="number" {...regFee("other", { valueAsNumber: true })} />
+                        <Button type="submit" fullWidth>Save Fee Config</Button>
+                        {editingId && (
+                          <Button 
+                            type="button" 
+                            variant="secondary" 
+                            fullWidth 
+                            onClick={() => { setEditingId(null); resFee(); }}
+                          >
+                            Cancel Edit
+                          </Button>
+                        )}
+                      </form>
+                    </Card>
+                  </div>
+
+                  {/* Listings Table */}
+                  <div className="lg:col-span-8">
+                    <Card className="overflow-hidden">
+                      <CardHeader>
+                        <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Fee Configurations Registry</h3>
+                      </CardHeader>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Course</TableHead>
+                            <TableHead>Year</TableHead>
+                            <TableHead>Tuition</TableHead>
+                            <TableHead>Hostel</TableHead>
+                            <TableHead>Other</TableHead>
+                            <TableHead>Type</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stats?.fees_list?.map((fee: any) => (
+                            <TableRow key={fee.id}>
+                              <TableCell className="font-bold text-text-dark">{fee.course_id}</TableCell>
+                              <TableCell>{fee.academic_year}</TableCell>
+                              <TableCell className="font-mono text-primary font-bold">₹{fee.tuition}</TableCell>
+                              <TableCell className="font-mono">₹{fee.hostel}</TableCell>
+                              <TableCell className="font-mono">₹{fee.other}</TableCell>
+                              <TableCell>
+                                <Badge color="blue">{fee.fee_type}</Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Card>
+                  </div>
+                </div>
+              )}
+
+              {/* VIEW 5: CONTACT ENQUIRIES */}
+              {currentView === "enquiries" && (
+                <Card className="overflow-hidden">
+                  <CardHeader>
+                    <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Applicant Enquiries Inbox</h3>
+                  </CardHeader>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Applicant</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Subject / Query Message</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {enquiries.map((enq) => (
+                        <TableRow key={enq.id}>
+                          <TableCell className="text-[10px] text-text-gray/70">{enq.created_at?.split("T")[0]}</TableCell>
+                          <TableCell className="font-bold text-text-dark">{enq.name}</TableCell>
+                          <TableCell className="text-[10px]">
+                            <p>{enq.email}</p>
+                            <p className="text-text-gray/70">{enq.phone}</p>
+                          </TableCell>
+                          <TableCell className="text-left max-w-sm">
+                            <p className="font-bold text-text-dark">{enq.subject}</p>
+                            <p className="text-text-gray text-[10px] leading-relaxed pt-0.5">{enq.message}</p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge color={enq.status === "RESOLVED" ? "green" : "amber"}>
+                              {enq.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              {enq.status !== "RESOLVED" && (
+                                <Button 
+                                  variant="secondary" 
+                                  size="sm"
+                                  onClick={() => handleEnquiryStatus(enq.id, "RESOLVED")}
+                                >
+                                  Resolve
+                                </Button>
+                              )}
+                              {enq.status !== "PENDING" && (
+                                <Button 
+                                  variant="secondary" 
+                                  size="sm"
+                                  onClick={() => handleEnquiryStatus(enq.id, "PENDING")}
+                                >
+                                  Mark Pending
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              )}
+
+              {/* VIEW 6: KNOWLEDGE BASE */}
+              {currentView === "knowledge-base" && currentUser?.role === "super_admin" && (
+                <div className="space-y-6">
+                  
+                  {/* Upload document parameters */}
+                  <div className="grid lg:grid-cols-12 gap-6 items-start">
+                    
+                    {/* Left: Upload and Stats */}
+                    <div className="lg:col-span-5 space-y-6">
+                      <Card className="p-6 text-left space-y-4">
+                        <h3 className="font-display font-extrabold text-sm text-indigo-700 flex items-center gap-2">
+                          <UploadCloud className="w-5 h-5 text-indigo-600 animate-pulse" /> Upload RAG Document
+                        </h3>
+                        <p className="text-[10px] text-text-gray leading-relaxed">
+                          Drag and drop or select a file to ingest into the Pinecone Vector Database. Document contents will be parsed and indexed.
+                        </p>
+                        
+                        <div className="space-y-3.5">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-display font-semibold text-[10px] uppercase tracking-wider text-text-gray">
+                              Category Group
+                            </label>
+                            <select 
+                              value={kbCategory} 
+                              onChange={(e) => setKbCategory(e.target.value)}
+                              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-[11px] font-sans bg-white focus:outline-none focus:border-primary"
+                            >
+                              <option value="General">General Info</option>
+                              <option value="Admissions">Admissions</option>
+                              <option value="Fees">Fees & Quotas</option>
+                              <option value="Courses">Courses & Syllabus</option>
+                              <option value="Scholarships">Scholarships</option>
+                              <option value="Placements">Placements</option>
+                              <option value="Campus Life">Campus Life</option>
+                            </select>
+                          </div>
+
+                          <div className="relative border-2 border-dashed border-slate-200 hover:border-primary/50 transition-colors p-6 rounded-2xl flex flex-col items-center justify-center gap-2 bg-slate-50/50">
+                            <UploadCloud className="w-8 h-8 text-slate-400" />
+                            <input
+                              type="file"
+                              accept=".txt,.md,.pdf,.docx"
+                              disabled={kbUploading}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleKbFileUpload(file);
+                              }}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-text-gray">Select File</span>
+                            <span className="text-[9px] text-text-gray/60">PDF, DOCX, TXT, MD up to 5MB</span>
+                          </div>
+
+                          {kbUploading && (
+                            <div className="space-y-1.5">
+                              <div className="flex justify-between items-center text-[10px] font-bold text-primary">
+                                <span>Ingesting Document...</span>
+                                <span>{kbUploadProgress}%</span>
+                              </div>
+                              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                <div className="bg-primary h-full transition-all duration-300" style={{ width: `${kbUploadProgress}%` }} />
+                              </div>
+                            </div>
                           )}
-                          {enq.status !== "PENDING" && (
-                            <button onClick={() => handleEnquiryStatus(enq.id, "PENDING")}>
-                              Mark Pending
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        </div>
+                      </Card>
 
-            {/* VIEW 6: KNOWLEDGE BASE (SUPER ADMIN ONLY) */}
-            {currentView === "knowledge-base" && currentUser?.role === "super_admin" && (
-              <div>
-                <h2>AI Knowledge Base</h2>
+                      {/* Pinecone metadata */}
+                      <Card className="p-6 text-left">
+                        <h3 className="font-display font-extrabold text-sm text-text-dark mb-4">Vector Database Metadata</h3>
+                        {kbStats && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                              <span className="text-[9px] font-bold text-text-gray/80 uppercase">Total Files</span>
+                              <h4 className="text-xl font-display font-extrabold text-text-dark pt-1">{kbStats.total_documents}</h4>
+                            </div>
+                            <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                              <span className="text-[9px] font-bold text-text-gray/80 uppercase">Active Vectors</span>
+                              <h4 className="text-xl font-display font-extrabold text-text-dark pt-1">{kbStats.total_chunks}</h4>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
 
-                {/* Upload Section */}
-                <div id="kb-upload-section" style={{ border: "1px dashed #777", padding: "20px", margin: "10px 0" }}>
-                  <h3>Upload Document File</h3>
-                  <div>
-                    <label>Category Group:</label>
-                    <select value={kbCategory} onChange={(e) => setKbCategory(e.target.value)}>
-                      <option value="General">General</option>
-                      <option value="Admissions">Admissions</option>
-                      <option value="Fees">Fees</option>
-                      <option value="Courses">Courses</option>
-                      <option value="Scholarships">Scholarships</option>
-                      <option value="Placements">Placements</option>
-                      <option value="Campus Life">Campus Life</option>
-                    </select>
+                    {/* Right: Listings Table */}
+                    <div className="lg:col-span-7">
+                      <Card className="overflow-hidden">
+                        <CardHeader>
+                          <h3 className="font-display font-extrabold text-sm text-text-dark text-left">Uploaded Document Inventory</h3>
+                        </CardHeader>
+                        {kbLoading ? (
+                          <div className="p-12 text-xs font-bold text-text-gray uppercase tracking-widest animate-pulse">Loading Inventory...</div>
+                        ) : (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Filename</TableHead>
+                                <TableHead>Group</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Actions</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {knowledgeDocs.map((doc) => (
+                                <TableRow key={doc.id}>
+                                  <TableCell className="font-bold text-text-dark text-left truncate max-w-[150px]">{doc.filename}</TableCell>
+                                  <TableCell><Badge color="blue">{doc.category}</Badge></TableCell>
+                                  <TableCell>
+                                    <Badge color={doc.status === "Processed" ? "green" : doc.status === "Processing" ? "amber" : "red"}>
+                                      {doc.status}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex gap-1.5 justify-end">
+                                      <button 
+                                        onClick={() => handleKbDocReindex(doc.id)}
+                                        className="p-1.5 hover:bg-slate-100 rounded-lg text-text-gray hover:text-primary transition-colors cursor-pointer"
+                                        title="Reindex Vectors"
+                                      >
+                                        <RefreshCw className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button 
+                                        onClick={() => handleKbDocDelete(doc.id)}
+                                        className="p-1.5 hover:bg-red-50 rounded-lg text-text-gray hover:text-red-600 transition-colors cursor-pointer"
+                                        title="Purge vectors & delete"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
+                      </Card>
+                    </div>
+
                   </div>
-                  <div>
-                    <input
-                      type="file"
-                      accept=".txt,.md,.pdf,.docx"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleKbFileUpload(file);
-                      }}
-                      disabled={kbUploading}
-                    />
-                  </div>
-                  {kbUploading && <div>Uploading file: {kbUploadProgress}%</div>}
                 </div>
+              )}
 
-                {/* Statistics Cards */}
-                <div id="kb-chunks-card">
-                  <h3>Document Statistics</h3>
-                  {kbStats && (
-                    <ul>
-                      <li>Total Document Inventory: {kbStats.total_documents}</li>
-                      <li>Pinecone Chunk Statistics: {kbStats.total_chunks} vectors indexed</li>
-                      <li>Success Rate: {kbStats.success_rate}%</li>
-                    </ul>
-                  )}
-                </div>
+            </div>
+          )}
+        </main>
 
-                {/* Document Inventory */}
-                <div id="kb-inventory-section">
-                  <h3>Uploaded Document Inventory</h3>
-                  {kbLoading ? (
-                    <div>Loading knowledge base documents...</div>
-                  ) : (
-                    <table border={1}>
-                      <thead>
-                        <tr>
-                          <th>Filename</th>
-                          <th>Category</th>
-                          <th>Upload Date</th>
-                          <th>Total Chunks</th>
-                          <th>Indexing Status</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {knowledgeDocs.map((doc) => (
-                          <tr key={doc.id}>
-                            <td>{doc.filename}</td>
-                            <td>{doc.category}</td>
-                            <td>{doc.upload_date}</td>
-                            <td>{doc.chunk_count}</td>
-                            <td>{doc.status}</td>
-                            <td>
-                              <button onClick={() => handleKbDocReindex(doc.id)}>Reindex</button>
-                              <button onClick={() => handleKbDocDelete(doc.id)}>Delete</button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 7: COLLEGE INFO */}
-            {currentView === "college-info" && (
-              <div>
-                <h2>College Information Configuration</h2>
-                <form onSubmit={(e) => { e.preventDefault(); alert("College Parameters Saved Successfully!"); }}>
-                  <div>
-                    <label>College Name:</label>
-                    <input type="text" defaultValue="Sri Sukhmani Institute of Engineering & Technology" />
-                  </div>
-                  <div>
-                    <label>Short Code:</label>
-                    <input type="text" defaultValue="SSIET" />
-                  </div>
-                  <div>
-                    <label>Accreditation:</label>
-                    <input type="text" defaultValue="NAAC A+ Accredited" />
-                  </div>
-                  <div>
-                    <label>Affiliation:</label>
-                    <input type="text" defaultValue="IKG Punjab Technical University" />
-                  </div>
-                  <div>
-                    <label>Established Year:</label>
-                    <input type="text" defaultValue="1998" />
-                  </div>
-                  <button type="submit">Save Parameters</button>
-                </form>
-              </div>
-            )}
-
-            {/* VIEW 8: ADMISSIONS */}
-            {currentView === "admissions" && (
-              <div>
-                <h2>Admissions Board</h2>
-                <ul>
-                  <li>Admission Status: OPEN (Academic Year 2026-27)</li>
-                  <li>Active Applications: 342</li>
-                  <li>Allocated Seats: 68%</li>
-                </ul>
-                <h3>Recent Applicants</h3>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Applicant</th>
-                      <th>Course</th>
-                      <th>Marks %</th>
-                      <th>Quota</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { name: "Rahul Sharma", course: "B.Tech CSE", marks: "94.2%", quota: "Convener", status: "Approved" },
-                      { name: "Priya Patel", course: "B.Tech ECE", marks: "88.6%", quota: "Management", status: "Pending Review" },
-                      { name: "Aman Preet Singh", course: "B.Tech ME", marks: "76.4%", quota: "Convener", status: "Under Screening" },
-                    ].map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.name}</td>
-                        <td>{item.course}</td>
-                        <td>{item.marks}</td>
-                        <td>{item.quota}</td>
-                        <td>{item.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* VIEW 9: SCHOLARSHIPS */}
-            {currentView === "scholarships" && (
-              <div>
-                <h2>Scholarships & Grants Registry</h2>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Scheme / Program</th>
-                      <th>Eligibility</th>
-                      <th>Coverage</th>
-                      <th>Active Enrolments</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { title: "Merit Scholarship", criteria: "Marks >= 95% in Class XII", coverage: "100% Tuition Fee Waiver", count: 48 },
-                      { title: "PTU State Level Waiver", criteria: "Rank < 5000 in PTU Entrance", coverage: "50% Tuition Fee Waiver", count: 112 },
-                      { title: "Sports Excellence Grant", criteria: "National / Zonal Level Medallist", coverage: "Free Hostel + 25% Tuition Waiver", count: 18 },
-                    ].map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.title}</td>
-                        <td>{item.criteria}</td>
-                        <td>{item.coverage}</td>
-                        <td>{item.count} students</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* VIEW 10: PLACEMENTS */}
-            {currentView === "placements" && (
-              <div>
-                <h2>Campus Placements</h2>
-                <ul>
-                  <li>Placement Rate: 94.2%</li>
-                  <li>Highest Package: 28.5 LPA</li>
-                  <li>Average Package: 5.8 LPA</li>
-                </ul>
-                <h3>Top Recruiter Partners</h3>
-                <ul>
-                  {["Infosys", "Wipro", "TCS", "Cognizant", "Capgemini", "L&T Infotech", "HCL Technologies", "Adobe"].map((recruiter) => (
-                    <li key={recruiter}>{recruiter}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* VIEW 11: CAMPUS LIFE */}
-            {currentView === "campus-life" && (
-              <div>
-                <h2>Campus Amenities & Hostels</h2>
-                <ul>
-                  <li>Boys Hostel: 450 / 500 occupied</li>
-                  <li>Girls Hostel: 220 / 300 occupied</li>
-                  <li>Canteen: OPERATIONAL</li>
-                </ul>
-              </div>
-            )}
-
-            {/* VIEW 12: EVENTS */}
-            {currentView === "events" && (
-              <div>
-                <h2>Events Scheduler</h2>
-                <ul>
-                  {[
-                    { date: "Aug 12, 2026", title: "Orientation Day Class of 2026", branch: "All Branches" },
-                    { date: "Sep 20, 2026", title: "SSIET Technical Hackathon 3.0", branch: "CSE & ECE" },
-                    { date: "Oct 15, 2026", title: "Annual Cultural Fest - Sukhamani Tarang", branch: "Open to All Colleges" },
-                  ].map((evt, idx) => (
-                    <li key={idx}>
-                      <strong>{evt.date}</strong> - {evt.title} ({evt.branch})
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* VIEW 13: GALLERY */}
-            {currentView === "gallery" && (
-              <div>
-                <h2>Media Gallery</h2>
-                <ul>
-                  {["Main Campus Block", "Robotics Laboratory", "Computer Engineering Lab", "Sports Complex", "Hostel Dining Area"].map((title) => (
-                    <li key={title}>{title}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* VIEW 14: USERS */}
-            {currentView === "users" && (
-              <div>
-                <h2>Administrator Accounts</h2>
-                <table border={1}>
-                  <thead>
-                    <tr>
-                      <th>Administrator</th>
-                      <th>Email ID</th>
-                      <th>Role Designation</th>
-                      <th>Created Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { name: "Super Admin", email: "divyadonga8897@gmail.com", role: "super_admin", date: "2026-08-01" },
-                      { name: "Standard Administrator", email: "admin@ssiet.ac.in", role: "ADMIN", date: "2026-07-28" },
-                    ].map((adm, idx) => (
-                      <tr key={idx}>
-                        <td>{adm.name}</td>
-                        <td>{adm.email}</td>
-                        <td>{adm.role}</td>
-                        <td>{adm.date}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* VIEW 15: SETTINGS */}
-            {currentView === "settings" && (
-              <div>
-                <h2>System Settings</h2>
-                <form onSubmit={(e) => { e.preventDefault(); alert("System settings applied successfully."); }}>
-                  <div>
-                    <label>
-                      <input type="checkbox" defaultChecked /> Automatic Backup Database
-                    </label>
-                  </div>
-                  <div>
-                    <label>
-                      <input type="checkbox" /> Multi-Factor Authentication (MFA)
-                    </label>
-                  </div>
-                  <div>
-                    <label>
-                      <input type="checkbox" /> Maintenance Overlay Mode
-                    </label>
-                  </div>
-                  <button type="submit">Apply Settings</button>
-                </form>
-              </div>
-            )}
-          </>
-        )}
-      </main>
+      </div>
     </div>
   );
 }
